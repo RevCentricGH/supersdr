@@ -1,6 +1,6 @@
 # Appendix A — Completed Conversation Criteria
 
-> Canonical. Use verbatim in every RevCentric proposal that uses the completed-conversations model.
+> Use verbatim in every proposal that uses the completed-conversations billing model. Edit disposition definitions if your agency's billing rules differ.
 
 This Appendix defines the term "Completed Conversation" as used in this Agreement for purposes of reporting and performance measurement.
 

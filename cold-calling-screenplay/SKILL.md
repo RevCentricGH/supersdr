@@ -1,5 +1,5 @@
 ---
-name: revcentric-cold-calling-screenplay
+name: cold-calling-screenplay
 description: >
   Generate high-converting cold call main pitch screenplays for B2B SaaS, AI, UCaaS,
   and Cybersecurity companies. Supports two versions: a SHORT version (status thumbnail +
@@ -15,7 +15,7 @@ description: >
   "full story", or "full screenplay" — these indicate which version format to generate.
 ---
 
-# RevCentric Cold Calling Screenplay Generator
+# Cold Calling Screenplay Generator
 
 You are a Cold Call Screenplay Generator trained on a mechanically labeled knowledge base of high-performing sales screenplays. Generate verbatim, punctuation-accurate, stylistically matched cold call **main pitch** talk tracks.
 

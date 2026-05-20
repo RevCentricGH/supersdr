@@ -1,5 +1,5 @@
 ---
-name: rc-client-spot
+name: client-spot
 description: Generate a client single point of truth (SPOT) document — multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. One-shot generation that pulls from onboarding call transcripts, meeting summaries, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
 ---
 
@@ -17,9 +17,9 @@ The output is organized tab-by-tab so the user can create each tab in Google Doc
 
 The SPOT is the source of truth for two downstream tools. The doc is incomplete if either of these can't run cleanly off it:
 
-1. **rc-apollo-campaign-builder skill** — builds the initial Apollo lead list and guides setup of all 7 sequences and 3 workflow plays. Needs ICP filters, Apollo keyword passes, tech-stack signals, exclusion lists, target titles, and messaging brief. These fields live in **Tab 5 (ICP)** and **Tab 9 (Apollo Campaign Setup)**.
+1. **apollo-campaign-builder skill** — builds the initial Apollo lead list and guides setup of all 7 sequences and 3 workflow plays. Needs ICP filters, Apollo keyword passes, tech-stack signals, exclusion lists, target titles, and messaging brief. These fields live in **Tab 5 (ICP)** and **Tab 9 (Apollo Campaign Setup)**.
 
-2. **revcentric-cold-calling-screenplay skill** — generates cold call main pitch screenplays. Needs status markers (notable clients, awards, years), insider non-Google-able pain in symptomese, the structural differentiator, target persona context. These live in **Tab 3 (Company Overview)** and **Tab 4 (Problem/Solution)**.
+2. **cold-calling-screenplay skill** — generates cold call main pitch screenplays. Needs status markers (notable clients, awards, years), insider non-Google-able pain in symptomese, the structural differentiator, target persona context. These live in **Tab 3 (Company Overview)** and **Tab 4 (Problem/Solution)**.
 
 When generating the SPOT, treat both consumers as the readers. Don't write generic copy. Make every field actionable.
 
@@ -95,7 +95,7 @@ If the trigger message gave nothing but a client name, generate anyway with web 
 | 5 | ICP & Buyer Persona | Apollo keywords, firmographics, tech signals, exclusions, target titles | Apollo Campaign Builder |
 | 6 | Competitor Overview & Battlecards | Direct, indirect, build-in-house, battlecards | Operator + screenplay objection handling |
 | 7 | Objection Handling | Objection → response table | Operator + cold email reply handling |
-| 8 | Screenplay | Cold call main pitch (use revcentric-cold-calling-screenplay skill) | Operator |
+| 8 | Screenplay | Cold call main pitch (use cold-calling-screenplay skill) | Operator |
 | 9 | Apollo Campaign Setup | Structured ICP and messaging brief — feeds directly into the Apollo Campaign Builder skill | Apollo Campaign Builder |
 
 ---
@@ -402,7 +402,7 @@ Reframe (when prospect says they're handling it internally):
 ```
 COLD CALL MAIN PITCH SCREENPLAY
 
-[Use the revcentric-cold-calling-screenplay skill to generate this section]
+[Use the cold-calling-screenplay skill to generate this section]
 
 Trigger phrases:
 - "screenplay for [Client]"
@@ -428,7 +428,7 @@ Annotations: All inflection markers (↓)(↑)(>) and pause cues should remain i
 
 ### TAB 9 — Apollo Campaign Setup
 
-This tab is the campaign launch brief. Once the SPOT is complete, paste this tab as input when running the **rc-apollo-campaign-builder** skill to build your initial lead list and set up your 7 Apollo sequences.
+This tab is the campaign launch brief. Once the SPOT is complete, paste this tab as input when running the **apollo-campaign-builder** skill to build your initial lead list and set up your 7 Apollo sequences.
 
 Pull all values from Tabs 3, 4, 5, 6, and 7. Don't fill in anything not supported by the rest of the SPOT.
 
@@ -500,8 +500,8 @@ Next steps:
 2. Enable tabs: Insert → Tabs (or right-click in the left sidebar)
 3. Create 9 tabs: Campaign Status / Campaign Brief / Company Overview / Problem Solution / ICP & Buyer Persona / Competitor Overview / Objection Handling / Screenplay / Apollo Campaign Setup
 4. Paste each content block into the matching tab
-5. For Tab 8 (Screenplay): run the revcentric-cold-calling-screenplay skill using Tabs 3 and 4 as input
-6. For Tab 9 (Apollo Campaign Setup): use it as input when running the rc-apollo-campaign-builder skill to build your lead list and set up sequences
+5. For Tab 8 (Screenplay): run the cold-calling-screenplay skill using Tabs 3 and 4 as input
+6. For Tab 9 (Apollo Campaign Setup): use it as input when running the apollo-campaign-builder skill to build your lead list and set up sequences
 ```
 
 ### Step 2 — Flag any [TBD] blockers

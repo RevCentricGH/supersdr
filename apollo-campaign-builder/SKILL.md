@@ -1,5 +1,5 @@
 ---
-name: rc-apollo-campaign-builder
+name: apollo-campaign-builder
 description: Set up a new client's full Apollo campaign — build the initial lead list from SPOT ICP criteria, then automatically create all 7 outreach sequences and 3 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", "build the list for [client]", or provides a SPOT doc and asks to set up outreach sequences.
 ---
 
@@ -16,7 +16,7 @@ Run this skill after the SPOT doc is complete. Tab 9 (Apollo Campaign Setup) is 
 
 ## Files
 
-- `sequence_builder.py` — step definitions for all 7 RC sequences + browser execution guide
+- `sequence_builder.py` — step definitions for all 7 sequences + browser execution guide
 - `workflow_builder.py` — definitions for all 3 workflow plays + browser execution guide
 
 ---
@@ -191,7 +191,7 @@ Read `sequence_builder.py` — it contains the full step definitions for all 7 s
 - Use `mcp__Claude_in_Chrome__navigate` to go to `https://app.apollo.io/#/sequences`
 - Verify the page loads (not redirected to login)
 
-**For each sequence 1–7 in `sequence_builder.RC_SEQUENCES`:**
+**For each sequence 1–7 in `sequence_builder.SEQUENCES`:**
 
 1. Navigate to `https://app.apollo.io/#/sequences`
 2. Click "New Sequence" / "Create Sequence"
@@ -233,7 +233,7 @@ Read `workflow_builder.py` — it contains the full workflow definitions and exe
 
 **Navigate** to `https://app.apollo.io/#/workflows`
 
-**For each workflow 1–3 in `workflow_builder.RC_WORKFLOWS`:**
+**For each workflow 1–3 in `workflow_builder.WORKFLOWS`:**
 
 1. Click "New Workflow" / "Create Workflow"
 2. Enter the name: `{client} - Disposition: {disposition}`

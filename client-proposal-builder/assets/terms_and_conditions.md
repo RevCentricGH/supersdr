@@ -1,6 +1,7 @@
 # Terms and Conditions (Canonical Boilerplate)
 
-> Use verbatim. Swap only:
+> Use verbatim. Before first use: replace `{AGENCY_LEGAL_NAME}` with your legal entity name throughout.
+> Per-proposal, swap only:
 > - `{COMPANY}` → the prospect's legal company name (e.g., "Bridgepointe Advisors", "Homegrown Ads")
 > - `{ENGAGEMENT_DESCRIPTION}` → short engagement label (e.g., "Done-For-You Calling engagement", "90-day outbound pilot")
 > - In §3(a), replace `{FEES_LANGUAGE}` with the agreed total fee structure for the engagement
@@ -8,7 +9,7 @@
 
 ---
 
-Upon execution of this proposal by both parties, the following Terms and Conditions shall govern the engagement between {COMPANY} (the "Company") and Deskin Enterprises DBA RevCentric.ai (the "Service Provider"). Together, this proposal and these Terms constitute the "Agreement" between the parties as of the date of last signature below (the "Effective Date").
+Upon execution of this proposal by both parties, the following Terms and Conditions shall govern the engagement between {COMPANY} (the "Company") and {AGENCY_LEGAL_NAME} (the "Service Provider"). Together, this proposal and these Terms constitute the "Agreement" between the parties as of the date of last signature below (the "Effective Date").
 
 **1. Services**
 

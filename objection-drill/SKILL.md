@@ -1,13 +1,13 @@
 ---
-name: rc-objection-drill
-description: Cold call objection handling drill and roleplay tool for RC SDRs. Two modes — Quick Drill (paste an objection, get framed responses) and Live Roleplay (skill plays the prospect, you respond, get graded). Use when user says "drill me on objections", "how do I handle [objection]", "I keep getting hit with [X]", "roleplay me as a [persona]", "objection drill", "practice objections", "give me responses to [objection]", or pastes a real objection from a recent call. Also use when the user asks for help mid-call prep or wants to train on a specific client's objection set.
+name: objection-drill
+description: Cold call objection handling drill and roleplay tool for SDRs. Two modes — Quick Drill (paste an objection, get framed responses) and Live Roleplay (skill plays the prospect, you respond, get graded). Use when user says "drill me on objections", "how do I handle [objection]", "I keep getting hit with [X]", "roleplay me as a [persona]", "objection drill", "practice objections", "give me responses to [objection]", or pastes a real objection from a recent call. Also use when the user asks for help mid-call prep or wants to train on a specific client's objection set.
 ---
 
-# RC Objection Drill Skill
+# Objection Drill Skill
 
 ## Purpose
 
-Two-mode cold call objection trainer for RC SDRs and closers. Built on the Workstreet/SuperSDR objection handling framework — Universal Loop, 5 Objection Families, low-and-slow tone. Works for any RC client when the per-client objection library (SPOT Tab 7) is provided.
+Two-mode cold call objection trainer for SDRs and closers. Built on the Universal Loop, 5 Objection Families, and low-and-slow tone framework. Works for any client when the per-client objection library (SPOT Tab 7) is provided.
 
 ---
 
@@ -85,7 +85,7 @@ Trigger phrases: "drill me," "roleplay me," "let's drill," "play the prospect," 
 
 How it runs:
 
-1. **Set the scene.** Confirm: which client (Cekura/MeshAPI/Crux/Workstreet)? Which persona (CTO/CMO/Founder)? Which objection bucket — or random?
+1. **Set the scene.** Confirm: which client (or use a fictional company)? Which persona (CTO/CMO/Founder)? Which objection bucket — or random?
 2. **Stay in character as the prospect.** Throw the objection naturally, in their voice. Sound busy, mildly skeptical, not hostile. Use realistic speech patterns ("yeah look, honestly...").
 3. **Wait for the user's response.** Don't help mid-call.
 4. **Continue the back-and-forth.** Layer follow-up objections, throw curveballs, push back on weak responses. 3-5 exchanges total.
@@ -103,7 +103,7 @@ Setting up: You're calling me. I'm [persona] at [fictional company]. Throw your 
 
 ---
 
-## Common RC Objections — Quick Reference
+## Common Objections — Quick Reference
 
 Use these as the default playbook. If the user provides a client's SPOT Tab 7, override with client-specific responses.
 
@@ -165,9 +165,7 @@ Use these as the default playbook. If the user provides a client's SPOT Tab 7, o
 
 ## Per-Client Objection Sets
 
-If the user references a specific RC client (Cekura, MeshAPI, Crux, Workstreet), pull objections from that client's SPOT Tab 7 if available. If not, use the defaults above and flag that client-specific responses haven't been provided yet.
-
-For Workstreet specifically: 13 consolidated objection categories exist in the Workstreet Battle Card. The most common are "Compliance is easy," "We use Vanta/Drata," "Already audited," "Bandwidth," and "Call me back."
+If the user references a specific client, pull objections from that client's SPOT Tab 7 if available. If not, use the defaults above and flag that client-specific responses haven't been provided yet.
 
 ---
 

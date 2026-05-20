@@ -1,16 +1,16 @@
 """
 Apollo Workflow Builder
 -----------------------
-Data model for the 3 RC standard workflow plays.
+Data model for the 3 standard workflow plays.
 
-This file is NOT run directly. It is read by the rc-apollo-campaign-builder skill,
+This file is NOT run directly. It is read by the apollo-campaign-builder skill,
 which uses Claude in Chrome MCP tools to execute each workflow in the Apollo UI.
 
 Workflows in Apollo trigger automatic actions when a contact's disposition changes.
 They must be created AFTER sequences — each play references a specific client sequence.
 
 Usage (via skill):
-  The skill reads RC_WORKFLOWS and EXECUTION_GUIDE, then drives the browser
+  The skill reads WORKFLOWS and EXECUTION_GUIDE, then drives the browser
   through each workflow creation using vision + DOM interaction tools.
 
 Direct reference:
@@ -25,7 +25,7 @@ Direct reference:
 #   trigger: the Apollo disposition that fires the workflow
 #   actions: ordered list of steps Apollo takes automatically
 
-RC_WORKFLOWS = {
+WORKFLOWS = {
     1: {
         "name": "{client} - Disposition: Activated Lead",
         "trigger": {
@@ -104,7 +104,7 @@ Prerequisites:
   - "Meeting Booked" must exist as a Contact Stage in the client's Apollo account
     (it is a custom stage — confirm it's been added before building workflow 3)
 
-For EACH workflow in RC_WORKFLOWS:
+For EACH workflow in WORKFLOWS (1–3):
 
   STEP A — Navigate and create
     - Go to: https://app.apollo.io/#/workflows
@@ -193,7 +193,7 @@ KNOWN UI DETAILS:
   - The sequence config panel slides in from the right — it may be off-screen at small window widths;
     use the ref-based find tool to interact with the "Sequence" combobox directly if needed
   - Available stages depend on what's configured in the client's Apollo account;
-    RC standard stages that must exist: "Activated Lead", "Nurture", "Meeting Booked"
+    Required contact stages that must exist: "Activated Lead", "Nurture", "Meeting Booked"
 
 CRITICAL CHECKS BEFORE ACTIVATING:
   - Workflow 1: sequence picker shows "{client} - Activated Lead" (not another client)
@@ -207,7 +207,7 @@ CRITICAL CHECKS BEFORE ACTIVATING:
 # ------------------------------------------------------------------
 
 def print_workflow(num: int, client: str = "ClientName"):
-    wf = RC_WORKFLOWS[num]
+    wf = WORKFLOWS[num]
     name = wf["name"].format(client=client)
     trigger = wf["trigger"]
     print(f"\n{'='*60}")
@@ -241,7 +241,7 @@ if __name__ == "__main__":
         num = int(sys.argv[idx + 1])
         print_workflow(num, client)
     elif "--list" in sys.argv:
-        for num in RC_WORKFLOWS:
+        for num in WORKFLOWS:
             print_workflow(num, client)
     else:
         print("Usage:")

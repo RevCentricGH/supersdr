@@ -1,16 +1,17 @@
 // ============================================================================
-// RevCentric Proposal Build Template (docx-js)
+// Outbound Agency Proposal Build Template (docx-js)
 // ----------------------------------------------------------------------------
 // HOW TO USE:
 //   1. Copy this file to your working directory as build_proposal.js
-//   2. Fill in the CONTENT section below (search for "// === CONTENT ===")
-//   3. Run: npm install docx --silent && node build_proposal.js
-//   4. Output: <Prospect>_Proposal.docx in the current directory
+//   2. Fill in AGENCY constants (lines marked "// *** AGENCY ***") once
+//   3. Fill in the CONTENT section below (search for "// === CONTENT ===")
+//   4. Run: npm install docx --silent && node build_proposal.js
+//   5. Output: <Prospect>_Proposal.docx in the current directory
 //
 // The helpers above the CONTENT section should rarely need changes — they
-// encode the RevCentric house style (Arial, navy headings, bordered tables
-// with subtle shading, color-coded billable/non-billable). The CONTENT
-// section is where you adapt for each prospect.
+// encode the house style (Arial, navy headings, bordered tables with subtle
+// shading, color-coded billable/non-billable). The CONTENT section is where
+// you adapt for each prospect.
 // ============================================================================
 
 const fs = require('fs');
@@ -170,17 +171,28 @@ function dataTable(columnWidths, header, rows) {
 }
 
 // ----------------------------------------------------------------------------
+// === AGENCY CONSTANTS === Set these once for your agency
+// ----------------------------------------------------------------------------
+
+const AGENCY_NAME        = "[Your Agency Name]";               // *** AGENCY ***
+const AGENCY_LEGAL_NAME  = "[Your Legal Entity Name]";         // *** AGENCY ***
+const AGENCY_STATE       = "[State]";                          // *** AGENCY ***
+const AGENCY_CONTACT_NAME= "[Your Name]";                      // *** AGENCY ***
+const AGENCY_CONTACT_TITLE = "[Your Title]";                   // *** AGENCY ***
+const AGENCY_CONTACT_EMAIL = "[your@email.com]";               // *** AGENCY ***
+
+// ----------------------------------------------------------------------------
 // === CONTENT === Adapt everything below for the prospect
 // ----------------------------------------------------------------------------
 
-const PROSPECT_NAME      = "Bridgepointe Advisors";            // legal name
-const PROSPECT_CONTACT   = "Tony Lenci";                       // primary signer
-const PROSPECT_TITLE     = "Advisor";                          // title
-const PROSPECT_URL       = "https://bridgepointetechnologies.com/";
+const PROSPECT_NAME      = "[Prospect Legal Name]";            // legal name
+const PROSPECT_CONTACT   = "[Prospect Contact Name]";          // primary signer
+const PROSPECT_TITLE     = "[Prospect Title]";                 // title
+const PROSPECT_URL       = "[https://prospectdomain.com/]";
 const ENGAGEMENT_TITLE   = "Done-For-You Calling Engagement";
 const ENGAGEMENT_SUBTITLE= "Completed-Conversations Outbound Program";
-const PROPOSAL_DATE      = "May 20, 2026";
-const OUTPUT_FILENAME    = "Bridgepointe_Advisors_Proposal.docx";
+const PROPOSAL_DATE      = "[Month D, YYYY]";
+const OUTPUT_FILENAME    = "[Prospect]_Proposal.docx";
 
 const children = [];
 
@@ -218,8 +230,8 @@ children.push(new Table({
         margins: { top: 80, bottom: 80, left: 100, right: 0 },
         children: [
           new Paragraph({ children: [new TextRun({ text: "PREPARED BY", bold: true, size: 20, font: FONT, color: "6B6B6B" })], spacing: { after: 60 } }),
-          new Paragraph({ children: [new TextRun({ text: "RevCentric.ai", bold: true, size: 26, font: FONT })], spacing: { after: 40 } }),
-          new Paragraph({ children: [new TextRun({ text: "Hunter Deskin — hunter@revcentric.ai", size: 22, font: FONT })] }),
+          new Paragraph({ children: [new TextRun({ text: AGENCY_NAME, bold: true, size: 26, font: FONT })], spacing: { after: 40 } }),
+          new Paragraph({ children: [new TextRun({ text: `${AGENCY_CONTACT_NAME} — ${AGENCY_CONTACT_EMAIL}`, size: 22, font: FONT })] }),
         ],
       }),
     ],
@@ -244,7 +256,7 @@ children.push(p("[Describe the prospect's product or service using their languag
 
 children.push(h2("Why Pipeline Is the Bottleneck (Not the Offer)"));
 children.push(p("[Name the underlying motion problem. If they referenced a bad experience by name (Branch, chop-shop, etc.), use it.]"));
-children.push(p("RevCentric's completed-conversations model inverts the incentive: callers are paid for meaningful, qualified dialogue with the right prospect, with meetings, activated leads, and nurtures all flowing out of that activity as natural byproducts."));
+children.push(p("The completed-conversations model inverts the incentive: callers are paid for meaningful, qualified dialogue with the right prospect, with meetings, activated leads, and nurtures all flowing out of that activity as natural byproducts."));
 
 children.push(h2("Ideal Customer Profile"));
 children.push(p("The pilot will be built around the prospect ICP. We will calibrate specifics in the Week-1 workshop, but the working profile is:"));
@@ -267,7 +279,7 @@ children.push(p("[Optional benchmark paragraph citing relevant proof points the 
 
 // ----- Proposed Engagement --------------------------------------------------
 children.push(h1("Proposed Engagement"));
-children.push(p("A 90-day, fully-managed Done-For-You Calling program. RevCentric supplies strategy, target list, dialing infrastructure, calling team, scripts, objection handling, dispositioning, and reporting. The Company supplies expertise, product context, and runs the meetings we book."));
+children.push(p(`A 90-day, fully-managed Done-For-You Calling program. ${AGENCY_NAME} supplies strategy, target list, dialing infrastructure, calling team, scripts, objection handling, dispositioning, and reporting. The Company supplies expertise, product context, and runs the meetings we book.`));
 
 children.push(h2("Option A — 50 Completed Conversations / Month"));
 children.push(optionTable([
@@ -340,11 +352,11 @@ children.push(bullet("Monthly invoicing."));
 children.push(bullet("First month due on execution of this agreement to kick off list build, infrastructure setup, and Week-1 foundations."));
 children.push(bullet("Month-to-month after the initial 90-day term, cancelable with 30 days' notice."));
 
-// ----- Why RevCentric -------------------------------------------------------
-children.push(h1("Why RevCentric"));
-children.push(p("RevCentric is a revenue-ops and outbound firm focused on founder-led and channel-driven B2B sales motions. We run outbound the way top-tier operators run it in-house — with senior callers, infrastructure ownership, and obsessive iteration on what's working in-market this week, not last quarter."));
-children.push(h2("What You Get With RevCentric"));
-children.push(boldLeadBullet("[Operator credibility hook]. ", "[E.g., \"Kevin, who runs calling operations, comes out of Branch — meaning the team already speaks UCaaS, CCaaS, MSP, and tech-advisory language fluently from day one.\"]"));
+// ----- Why [Agency] ---------------------------------------------------------
+children.push(h1(`Why ${AGENCY_NAME}`));
+children.push(p("[1-2 sentences on your agency's approach and what makes it distinct from generic outbound vendors. Lead with operator credibility, not sales language.]"));
+children.push(h2(`What You Get With ${AGENCY_NAME}`));
+children.push(boldLeadBullet("[Operator credibility hook]. ", "[Insert your team's relevant domain background. Tailor to the prospect's world — channel, SaaS, MSSP, DTC, etc.]"));
 children.push(boldLeadBullet("Completed-conversations model. ", "We bill against quality conversations, not forced calendar bookings. Incentives line up with how good operators already think about top-of-funnel."));
 children.push(boldLeadBullet("Custom dialing infrastructure. ", "AI-supported calling infrastructure produces 8–10x the conversation volume of traditional single-line SDR teams."));
 children.push(boldLeadBullet("Activated-leads handoff. ", "Beyond booked meetings, we deliver every nurture, activated lead, and “interested but not now” prospect into your CRM — building a compounding prospecting list."));
@@ -366,12 +378,12 @@ children.push(p("[Read assets/terms_and_conditions.md and emit all 23 sections h
 children.push(pageBreak());
 children.push(h1("Next Steps"));
 children.push(numbered("Countersign this proposal (see acceptance block below), designating the selected option."));
-children.push(numbered("First invoice issued and paid; RevCentric begins infrastructure build and list work the same day."));
+children.push(numbered(`First invoice issued and paid; ${AGENCY_NAME} begins infrastructure build and list work the same day.`));
 children.push(numbered("60-minute kickoff within 3 business days of execution."));
 children.push(numbered("Calls live by end of Week 1; first completed conversations and activated leads inside CRM by end of Week 2."));
 
 children.push(h2("Acceptance"));
-children.push(p(`By signing below, the parties agree to be bound by the terms of this proposal, including the Scope of Services, Investment Summary, and Terms and Conditions set forth herein. This document constitutes the entire Agreement between ${PROSPECT_NAME} and Deskin Enterprises DBA RevCentric.ai for the 90-day ${ENGAGEMENT_TITLE.toLowerCase()} at the option and total investment designated below, and shall become effective upon the date of last signature below (the “Effective Date”).`));
+children.push(p(`By signing below, the parties agree to be bound by the terms of this proposal, including the Scope of Services, Investment Summary, and Terms and Conditions set forth herein. This document constitutes the entire Agreement between ${PROSPECT_NAME} and ${AGENCY_LEGAL_NAME} for the 90-day ${ENGAGEMENT_TITLE.toLowerCase()} at the option and total investment designated below, and shall become effective upon the date of last signature below (the “Effective Date”).`));
 
 children.push(pRich([new TextRun({ text: "Selected Option:", bold: true, font: FONT, size: 22 })], { spacing: { before: 160, after: 100 } }));
 children.push(p("☐  Option A — 50 Completed Conversations / Month — $5,000/mo — $15,000 total"));
@@ -408,11 +420,11 @@ children.push(new Table({
           borders, width: { size: sigCols[1], type: WidthType.DXA },
           margins: { top: 100, bottom: 100, left: 140, right: 140 },
           children: [
-            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: "Deskin Enterprises DBA RevCentric.ai", bold: true, font: FONT, size: 22 })] }),
-            new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text: "A State of Iowa Company", font: FONT, size: 20, color: "555555" })] }),
+            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: AGENCY_LEGAL_NAME, bold: true, font: FONT, size: 22 })] }),
+            new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text: `A ${AGENCY_STATE} Company`, font: FONT, size: 20, color: "555555" })] }),
             new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: "Signature: ____________________________", font: FONT, size: 22 })] }),
-            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: "Name: Hunter Deskin", font: FONT, size: 22 })] }),
-            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: "Title: Founder, RevCentric.ai", font: FONT, size: 22 })] }),
+            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: `Name: ${AGENCY_CONTACT_NAME}`, font: FONT, size: 22 })] }),
+            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: `Title: ${AGENCY_CONTACT_TITLE}`, font: FONT, size: 22 })] }),
             new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: "Date: __________________________", font: FONT, size: 22 })] }),
           ],
         }),
@@ -482,8 +494,8 @@ children.push(dataTable(
 // Assemble + write
 // ----------------------------------------------------------------------------
 const doc = new Document({
-  creator: "RevCentric.ai",
-  title: `${PROSPECT_NAME} — RevCentric Proposal`,
+  creator: AGENCY_NAME,
+  title: `${PROSPECT_NAME} — ${AGENCY_NAME} Proposal`,
   styles: {
     default: { document: { run: { font: FONT, size: 22 } } },
     paragraphStyles: [

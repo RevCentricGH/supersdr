@@ -1,10 +1,10 @@
-# RevCentric Voice and Positioning Guide
+# Outbound Agency Voice and Positioning Guide
 
-Read this when drafting the variable sections of a proposal (executive summary, "Our Understanding," "Why RevCentric"). It captures the voice, common metaphors, and patterns for handling specific objections.
+Read this when drafting the variable sections of a proposal (executive summary, "Our Understanding," "Why [Agency]"). It captures the voice, common metaphors, and patterns for handling specific objections.
 
 ## Voice
 
-Confident, founder-to-founder. The reader is usually a founder, head of growth, or channel operator who has already been pitched by half a dozen agencies — most of which sounded the same. RevCentric's edge in writing is that it sounds like an operator wrote it, not a salesperson.
+Confident, founder-to-founder. The reader is usually a founder, head of growth, or channel operator who has already been pitched by half a dozen agencies — most of which sounded the same. Your edge in writing is that it sounds like an operator wrote it, not a salesperson.
 
 **Do:**
 
@@ -23,7 +23,7 @@ Confident, founder-to-founder. The reader is usually a founder, head of growth, 
 
 ## Three-paragraph executive-summary pattern
 
-This pattern has worked across Homegrown (DTC), Bridgepointe (channel), Workstreet (MSSP), and others. Use it unless you have a strong reason not to.
+This pattern works consistently across verticals. Use it unless you have a strong reason not to.
 
 **Paragraph 1 — Who they are, with one earned credibility marker.**
 Open with a one-sentence description of what they've built, then add one specific fact you found in research (recent funding, valuation, supplier count, ARR milestone). The fact tells them you did homework.
@@ -61,27 +61,29 @@ Specifics. "Calls live by end of Week 1. First meetings expected by end of Week 
 ### "Why should we pay you instead of hiring an SDR in-house?"
 (Build-vs-buy question.)
 
-Don't fight the build path — name it and price it. "An in-house SDR is $80–120K all-in once you include tools and management overhead, and you're 6 months from ramp." RevCentric is faster, cheaper for the first year, and you can convert the playbook to in-house at any time. Position as a pipeline accelerator, not an SDR replacement.
+Don't fight the build path — name it and price it. "An in-house SDR is $80–120K all-in once you include tools and management overhead, and you're 6 months from ramp." Outbound-as-a-service is faster, cheaper for the first year, and the client can convert the playbook to in-house at any time. Position as a pipeline accelerator, not an SDR replacement.
 
 ## Worked examples
 
-### Homegrown Ads (DTC creative SaaS)
+Replace these with your agency's real proof points before using this guide with clients.
 
-The constraint hook: *"The challenge is not the product — it is distribution. Homegrown Ads needs a consistent, predictable pipeline of qualified conversations with direct-to-consumer brands spending $50K+ per month on paid media."*
+### Example: DTC creative SaaS
 
-What works: takes their economics ($0.08/static vs $150/static) seriously and names the volume bottleneck Meta creates (300–400 ads/month per cohort). The proposal sounds like it's written by someone who has actually run paid media.
+The constraint hook: *"The challenge is not the product — it is distribution. [Client] needs a consistent, predictable pipeline of qualified conversations with direct-to-consumer brands spending $50K+ per month on paid media."*
 
-### Bridgepointe Advisors (channel / IT advisory)
+What works: takes their economics seriously and names the volume bottleneck the ad platform creates. The proposal sounds like it's written by someone who has actually run paid media.
+
+### Example: Channel / IT advisory
 
 The constraint hook: *"The platform works. The constraint at the advisor level is the same one most channel partners face: top-of-funnel pipeline that is consistent, qualified, and exclusive to the advisor whose book it feeds."*
 
-What works: opens with the April 2026 Charlesbank/Carlyle recap, names the chop-shop problem directly, defers exclusivity to the next call as a positive signal (not a hedge). Operator credibility: "Kevin comes out of Branch" — three words, instantly meaningful in that world.
+What works: opening with a recent company milestone, naming the chop-shop problem directly, deferring exclusivity to the next call as a positive signal (not a hedge). Lead your credibility paragraph with whatever operator background you have that is meaningful in that world.
 
-### Workstreet (MSSP)
+### Example: MSSP / managed security
 
-The proof point: *"14% conversation-to-set rate, ~75% show rate, three closed deals inside the first 60 days."*
+The proof point structure: *"[X]% conversation-to-set rate, ~75% show rate, [N] closed deals inside the first 60 days."*
 
-Use this as a benchmark in proposals to other technical, mid-market sellers. It's specific, recent, and matches the proposal's promise.
+Use your own numbers here. Specificity matters — "14% set rate" lands harder than "strong conversion."
 
 ## Channel-specific positioning notes
 

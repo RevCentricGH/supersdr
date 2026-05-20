@@ -1,13 +1,13 @@
 """
 Apollo Sequence Builder
 -----------------------
-Data model for all 7 RC standard sequences.
+Data model for all 7 standard sequences.
 
-This file is NOT run directly. It is read by the rc-apollo-campaign-builder skill,
+This file is NOT run directly. It is read by the apollo-campaign-builder skill,
 which uses Claude in Chrome MCP tools to execute each sequence in the Apollo UI.
 
 Usage (via skill):
-  The skill reads RC_SEQUENCES and EXECUTION_GUIDE, then drives the browser
+  The skill reads SEQUENCES and EXECUTION_GUIDE, then drives the browser
   through each sequence creation using vision + DOM interaction tools.
 
 Direct reference:
@@ -19,7 +19,7 @@ Direct reference:
 # Data model
 # ------------------------------------------------------------------
 
-RC_SEQUENCES = {
+SEQUENCES = {
     1: {
         "name": "Call Only",
         "full_name": "{client} - Call Only",
@@ -145,7 +145,7 @@ Before starting:
   1. Confirm Chrome is open and logged in at app.apollo.io
   2. Confirm client name — sequences will be named "{client} - Sequence Name"
 
-For EACH sequence in RC_SEQUENCES:
+For EACH sequence in SEQUENCES (1–7):
 
   STEP A — Navigate and create
     - Go to: https://app.apollo.io/#/sequences
@@ -244,7 +244,7 @@ KNOWN UI DETAILS:
 # ------------------------------------------------------------------
 
 def print_sequence(num: int, client: str = "ClientName"):
-    seq = RC_SEQUENCES[num]
+    seq = SEQUENCES[num]
     name = seq["full_name"].format(client=client)
     print(f"\n{'='*60}")
     print(f"Sequence {num}: {name}")
@@ -269,7 +269,7 @@ if __name__ == "__main__":
         num = int(sys.argv[idx + 1])
         print_sequence(num, client)
     elif "--list" in sys.argv:
-        for num in RC_SEQUENCES:
+        for num in SEQUENCES:
             print_sequence(num, client)
     else:
         print("Usage:")
