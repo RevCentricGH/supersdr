@@ -1,6 +1,6 @@
 # SuperSDR Skills
 
-Claude Code skills for the SuperSDR community.
+Claude Cowork skills for the SuperSDR community.
 
 ## Skills
 
@@ -13,12 +13,10 @@ Claude Code skills for the SuperSDR community.
 
 ## How to use
 
-1. Install [Claude Code](https://claude.ai/code)
-2. Clone this repo into your Claude skills directory:
-   ```bash
-   git clone https://github.com/RevCentricGH/supersdr.git ~/.claude/skills/supersdr
-   ```
-3. The skills will be available in your Claude Code sessions automatically
+1. Open the skill folder you want (e.g. `rc-client-spot`)
+2. Click `SKILL.md` → click **Raw** → save the file to your computer
+3. In Claude Cowork, upload the file or paste the contents at the start of your session
+4. Follow the instructions in the skill
 
 ## Data flow
 
