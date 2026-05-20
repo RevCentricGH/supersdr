@@ -75,12 +75,33 @@ Phrase options as concrete trade-offs and mark a recommendation if one option is
 
 Build the proposal content as markdown first, in this order:
 
-1. **Title block** — `PROPOSAL` / engagement name / subtitle / `PREPARED FOR / PREPARED BY` block / date.
-2. **Executive Summary** — 3 paragraphs. Paragraph 1: who the prospect is and the platform/business they've built (use 1–2 facts from web research to show you did your homework). Paragraph 2: what the constraint actually is (almost always: pipeline distribution, not the product) and what the proposal does about it. Paragraph 3: tier summary + projected outcome.
+1. **Title block** — Use this exact layout (plain text, no markdown headings):
+
+   ```
+   [Agency Name] Proposal — {Company}
+   PROPOSAL
+   {Engagement Subtitle}
+   {Engagement Tagline}
+   PREPARED FOR
+   {Company}
+   {Contact Full Name}, {Contact Title}
+   PREPARED BY
+   {Agency Name}
+   {Agent Name} — {agent@agency.com}
+   {Date}
+   ```
+
+   Subtitle examples: "Outbound Lead Generation Engagement", "Fractional SDR Training Engagement"
+   Tagline examples: "Cold Calling + Cold Email Pilot", "90-Day Outbound Build-Out"
+   Infer contact name and title from the call transcript if not stated directly.
+2. **Executive Summary** — Exactly 3 paragraphs:
+   - Para 1 (3–5 sentences): What the prospect has built — product, market position, one traction signal. Anchor with **one specific fact from your web research** (recent funding, supplier count, ARR milestone, customer reference). This fact signals you did homework; omitting it signals a template.
+   - Para 2 (3–5 sentences): The constraint — almost always pipeline distribution, not the offer. Lead with: *"The product works. The constraint is X."* If they named a specific bad vendor experience on the call, echo it verbatim here.
+   - Para 3 (3–5 sentences): One-line investment summary (channels + total) and the projected outcome in numbers, not adjectives.
 3. **Our Understanding of the Opportunity** — sub-sections:
-   - *What [Prospect] Sells* — describe their product/service in their language, including any economics they shared on the call.
-   - *Why [Pipeline / Distribution] Is the Bottleneck (Not the Offer)* — name the underlying motion problem, including any specific bad experiences they referenced (e.g., "the Branch problem", "chop-shop pattern"). Reflect their concerns back so they see them in writing.
-   - *Ideal Customer Profile* — bullets covering company profile, decision-maker titles, triggers.
+   - *What [Prospect] Sells* (4–6 sentences) — product, market position, differentiation. Go deeper than the Exec Summary: mechanics, pricing model, customer types, any economics they shared on the call.
+   - *Why [Pipeline / Distribution] Is the Bottleneck (Not the Offer)* (3–5 sentences) — name the underlying motion problem. Tie it to a specific dynamic from the call, not a generic market observation. Include any specific bad experiences they referenced (e.g., "the Branch problem", "chop-shop pattern") — use their words.
+   - *Ideal Customer Profile* — 3–5 bullets (format: `- {Concrete ICP filter}`), covering company profile, revenue signals, decision-maker titles, and behavioral triggers. Follow with 1 paragraph (3–5 sentences) on how the list will be built — name specific data sources and signals (e.g., Shopify $1M+ revenue list, Meta ad library signals, Apollo intent filters, LinkedIn targeting). Only reference a prior client campaign by name if it was explicitly mentioned in the call — never fabricate campaign names or numbers.
    - *Conversation Math* — small table mapping conversations/month → projected meetings (use 10–15% set rate, ~75% show rate as working benchmarks). Follow with a benchmark paragraph citing relevant proof points the user mentioned on the call.
 4. **Proposed Engagement** — one block per pricing tier or per channel. For each tier/channel, use a 2-column label-value table (Duration, Investment, Projected Meetings, Activated Leads, What's Included).
 5. **Optional Add-Ons (for next-call discussion)** — exclusivity/non-compete framing, per-conversation + rev-share possibility, additional participants, anything else flagged for follow-up.
@@ -89,17 +110,46 @@ Build the proposal content as markdown first, in this order:
    - Weeks 2–3 — Launch and Calibrate
    - Weeks 4–10 — Scale and Optimize
    - Weeks 11–12 — Results Review
-7. **Investment Summary** — table summarizing tier(s), then sub-sections for Projected Outcomes (bullets) and Payment Terms (bullets).
-8. **Why [Agency Name]** — short intro paragraph + 4–5 bullets. Lead with whatever specific operator credibility applies to this prospect's world. Use proof points from `references/positioning_and_style.md`.
+7. **Investment Summary** — markdown table summarizing tier(s):
+
+   | Channel | Monthly | Months | Total |
+   |---|---|---|---|
+   | {Channel 1} | ${X} | {N} | ${Total} |
+   | **Total Investment** | ${X} | {N} | **${Total}** |
+
+   Then:
+   - *Projected Outcomes* (3–4 bullets): meetings volume, validated playbook, infrastructure built, ICP data. Tailor to scope — no generic bullets.
+   - *Payment Terms* (3 bullets, substitute {N} with actual engagement length):
+     - Monthly invoicing, due upon receipt.
+     - First month due on execution of this agreement to kick off list build and infrastructure.
+     - Month-to-month after the initial {N}-day pilot, cancelable with 30 days' notice.
+8. **Why [Agency Name]** — 1 paragraph (3–4 sentences) + 4 bullets. The paragraph is nearly verbatim across proposals — adapt only the final clause to the prospect's segment:
+
+   > "[Agency Name] is a revenue-ops and outbound firm focused specifically on founder-led and early-stage B2B sales motions. We run outbound the way top-tier operators run it in-house — with senior callers, infrastructure ownership, and obsessive iteration on what's working in-market this week, not last quarter."
+
+   Then lead with whatever operator credibility is most relevant to this prospect's world before the standard bullets. Standard bullets:
+   - **Senior operators.** Callers and GTM operators who have run outbound at scale.
+   - **Custom dialing infrastructure.** AI-powered calling produces 8–10x the conversation volume of traditional single-line SDR teams.
+   - **Deliverability-first email.** Purpose-built sending domains protect {Company Domain} so your marketing and transactional email stays in the inbox. (Substitute the prospect's domain if you can infer it; otherwise drop the parenthetical.)
+   - **Meeting quality > meeting quantity.** We qualify against ICP and intent before booking — no tire-kickers on your calendar.
+
+   See `references/positioning_and_style.md` for proof points and vertical-specific credibility openers.
 9. **Terms and Conditions** — read `assets/terms_and_conditions.md` and use verbatim. Update only: `{COMPANY}` → prospect's legal name, `{ENGAGEMENT_DESCRIPTION}` in §1, any agreed-upon exclusivity language in §8. Keep all sections intact.
 10. **Next Steps + Acceptance + signature block.**
 11. **Appendix A — Completed Conversation Criteria** — read `assets/appendix_a_completed_conversation_criteria.md` and use verbatim.
 
 #### Voice and style
 
-Confident, founder-to-founder, not corporate. Use the prospect's actual language and metaphors from the call — when they named a problem ("chop-shop", "tire-kickers", "creative fatigue"), echo it back in writing so they see their words reflected. Em-dashes for emphasis (—), smart quotes throughout. Avoid generic marketing language ("synergy", "best-in-class", "leverage" as a verb).
+Confident, founder-to-founder, not corporate. Anchored in what this prospect said on this call — not a generic agency pitch.
 
-See `references/positioning_and_style.md` for more detail and worked examples.
+- Refer to the prospect by company name throughout. Never "you" or "your company."
+- When the prospect named a problem ("chop-shop", "tire-kickers", "creative fatigue"), use that word in the proposal. This is the single highest-signal move.
+- Every industry observation must tie back to something they said on the call. No generic market takes.
+- Em-dashes for emphasis and parenthetical asides (—). No hedging ("we believe", "potentially", "we hope"). No fluffy marketing ("world-class", "industry-leading", "synergy", "best-in-class").
+- Short paragraphs: 2–4 sentences. Use bullets only when there are 3+ parallel items — prose feels like a person, over-bulleted decks feel like a vendor.
+- Target: 1,500–2,500 words for the dynamic portion (everything before Terms and Conditions).
+
+See `references/positioning_and_style.md` for objection-handling copy, channel vocabulary, and worked examples.
 
 ### Step 5 — Build the .docx
 
@@ -148,5 +198,6 @@ Give the user a `computer://` link to the .docx and a short prose summary of the
 - **Don't bake exclusivity into T&Cs unless explicitly asked.** Default is to mention it in the Optional Add-Ons section and add the soft addendum language in §8. Preserving flexibility on commercial terms early in the relationship is usually the right call.
 - **Pricing tiers track conversations, not meetings.** The completed-conversations model is the differentiator. Frame meetings as a *projected outcome* of conversation volume, not as the unit of commitment.
 - **Reflect their language back.** If the prospect named a specific bad experience or industry term, use it in the proposal. This is the single highest-signal thing you can do.
+- **Never fabricate prior campaign references.** Only cite a past client campaign by name if the user explicitly mentioned it in the call context. Making up campaign names or numbers destroys trust if the prospect asks.
 - **Don't add `--break-system-packages` flags or other build hacks** unless the environment actually requires them.
 - **Always validate the .docx before delivering.** docx-js can occasionally produce subtle XML issues that render fine in LibreOffice but break in Word.
