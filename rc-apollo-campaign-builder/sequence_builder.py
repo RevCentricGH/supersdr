@@ -139,61 +139,103 @@ RC_SEQUENCES = {
 EXECUTION_GUIDE = """
 APOLLO SEQUENCE CREATION — BROWSER EXECUTION STEPS
 ====================================================
+Validated via dry run on 2026-05-20. These steps match the live Apollo UI exactly.
 
 Before starting:
-  1. Confirm Apollo is open and logged in at app.apollo.io
-  2. Confirm client name is known — sequences will be named "{client} - Sequence Name"
+  1. Confirm Chrome is open and logged in at app.apollo.io
+  2. Confirm client name — sequences will be named "{client} - Sequence Name"
 
 For EACH sequence in RC_SEQUENCES:
 
-  STEP A — Navigate to Sequences
+  STEP A — Navigate and create
     - Go to: https://app.apollo.io/#/sequences
-    - Wait for page to fully load (network idle)
-    - Verify you're not redirected to login
+    - Click "Create sequence" button (top-right, yellow)
+    - Modal appears with 4 options: AI-assisted / Templates / Clone / From scratch
+    - Click "From scratch"
+    - "New Sequence" modal appears with:
+        - Sequence Name input (focused, empty)
+        - Schedule dropdown (default: Normal Business Hours, Mon-Fri 8AM-5PM — leave as-is)
+        - Back / Create buttons
+    - Type the full sequence name: e.g. "Acme Corp - Call Only"
+    - Click "Create"
+    - Page redirects to the steps editor for the new sequence
+    - URL becomes: app.apollo.io/#/sequences/{id}
+    - Tab title shows the sequence name
 
-  STEP B — Create new sequence
-    - Click the "New Sequence" or "Create Sequence" button (top-right area)
-    - A modal or inline input will appear asking for the sequence name
-    - Type the full name: e.g. "Acme Corp - Call Only"
-    - Confirm / click Create
-    - Wait for redirect to the sequence steps editor
+  STEP B — Add step 1
+    - Steps editor shows "Your sequence is empty" with "+ Add a step" button
+    - Click "+ Add a step"
+    - An inline dropdown appears (NOT a modal) with these options:
+        "Automatic email"
+        "Manual email"
+        "Phone call"
+        "Action item"
+        "LinkedIn - send connection request"
+        "LinkedIn - send message"
+        "LinkedIn - view profile"
+        "LinkedIn - interact with post"
+    - Click the matching option for step["type"]:
+        "Phone Call"      → "Phone call"
+        "Manual Email"    → "Manual email"
+        "Automatic Email" → "Automatic email"
+        "Action Item"     → "Action item"
+    - Step is added immediately and its edit panel expands below
+    - For step 1 only: set timing to "immediately"
+        - A timing pill appears above the step: "Schedules task immediately with due date in 30 minutes"
+        - Click the pencil icon on that pill
+        - Popup shows two radio options:
+            (o) Immediately after contact is added
+            ( ) Execute step after [30] [minutes]
+        - Select "Immediately after contact is added"
+        - Click "Save"
+    - Click "Save changes" (top-right button) to persist
 
-  STEP C — Add each step (loop through sequence["steps"])
-    For each step dict {type, delay, unit}:
+  STEP C — Add steps 2 through N
+    For each subsequent step:
 
-    1. Click "Add a step" (button at bottom of steps list)
-    2. A modal opens with step type options
-    3. Click the matching step type:
-         "Phone Call"      → click Phone Call option
-         "Manual Email"    → click Manual Email option
-         "Automatic Email" → click Automatic Email option
-         "Action Item"     → click Action Item / Task option
-    4. Set the timing delay:
-         unit == "immediately" → leave delay at 0 / default
-         unit == "minutes"     → enter delay value, ensure unit is set to "minutes"
-         unit == "hours"       → enter delay value, ensure unit is set to "hours"
-         unit == "days"        → enter delay value, ensure unit is set to "days"
-    5. If step has a "note" field — this is context only, no UI field to fill
-    6. Click Save / Add Step to confirm
-    7. Wait for the modal to close and the step to appear in the list
+    1. Scroll to bottom of steps list — "+ Add a step" button is always at the bottom
+    2. Click "+ Add a step" → inline dropdown appears
+    3. Click the matching step type
+    4. Step is added. Now set its timing:
+        - A timing pill appears BETWEEN the previous step and this new step
+        - Default is "Schedules task immediately with due date in 3 days"
+        - Click the pencil icon on that timing pill
+        - Popup shows:
+            ( ) Immediately after previous step is completed
+            (o) Execute step after [3] [days ▼]
+        - For unit change: click the unit dropdown → shows "minutes" / "hours" / "days"
+        - Set the correct value and unit from step["delay"] and step["unit"]:
+            unit == "immediately" → select "Immediately after previous step is completed"
+            unit == "minutes"     → set value, select "minutes"
+            unit == "hours"       → set value, select "hours"
+            unit == "days"        → set value, select "days"
+        - Click "Save" on the timing popup
+    5. Repeat for all remaining steps
+    6. Click "Save changes" after adding all steps
 
   STEP D — Verify step count
-    - After all steps are added, count the steps visible in the editor
+    - Step counter in top-left shows "N steps"
     - Must match len(sequence["steps"])
-    - If count is wrong, do not proceed — flag the discrepancy
+    - If wrong, do not continue — stop and report
 
   STEP E — Activate the sequence
-    - Look for an "Activate" or "Launch" button
-    - Click it to set the sequence to active
-    - Confirm the sequence status shows as active
+    - "Activate" toggle is in the top-right header bar
+    - Click it to activate
+    - Confirm it switches to active state
 
-  STEP F — Record the sequence URL/ID
-    - The URL will contain the sequence ID: app.apollo.io/#/sequences/{id}/steps
-    - Note this ID — needed for workflow_builder.py
+  STEP F — Record the sequence ID
+    - URL contains: app.apollo.io/#/sequences/{id}
+    - Note the ID for workflow setup
 
-After all 7 sequences are created:
-  - Print a completion table showing each sequence name, step count, and status
-  - Pass the sequence name→ID mapping to workflow_builder.py
+After all 7 sequences:
+  - Report completion table: name | steps | status
+  - Pass sequence name→ID map to workflow_builder.py
+
+KNOWN UI DETAILS:
+  - "..." menu on a sequence only shows Clone / Archive — no Delete
+  - Timing pills sit between steps on a vertical connector line, not inside the step panel
+  - Timing popup closes after clicking Save — no page reload needed
+  - Step count in header updates immediately when a step is added
 """
 
 
