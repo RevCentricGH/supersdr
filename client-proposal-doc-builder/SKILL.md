@@ -151,53 +151,23 @@ See `references/positioning_and_style.md` for objection-handling copy, channel v
 
 ### Step 5 — Create the Google Doc
 
-Use `gdocs.py` to create a new Google Doc and write the proposal content into it.
+Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. The connector must have write permission enabled.
 
-```bash
-JARVIS=$(git rev-parse --show-toplevel)
+1. **Create a new Google Doc** titled `[Agency Name] Proposal — {Prospect}` using the connector.
+2. **Write the proposal content** from Step 4 into the doc section by section — title block first, then each named section in order. Use the connector's write/append capability for each section.
+3. **Capture the doc URL** once creation is confirmed.
 
-# Create the doc — prints JSON with doc_id and url
-python3 ~/.config/gdocs/gdocs.py create "[Agency Name] Proposal — {Prospect}"
-```
+If the Google Drive connector is not connected or does not have write permission, output the full proposal as formatted markdown instead and tell the user:
 
-Capture the `doc_id` from the JSON output. Then write the full proposal content into the doc:
-
-```bash
-# Overwrite the blank doc with full proposal markdown
-python3 ~/.config/gdocs/gdocs.py overwrite <doc_id> "$(cat /tmp/proposal_content.md)"
-```
-
-Write the markdown from Step 4 to `/tmp/proposal_content.md` first, then run the overwrite. Use the heading markers the jarvis gdocs CLI understands:
-- `# Heading` → H1
-- `## Heading` → H2
-- `### Heading` → H3
-- Plain lines → body text
-
-After overwriting, apply named styles across the doc:
-
-```bash
-python3 $JARVIS/scripts/gdocs.py normalize <doc_id>
-```
+> "Paste this into a new Google Doc titled '[Agency Name] Proposal — {Prospect}'. Enable tabs in Google Docs if you want to keep T&Cs and Appendix A on separate tabs."
 
 ### Step 6 — Validate
 
-After normalizing, do a quick read-back to confirm the structure landed correctly:
-
-```bash
-python3 ~/.config/gdocs/gdocs.py read <doc_id>
-```
-
-Confirm the title block, at least one pricing-tier section, the signature block, and Appendix A are present and readable. If a section is missing or malformed, use `write-section` to patch it:
-
-```bash
-python3 $JARVIS/scripts/gdocs.py write-section <doc_id> \
-  --heading "Exact Heading Text" \
-  --content "replacement content here"
-```
+Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary, at least one Proposed Engagement pricing block, Investment Summary, Terms & Conditions, and Appendix A. If any section is missing, write it using the connector before proceeding.
 
 ### Step 7 — Deliver the doc
 
-Give the user the Google Doc URL (from the `url` field in the `create` output) and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
+Give the user the Google Doc URL and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
 
 ### Step 8 — Draft the follow-up email
 
@@ -341,4 +311,4 @@ Hunter
 - **Pricing tiers track conversations, not meetings.** The completed-conversations model is the differentiator. Frame meetings as a *projected outcome* of conversation volume, not as the unit of commitment.
 - **Reflect their language back.** If the prospect named a specific bad experience or industry term, use it in the proposal. This is the single highest-signal thing you can do.
 - **Never fabricate prior campaign references.** Only cite a past client campaign by name if the user explicitly mentioned it in the call context. Making up campaign names or numbers destroys trust if the prospect asks.
-- **gdocs.py `overwrite` replaces all content** — only call it once with the complete proposal. If you need to fix a section after, use `write-section` instead.
+- **Write the doc in one pass if possible.** If the connector supports overwrite, use it with the full content. If you write section by section and something gets out of order, re-read the doc and patch the affected section before delivering.

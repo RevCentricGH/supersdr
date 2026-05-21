@@ -17,7 +17,7 @@ The output is organized tab-by-tab so the user can create each tab in Google Doc
 
 The SPOT is the source of truth for two downstream tools. The doc is incomplete if either of these can't run cleanly off it:
 
-1. **apollo-campaign-builder skill** — builds the initial Apollo lead list and guides setup of all 7 sequences and 3 workflow plays. Needs ICP filters, Apollo keyword passes, tech-stack signals, exclusion lists, target titles, and messaging brief. These fields live in **Tab 5 (ICP)** and **Tab 9 (Apollo Campaign Setup)**.
+1. **list-building skill** — reads Tab 5 and Tab 9 to build the initial Apollo contact list. Needs ICP filters, Apollo keyword passes, tech-stack signals, exclusion lists, and target titles. **apollo-campaign-builder skill** — runs after list-building to create all 7 outreach sequences and 3 workflow plays. Both skills draw from **Tab 5 (ICP)** and **Tab 9 (Apollo Campaign Setup)**.
 
 2. **cold-calling-screenplay skill** — generates cold call main pitch screenplays. Needs status markers (notable clients, awards, years), insider non-Google-able pain in symptomese, the structural differentiator, target persona context. These live in **Tab 3 (Company Overview)** and **Tab 4 (Problem/Solution)**.
 
@@ -428,7 +428,7 @@ Annotations: All inflection markers (↓)(↑)(>) and pause cues should remain i
 
 ### TAB 9 — Apollo Campaign Setup
 
-This tab is the campaign launch brief. Once the SPOT is complete, paste this tab as input when running the **apollo-campaign-builder** skill to build your initial lead list and set up your 7 Apollo sequences.
+This tab is the campaign launch brief. Once the SPOT is complete, use this tab as input for two downstream skills: **list-building** (builds the Apollo contact list from the ICP filters) and **apollo-campaign-builder** (creates all 7 sequences and 3 workflow plays).
 
 Pull all values from Tabs 3, 4, 5, 6, and 7. Don't fill in anything not supported by the rest of the SPOT.
 
@@ -501,7 +501,7 @@ Next steps:
 3. Create 9 tabs: Campaign Status / Campaign Brief / Company Overview / Problem Solution / ICP & Buyer Persona / Competitor Overview / Objection Handling / Screenplay / Apollo Campaign Setup
 4. Paste each content block into the matching tab
 5. For Tab 8 (Screenplay): run the cold-calling-screenplay skill using Tabs 3 and 4 as input
-6. For Tab 9 (Apollo Campaign Setup): use it as input when running the apollo-campaign-builder skill to build your lead list and set up sequences
+6. For Tab 9 (Apollo Campaign Setup): run list-building first (builds the contact list), then apollo-campaign-builder (sets up 7 sequences and 3 workflow plays)
 ```
 
 ### Step 2 — Flag any [TBD] blockers
