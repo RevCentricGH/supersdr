@@ -9,154 +9,161 @@ description: Read a client's SPOT doc and build a named Apollo contact list from
 
 Reads a client's SPOT Google Doc, extracts ICP filters from Tab 5 (ICP & Buyer Persona) and Tab 9 (Apollo Campaign Setup), searches Apollo for matching people, and creates a named contact list in the user's Apollo workspace.
 
-Run this skill after the SPOT doc is complete. The output is one Apollo contact list ready for sequences. The next step after this skill is `apollo-campaign-builder`.
+Run this skill after the SPOT doc is complete. The output is one Apollo contact list ready for sequences. The next step is `apollo-campaign-builder`.
 
 ## Files
 
-- `list_builder.py` — Python script that reads the SPOT, runs the Apollo search, and creates the contact list
+- `list_builder.py` — Python script that runs the Apollo search and creates the contact list. Claude runs this inside the Cowork VM after extracting ICP from the SPOT.
 
 ---
 
 ## What You Need Before Starting
 
 - A completed SPOT doc (Google Doc URL) — if you don't have one, run `/client-spot` first
-- Apollo paid plan with API access (Settings → Integrations → API)
-- Google Docs auth already set up (same credentials used by the `gdocs.py` CLI)
+- Apollo paid plan with API access (Settings → Integrations → API → copy the key)
+- Google Drive connector connected in Claude Cowork (Settings → Connectors → Google Drive) — needed to read the SPOT doc
 
 ---
 
 ## Step 1 — Get the SPOT doc URL
 
-Ask the user to paste the SPOT Google Doc URL if they haven't already. The URL should look like:
-`https://docs.google.com/document/d/XXXX/edit`
+Ask the user to paste the SPOT Google Doc URL if they haven't already.
 
-If no SPOT exists yet, stop and say:
+If the Google Drive connector is not connected, say:
 
-> "Run `/client-spot` first to generate a SPOT for this client, then come back to build the list."
+> "To read the SPOT doc automatically, connect Google Drive in Cowork Settings → Connectors → Google Drive. Or paste the content of Tab 5 and Tab 9 directly and I'll extract the filters from that."
 
 ---
 
-## Step 2 — Read Tab 5 + Tab 9, extract ICP filters
+## Step 2 — Read Tab 5 and Tab 9
 
-Run `list_builder.py` — it will read the SPOT automatically. The script extracts:
+Use the Google Drive connector to read the SPOT doc. Pull the full text of:
 
-| Field | Source |
+- **Tab 9 (Apollo Campaign Setup)** — primary source for all ICP filters
+- **Tab 5 (ICP & Buyer Persona)** — fallback if Tab 9 fields are missing
+
+If the user pasted tab content directly instead, work from that.
+
+---
+
+## Step 3 — Extract ICP filters
+
+From the tab text, extract these fields. Tab 9 is the primary source; fall back to Tab 5 for any field that is blank or `[TBD]`.
+
+| Field | What to look for |
 |---|---|
-| Target Titles | Tab 9 → Tab 5 fallback |
-| Employee Range | Tab 9 → Tab 5 fallback |
-| Locations | Tab 9 → Tab 5 fallback |
-| Industries | Tab 9 → Tab 5 fallback |
-| Keyword Passes | Tab 9 → Tab 5 fallback |
-| Tech Stack Signals | Tab 9 → Tab 5 fallback |
-| Exclusion Domains | Tab 9 → Tab 5 fallback |
-| Funding Stages | Tab 9 → Tab 5 fallback |
+| `client_name` | Client Name, Company Name |
+| `target_titles` | Target Titles, Primary Titles, Job Titles |
+| `employee_range` | Employee Range, Company Size — parse into `"min,max"` format (e.g. `"11,500"`) |
+| `locations` | Locations, Geography, Countries |
+| `industries` | Industries, Target Industries |
+| `keywords` | Keyword Passes, Keywords |
+| `tech_signals` | Tech Stack Signals, Technology |
+| `exclusions` | Exclusions, Competitor Domains |
+| `funding_stages` | Funding Stages, Funding Stage |
 
-The script prints every field it found so the user can verify before the search runs.
-
----
-
-## Step 3 — Validate critical fields
-
-The script blocks and exits if any of these are missing or `[TBD]` in the SPOT:
-
+**Block and do not proceed** if any of these are missing or still `[TBD]`:
 - Target Titles
 - Employee Range
 - Locations
-- At least one of: Keyword Passes or Industries
+- At least one of: Keywords or Industries
 
-If the script exits with missing fields, tell the user:
-
-> "Fill in the missing fields in the SPOT doc and re-run. Tab 9 (Apollo Campaign Setup) is the primary source — Tab 5 (ICP & Buyer Persona) is the fallback."
+If blocked, tell the user which fields are missing and ask them to fill in the SPOT (Tab 9) before continuing.
 
 ---
 
-## Step 4 — Confirm filters and list name
+## Step 4 — Show filters and confirm
 
-The script shows the extracted filters and prompts the user to confirm before running the search. The default list name is:
+Print the extracted filters and the default list name for the user to review:
 
 ```
-{Client Name} - Contacts - {YYYY-MM-DD}
+Client:         {client_name}
+Titles:         {target_titles}
+Employee range: {employee_range}
+Locations:      {locations}
+Keywords:       {keywords}
+Industries:     {industries}
+Tech signals:   {tech_signals}
+Exclusions:     {exclusions}
+Funding stages: {funding_stages}
+
+Default list name: {client_name} - Contacts - {YYYY-MM-DD}
 ```
 
-The user can type a custom name or press Enter to accept the default.
+Ask the user to confirm or provide a custom list name before proceeding.
 
 ---
 
-## Step 5 — Apollo API key
+## Step 5 — Get the Apollo API key
 
-The script checks for `APOLLO_API_KEY` in the environment and in a local `.env` file first. If not found, it prompts the user to paste their key. After entry it offers to save it to `.env` for future runs.
+Ask the user for their Apollo API key if they haven't provided it.
 
-To find the API key: Apollo → Settings → Integrations → API → copy the key.
+> "Paste your Apollo API key — find it at: Apollo → Settings → Integrations → API"
 
 ---
 
 ## Step 6 — Run the script
 
-```bash
-python list_builder.py --spot-url "<SPOT URL>"
-```
-
-Or fully non-interactive if all args are known:
+Write the extracted ICP to a temp JSON file, then run `list_builder.py`:
 
 ```bash
+pip install requests --quiet
+
 python list_builder.py \
-  --spot-url "<SPOT URL>" \
-  --list-name "<List Name>" \
-  --api-key "<Apollo API Key>"
+  --filters /tmp/icp_filters.json \
+  --list-name "{confirmed list name}" \
+  --api-key "{Apollo API key}"
 ```
 
-The script paginates through all Apollo results automatically. For large lists (1,000+ contacts) this may take a minute — a progress line prints for each page.
+The JSON file written to `/tmp/icp_filters.json` should match this shape:
+
+```json
+{
+  "target_titles": ["VP of Sales", "Head of Sales"],
+  "employee_range": ["11,500"],
+  "locations": ["United States", "Canada"],
+  "keywords": ["B2B SaaS", "outbound sales"],
+  "industries": ["Software", "Technology"],
+  "tech_signals": ["Salesforce", "HubSpot"],
+  "exclusions": ["competitor.com"],
+  "funding_stages": ["Series A", "Series B"]
+}
+```
+
+Omit any field that is empty — don't pass empty arrays.
+
+The script paginates through all Apollo results automatically and prints a progress line per page. For large lists (1,000+ contacts) this may take a minute.
 
 ---
 
-## Step 7 — Output
+## Step 7 — Relay the output
 
-When the script finishes it prints:
-
-```
-✓ Read SPOT for {Client Name}
-✓ Extracted ICP filters
-✓ Apollo people search: {N} results
-✓ Created list: {List Name}
-✓ Added {N} contacts
-
-View in Apollo: https://app.apollo.io/#/contacts
-
-Next step: run /apollo-campaign-builder to set up sequences and workflows for this list.
-```
-
-Relay this output to the user and confirm the list is visible in Apollo before closing.
-
----
-
-## Output format
-
-The final message to the user should follow this exact template:
+When the script finishes, relay this to the user:
 
 ```
 List build complete.
 
-Client: {Client Name}
-List name: {List Name}
+Client: {client_name}
+List name: {list_name}
 Contacts added: {N}
 
-View in Apollo → https://app.apollo.io/#/contacts (filter by list name to confirm)
+View in Apollo → https://app.apollo.io/#/contacts
+(Filter by list name to see the contacts)
 
 Next: run /apollo-campaign-builder to create the 7 sequences and 3 workflow plays for this client.
 ```
 
 ---
 
-## Fallback
+## Fallbacks
 
-If the SPOT doc URL returns a permission error or cannot be read, tell the user:
+**Google Drive connector not set up:** Ask the user to paste Tab 5 and Tab 9 content directly.
 
-> "Make sure the doc is shared with anyone with the link (or that your Google account has access), then try again."
+**0 results from Apollo:** Tell the user:
+> "No contacts found with these filters — the ICP may be too narrow. Check Employee Range, Locations, and Keywords in Tab 9 and broaden at least one filter."
 
-If Apollo returns 0 results, tell the user:
-
-> "No contacts found matching these filters. The ICP may be too narrow — check Employee Range, Locations, and Keywords in Tab 9 of the SPOT and broaden at least one filter."
-
-If Apollo returns a 401 error, tell the user:
-
+**Apollo 401 error:** Tell the user:
 > "Invalid API key. Go to Apollo → Settings → Integrations → API and copy the key again."
+
+**Missing SPOT doc:** Tell the user:
+> "Run `/client-spot` first to generate a SPOT for this client, then come back to build the list."
