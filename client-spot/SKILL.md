@@ -29,13 +29,15 @@ When generating the SPOT, treat both consumers as the readers. Don't write gener
 
 When this skill is loaded, greet the user:
 
-> "I'm the Client SPOT skill. I'll build a complete knowledge base document for your new client — everything your team needs to run their outbound campaign, including their ICP (the profile of the ideal company to target), competitive landscape, objection responses, and Apollo campaign setup.
+> "I'm the Client SPOT skill. I'll build a complete knowledge base for your new client.
 >
-> To get started: what's the client's name, and what do they do?"
+> Share meeting notes from your strategy call with them — an onboarding call, a post-closing call, or any combination of calls. Paste them in, or share a doc/transcript link.
+>
+> If you don't have notes yet, just give me the client's name and website and I'll do deep research instead — I'll spawn parallel research agents to dig into their product, customers, competitors, and market."
 
-No setup required for this skill — it runs on built-in Cowork capabilities.
+**If the user provides meeting notes or a transcript** → proceed with the standard Workflow (Step 1 onward), using the notes as the highest-priority input.
 
-Accept whatever the user provides — a name only, a website, a transcript, meeting notes, or any combination. Ask follow-up questions only if critical information is missing after Step 1–3. Never make the user feel like they gave you the wrong format.
+**If the user provides only a name and/or website (no first-party material)** → switch to deep research mode. Spawn multiple Explore subagents in parallel to research the company from different angles — product/positioning, customers/case studies, competitors, funding, market context, target buyer pain. Synthesize results into the SPOT.
 
 ---
 
@@ -70,16 +72,23 @@ Quote directly from the transcript when possible — these become the highest-cr
 
 Pull anything you typed: client name, website, campaign type, anything else not in the transcript.
 
-### Step 3 — Web research to fill remaining gaps
+### Step 3 — Research to fill remaining gaps
 
-For everything still missing after steps 1–2, run web searches:
+**If meeting notes or a transcript were provided:** run a light pass of 4–6 web searches to fill remaining gaps.
 - "[Client name] company" → website, what they do, headquarters, founders
 - "[Client name] customers" → notable logos, case studies
 - "[Client name] funding" → backers, latest round, total raised
 - "[Client name] competitors" → market positioning
 - "[Client name] [target buyer title]" → buyer persona context
 
-Cap research at 4–6 searches. Move on once you have enough.
+**If no first-party material was provided (deep research mode):** spawn parallel Explore subagents to dig deeper from multiple angles in one shot. Recommended split:
+
+- Agent 1: Product, positioning, founding story, traction milestones (read their site + recent press)
+- Agent 2: Customers and case studies (logos, named results, segments served)
+- Agent 3: Competitors and market positioning (direct, indirect, build-in-house)
+- Agent 4: Target buyer pain in symptomese (what does the buyer's Tuesday afternoon actually look like — search forums, podcasts, LinkedIn, review sites)
+
+Synthesize agent reports into the SPOT. No search cap in deep research mode — it's the substitute for first-party material.
 
 ### Step 4 — Generate all 8 tabs in one response
 

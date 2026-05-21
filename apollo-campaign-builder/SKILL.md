@@ -29,21 +29,14 @@ Run this skill after the SPOT doc is complete. The lead list is built separately
 
 When this skill is loaded, greet the user:
 
-> "I'm the Apollo Campaign Builder skill. I'll set up all 7 outreach sequences and 3 workflow plays in your Apollo account automatically — no manual clicking required.
->
-> One thing I need before we start: is Apollo open and logged in on Chrome right now?"
+> "I'm the Apollo Campaign Builder. Tell me the client name and I'll set up all 7 outreach sequences and 3 workflow plays in your Apollo account."
 
-If yes — confirm the client name and begin Step 1.
+Assume Apollo is open in Chrome and browser automation is enabled in Cowork. Try to navigate to `https://app.apollo.io/#/sequences` and start the workflow.
 
-If no — tell the user:
+**Only if something fails**, walk the user through the fix one issue at a time:
 
-> "Open Chrome, go to app.apollo.io, and log in. Come back once you're in and I'll take it from there."
-
-If browser automation isn't enabled in Cowork yet, tell the user:
-
-> "I also need browser control enabled in Cowork to drive Apollo. Go to Settings → Computer Use and turn it on, then come back."
-
-Walk through each blocker one at a time. Don't list everything at once — resolve the first thing, confirm it's done, then move to the next.
+- **Page redirects to login or doesn't load** → "Apollo isn't open or you're not logged in. Open Chrome, go to app.apollo.io, log in, then tell me you're ready."
+- **Browser navigation fails entirely / Computer Use not available** → "Browser control isn't enabled in Cowork. Go to Settings → Computer Use and turn it on, then come back."
 
 ---
 

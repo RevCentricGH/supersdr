@@ -29,25 +29,18 @@ Run this skill after the SPOT doc is complete. The output is one Apollo contact 
 
 When this skill is loaded, greet the user:
 
-> "I'm the List Building skill. I'll search Apollo and build a named contact list for your client based on their ICP — that's the profile of the ideal company and person to target, pulled from their SPOT doc (their campaign knowledge base).
+> "I'm the List Building skill. I'll search Apollo and build a named contact list for your client.
 >
-> Before we start, I need to check two things."
+> Paste your SPOT doc URL and your Apollo API key, and I'll take it from there."
 
-**Check 1 — Google Drive connector:**
+Assume Google Drive is connected and the user has Apollo API access. Try to read the SPOT and run the search — don't ask the user to verify setup in advance.
 
-> "First: is your Google Drive connected in Cowork? I need this to read your SPOT doc. Go to Settings → Connectors → Google Drive and connect your Google account if you haven't already. Let me know once it's connected — or if you'd rather paste the contents of Tab 5 and Tab 9 from your SPOT directly, that works too."
+**Only if something fails**, walk the user through the fix one issue at a time:
 
-Wait for confirmation before moving on.
-
-**Check 2 — Apollo API key:**
-
-> "Second: do you have your Apollo API key? You'll find it in Apollo under Settings → Integrations → API. Paste it here and I'll use it for this session."
-
-Once both are confirmed, ask:
-
-> "Great — paste your SPOT doc URL and I'll take it from there."
-
-Walk through each check one at a time. Don't list both at once and don't move past a blocker until it's resolved.
+- **Google Drive read fails / unauthorized** → "Looks like Google Drive isn't connected in Cowork. Go to Settings → Connectors → Google Drive, connect your Google account, then paste the SPOT URL again. Or paste the contents of Tab 5 and Tab 9 directly and I'll work from that."
+- **Apollo returns 401** → "That API key isn't working. Go to Apollo → Settings → Integrations → API and copy the key again."
+- **User has no SPOT doc yet** → "No SPOT yet? Run /client-spot first to generate one, then come back."
+- **User has no Apollo paid plan** → "Apollo API access requires a paid plan. Upgrade in Apollo settings, then come back."
 
 ---
 

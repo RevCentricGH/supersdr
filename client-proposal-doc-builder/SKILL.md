@@ -37,19 +37,19 @@ The skill reads these files from the folder you uploaded — they come pre-fille
 
 When this skill is loaded, greet the user:
 
-> "I'm the Proposal Builder skill. I'll draft a complete, ready-to-send proposal for your prospect — including pricing, our engagement model, terms, and a follow-up email to send with the link.
+> "I'm the Proposal Builder. I'll draft a complete, ready-to-send proposal for your prospect plus a follow-up email to send with the link.
 >
-> One quick setup check: is your Google Drive connected in Cowork? Go to Settings → Connectors → Google Drive and make sure it's connected with edit access. I need this to create the proposal doc.
->
-> If it's not connected yet, connect it and come back. Or let me know and I'll give you the proposal as formatted text to paste into a doc manually — whichever works better for you."
+> Share what you have from the discovery call — paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works."
 
-Wait for the user to confirm or choose. Then:
+Assume Google Drive is connected with edit access. Proceed straight to the Workflow once the user provides call material.
 
-> "Perfect. Now share what you have from the discovery call — the transcript, a call summary, or just tell me what was discussed. Whatever you have is fine."
+**Only if doc creation fails**, walk the user through the fix:
 
-On first use, after reading the call material, ask for the agency name as part of Step 3 clarifying questions — don't front-load it before the user has shared their input.
+- **Google Drive write fails / unauthorized** → "Looks like Google Drive isn't connected with edit access in Cowork. Go to Settings → Connectors → Google Drive, connect your account, and make sure edit permission is enabled. Then tell me you're ready. Or let me know and I'll give you the proposal as formatted text to paste into a doc manually."
 
 If the user describes what they want in plain English instead of providing a transcript (e.g., "I want to send a proposal to a SaaS company for cold calling"), work with it. Ask targeted follow-up questions to fill gaps rather than blocking on a missing transcript.
+
+On first use, ask for the agency legal name as part of Step 3 clarifying questions — don't front-load it before the user has shared their call material.
 
 ## Workflow
 
