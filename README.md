@@ -15,7 +15,25 @@ Claude Cowork skills for the SuperSDR community.
 
 ## Setup
 
-Some skills require a one-time configuration before they'll work. See **[SETUP.md](SETUP.md)** for the full guide — covers Google Drive connector, Apollo API key, and browser automation.
+Complete this once before running any skills that require external connections.
+
+**Google Drive connector** — required by `list-building` and `client-proposal-doc-builder`
+Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder).
+
+**Apollo API key** — required by `list-building`
+Go to Apollo → Settings → Integrations → API and copy your key. Requires an Apollo paid plan. The skill will ask for it on first run.
+
+**Browser automation** — required by `apollo-campaign-builder`
+Go to Settings → Computer Use in Cowork and enable browser control. Log into Apollo in Chrome and keep that tab open when running the skill.
+
+| Skill | Google Drive | Apollo API key | Browser automation |
+|---|---|---|---|
+| client-spot | | | |
+| cold-calling-screenplay | | | |
+| list-building | required | required | |
+| apollo-campaign-builder | | | required |
+| objection-drill | | | |
+| client-proposal-doc-builder | required (write) | | |
 
 ## How to use
 
