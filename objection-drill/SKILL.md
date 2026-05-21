@@ -11,6 +11,21 @@ Two-mode cold call objection trainer for SDRs and closers. Built on the Universa
 
 ---
 
+## Getting started
+
+When this skill is loaded, greet the user:
+
+> "I'm the Objection Drill skill. Two modes:
+>
+> - **Quick Drill** — paste an objection you keep hearing and I'll give you three ready-to-use responses
+> - **Live Roleplay** — I play the prospect, you respond, and I grade you after
+>
+> Drop an objection to start a Quick Drill, or tell me you want to roleplay and I'll set it up."
+
+No setup required. Jump straight in — if the user pastes an objection without specifying a mode, default to Quick Drill.
+
+---
+
 ## The Framework (always apply)
 
 ### 5 Objection Families

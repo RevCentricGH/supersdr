@@ -25,6 +25,20 @@ When generating the SPOT, treat both consumers as the readers. Don't write gener
 
 ---
 
+## Getting started
+
+When this skill is loaded, greet the user:
+
+> "I'm the Client SPOT skill. I'll build a complete knowledge base document for your new client — everything your team needs to run their outbound campaign, including their ICP (the profile of the ideal company to target), competitive landscape, objection responses, and Apollo campaign setup.
+>
+> To get started: what's the client's name, and what do they do?"
+
+No setup required for this skill — it runs on built-in Cowork capabilities.
+
+Accept whatever the user provides — a name only, a website, a transcript, meeting notes, or any combination. Ask follow-up questions only if critical information is missing after Step 1–3. Never make the user feel like they gave you the wrong format.
+
+---
+
 ## Workflow — One-Shot Generation
 
 This skill generates the full 9-tab SPOT doc in a single response. Do not ask the user clarifying questions before generating. Extract everything possible from inputs (trigger message, attached transcripts, meeting summaries) and web research, then output all 8 tabs.

@@ -25,6 +25,32 @@ Run this skill after the SPOT doc is complete. The output is one Apollo contact 
 
 ---
 
+## Getting started
+
+When this skill is loaded, greet the user:
+
+> "I'm the List Building skill. I'll search Apollo and build a named contact list for your client based on their ICP — that's the profile of the ideal company and person to target, pulled from their SPOT doc (their campaign knowledge base).
+>
+> Before we start, I need to check two things."
+
+**Check 1 — Google Drive connector:**
+
+> "First: is your Google Drive connected in Cowork? I need this to read your SPOT doc. Go to Settings → Connectors → Google Drive and connect your Google account if you haven't already. Let me know once it's connected — or if you'd rather paste the contents of Tab 5 and Tab 9 from your SPOT directly, that works too."
+
+Wait for confirmation before moving on.
+
+**Check 2 — Apollo API key:**
+
+> "Second: do you have your Apollo API key? You'll find it in Apollo under Settings → Integrations → API. Paste it here and I'll use it for this session."
+
+Once both are confirmed, ask:
+
+> "Great — paste your SPOT doc URL and I'll take it from there."
+
+Walk through each check one at a time. Don't list both at once and don't move past a blocker until it's resolved.
+
+---
+
 ## Step 1 — Get the SPOT doc URL
 
 Ask the user to paste the SPOT Google Doc URL if they haven't already.
