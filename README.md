@@ -37,10 +37,12 @@ Go to Settings → Computer Use in Cowork and enable browser control. Log into A
 
 ## How to use
 
-1. Open the skill folder you want (e.g. `client-spot`)
-2. Click `SKILL.md` → click **Raw** → save the file to your computer
-3. In Claude Cowork, upload the file or paste the contents at the start of your session
+1. Click the green **Code** button at the top of this page → **Download ZIP**
+2. Extract the ZIP and open the folder for the skill you want (e.g. `client-spot`)
+3. In Claude Cowork, upload the entire skill folder (not just SKILL.md — some skills need companion files)
 4. Follow the instructions in the skill
+
+> Some skills (`list-building`, `apollo-campaign-builder`, `client-proposal-doc-builder`) include Python scripts and asset files that Claude needs alongside SKILL.md. Uploading the whole folder ensures nothing is missing.
 
 ## Data flow
 

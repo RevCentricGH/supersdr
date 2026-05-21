@@ -104,16 +104,7 @@ Ask the user for their Apollo API key if they haven't provided it.
 
 ## Step 6 — Run the script
 
-Write the extracted ICP to a temp JSON file, then run `list_builder.py`:
-
-```bash
-pip install requests --quiet
-
-python list_builder.py \
-  --filters /tmp/icp_filters.json \
-  --list-name "{confirmed list name}" \
-  --api-key "{Apollo API key}"
-```
+Claude handles this step automatically — you don't need to run anything. Claude will write the ICP filters to a temporary file and run `list_builder.py` in the background inside Cowork. You'll see progress lines as it pages through Apollo results.
 
 The JSON file written to `/tmp/icp_filters.json` should match this shape:
 

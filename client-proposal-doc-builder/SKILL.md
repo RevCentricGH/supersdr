@@ -25,11 +25,13 @@ Every outbound agency proposal has the same skeleton: a positioning section grou
 
 ## Setup (first use)
 
-Before using this skill, confirm your agency's assets are in place:
+On first use, Claude will ask for your agency's legal entity name and substitute it throughout the T&Cs automatically. You don't need to edit any files manually.
 
-- `assets/terms_and_conditions.md` — Your T&Cs with `{COMPANY}` and `{AGENCY_LEGAL_NAME}` placeholders. Replace `{AGENCY_LEGAL_NAME}` with your legal entity name once before use.
-- `assets/appendix_a_completed_conversation_criteria.md` — Your Completed Conversations definition. Edit to match your billing model if it differs.
-- `references/positioning_and_style.md` — Voice guide and objection patterns. Update the worked examples and proof points with your agency's actual results.
+The skill reads these files from the folder you uploaded — they come pre-filled with placeholder content you can customize later if needed:
+
+- `assets/terms_and_conditions.md` — T&Cs boilerplate
+- `assets/appendix_a_completed_conversation_criteria.md` — Completed Conversations definition
+- `references/positioning_and_style.md` — Voice guide and proof points
 
 ## Workflow
 
@@ -62,10 +64,11 @@ Don't over-research. The proposal is grounded in the call, not in market analysi
 
 Use the AskUserQuestion tool. Ask only the questions you don't already have clear answers to from the call and prior conversation. The default question set:
 
-1. **Pricing structure** — Which tier(s) to present? Single tier or two side-by-side? Ask the user to confirm the conversation volumes and monthly investment for each tier they want to include.
-2. **Channels** — Calling only, email only, or combined? (Default to what was pitched on the call.)
-3. **Exclusivity / lead overlap** — Hard exclusivity clause in T&Cs, mention in body with soft language, or defer to next call? (Defer is the safest default unless the user wants to commit.)
-4. **Addressee** — Who signs on the company side? Single signer or joint? Open-ended is acceptable.
+1. **Agency name** — What is your agency's name and legal entity name? (Used in the title block and T&Cs. Example: "RevCentric" / "RevCentric LLC")
+2. **Pricing structure** — Which tier(s) to present? Single tier or two side-by-side? Ask the user to confirm the conversation volumes and monthly investment for each tier they want to include.
+3. **Channels** — Calling only, email only, or combined? (Default to what was pitched on the call.)
+4. **Exclusivity / lead overlap** — Hard exclusivity clause in T&Cs, mention in body with soft language, or defer to next call? (Defer is the safest default unless the user wants to commit.)
+5. **Addressee** — Who signs on the company side? Single signer or joint? Open-ended is acceptable.
 
 Phrase options as concrete trade-offs and mark a recommendation if one option is obviously stronger for the situation.
 
