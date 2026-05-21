@@ -13,6 +13,10 @@ Claude Cowork skills for the SuperSDR community.
 | [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families |
 | [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block |
 
+## Setup
+
+Some skills require a one-time configuration before they'll work. See **[SETUP.md](SETUP.md)** for the full guide — covers Google Drive connector, Apollo API key, and browser automation.
+
 ## How to use
 
 1. Open the skill folder you want (e.g. `client-spot`)
