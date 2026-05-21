@@ -10,7 +10,7 @@ Claude Cowork skills for the SuperSDR community.
 | [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically |
 | [apollo-campaign-builder](apollo-campaign-builder/) | Build the initial Apollo lead list from SPOT ICP criteria and set up all 7 outreach sequences + 3 workflow plays for a new client using browser automation |
 | [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families |
-| [client-proposal-builder](client-proposal-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Word doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block |
+| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block |
 
 ## How to use
 
@@ -25,7 +25,7 @@ Claude Cowork skills for the SuperSDR community.
 SPOT (client-spot)
   ├── Tab 3 + Tab 4 → cold-calling-screenplay
   ├── Tab 9         → apollo-campaign-builder
-  └── discovery call transcript → client-proposal-builder
+  └── discovery call transcript → client-proposal-doc-builder
 ```
 
 Run `client-spot` first. Everything else builds off it.

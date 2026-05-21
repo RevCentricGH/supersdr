@@ -1,13 +1,13 @@
 ---
-name: client-proposal-builder
-description: Build a polished, send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a Word document, grounded in a discovery-call transcript or summary. Trigger this skill aggressively whenever the user mentions building a proposal, a DFY calling proposal, a Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect in any context involving outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. The skill bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, and produces a complete .docx with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs.
+name: client-proposal-doc-builder
+description: Build a polished, send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a Google Doc, grounded in a discovery-call transcript or summary, then draft the follow-up email to send the prospect the proposal link. Trigger this skill aggressively whenever the user mentions building a proposal, a DFY calling proposal, a Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect in any context involving outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. The skill bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, produces a complete Google Doc with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs, and then drafts the follow-up email (proposal-link or soft follow-up route).
 ---
 
-# Outbound Proposal Builder
+# Outbound Proposal Doc Builder
 
 ## What this skill does
 
-Given a discovery-call transcript or summary plus basic prospect info, produces a complete, send-ready proposal as a Word document (.docx). The proposal includes:
+Given a discovery-call transcript or summary plus basic prospect info, produces a complete, send-ready proposal as a Google Doc and drafts the follow-up email to send with the proposal link. The proposal includes:
 
 - Executive summary grounded in the prospect's specific business and the conversation
 - "Our Understanding of the Opportunity" — what they sell, why pipeline is the bottleneck, ICP, conversation math
@@ -29,7 +29,6 @@ Before using this skill, confirm your agency's assets are in place:
 
 - `assets/terms_and_conditions.md` — Your T&Cs with `{COMPANY}` and `{AGENCY_LEGAL_NAME}` placeholders. Replace `{AGENCY_LEGAL_NAME}` with your legal entity name once before use.
 - `assets/appendix_a_completed_conversation_criteria.md` — Your Completed Conversations definition. Edit to match your billing model if it differs.
-- `assets/build_proposal_template.js` — The docx build script. No changes needed unless you want to update branding (colors, fonts).
 - `references/positioning_and_style.md` — Voice guide and objection patterns. Update the worked examples and proof points with your agency's actual results.
 
 ## Workflow
@@ -67,7 +66,6 @@ Use the AskUserQuestion tool. Ask only the questions you don't already have clea
 2. **Channels** — Calling only, email only, or combined? (Default to what was pitched on the call.)
 3. **Exclusivity / lead overlap** — Hard exclusivity clause in T&Cs, mention in body with soft language, or defer to next call? (Defer is the safest default unless the user wants to commit.)
 4. **Addressee** — Who signs on the company side? Single signer or joint? Open-ended is acceptable.
-5. **Output format** — `.docx` (default), `.md`, or both?
 
 Phrase options as concrete trade-offs and mark a recommendation if one option is obviously stronger for the situation.
 
@@ -151,42 +149,186 @@ Confident, founder-to-founder, not corporate. Anchored in what this prospect sai
 
 See `references/positioning_and_style.md` for objection-handling copy, channel vocabulary, and worked examples.
 
-### Step 5 — Build the .docx
+### Step 5 — Create the Google Doc
 
-Read `assets/build_proposal_template.js`. It contains the docx-js helpers (cell, table, bullet, h1/h2/h3, etc.) and an annotated structure showing how example proposals were assembled. Copy it to your working directory, replace the content arrays with the markdown content from Step 4, run it with Node, and write to `outputs/<Prospect>_Proposal.docx`.
-
-Setup:
-```bash
-npm install docx --silent
-node build_proposal.js
-```
-
-Page spec: US Letter (12240 × 15840 DXA), 1" margins (1440 DXA), Arial default 11pt, navy headings (`1F3864` for H1, `2E4F8A` for H2). Investment-Summary and disposition tables use color shading (`E8EEF7` headers, `E5F5E5` billable, `FBE5E5` non-billable).
-
-### Step 6 — Validate + visual check
-
-After building, validate the .docx:
+Use `gdocs.py` to create a new Google Doc and write the proposal content into it.
 
 ```bash
-python -c "
-from docx import Document
-doc = Document('outputs/<Prospect>_Proposal.docx')
-print(f'Paragraphs: {len(doc.paragraphs)}, Tables: {len(doc.tables)}')
-print('Validation passed')
-"
+JARVIS=$(git rev-parse --show-toplevel)
+
+# Create the doc — prints JSON with doc_id and url
+python3 ~/.config/gdocs/gdocs.py create "[Agency Name] Proposal — {Prospect}"
 ```
 
-If python-docx isn't available, open the file in LibreOffice or Word and visually spot-check: title page, pricing-tier page, signature block, and the Appendix A billable/non-billable tables. Confirm tables aren't broken, headings have proper hierarchy, and color shading rendered. Fix any issues before delivery.
+Capture the `doc_id` from the JSON output. Then write the full proposal content into the doc:
 
-### Step 7 — Deliver
+```bash
+# Overwrite the blank doc with full proposal markdown
+python3 ~/.config/gdocs/gdocs.py overwrite <doc_id> "$(cat /tmp/proposal_content.md)"
+```
 
-Give the user a `computer://` link to the .docx and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
+Write the markdown from Step 4 to `/tmp/proposal_content.md` first, then run the overwrite. Use the heading markers the jarvis gdocs CLI understands:
+- `# Heading` → H1
+- `## Heading` → H2
+- `### Heading` → H3
+- Plain lines → body text
+
+After overwriting, apply named styles across the doc:
+
+```bash
+python3 $JARVIS/scripts/gdocs.py normalize <doc_id>
+```
+
+### Step 6 — Validate
+
+After normalizing, do a quick read-back to confirm the structure landed correctly:
+
+```bash
+python3 ~/.config/gdocs/gdocs.py read <doc_id>
+```
+
+Confirm the title block, at least one pricing-tier section, the signature block, and Appendix A are present and readable. If a section is missing or malformed, use `write-section` to patch it:
+
+```bash
+python3 $JARVIS/scripts/gdocs.py write-section <doc_id> \
+  --heading "Exact Heading Text" \
+  --content "replacement content here"
+```
+
+### Step 7 — Deliver the doc
+
+Give the user the Google Doc URL (from the `url` field in the `create` output) and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
+
+### Step 8 — Draft the follow-up email
+
+After the doc is delivered, immediately draft the follow-up email Hunter will send with the proposal link. Present `subject` and `body` as plain text the user can copy straight into Gmail.
+
+#### Route selection
+
+- **Proposal-link route** — a Google Doc URL was produced in Step 5. Default route.
+- **Needs-followup route** — no proposal yet (e.g., pricing wasn't discussed on the call or the user indicated the proposal comes later). Use when `proposal_link` is null.
+
+#### Context to pull from the prior steps
+
+| Variable | Source |
+|---|---|
+| `first_name` | Derived from call transcript, event title, or recipient email |
+| `company_name` | Prospect company |
+| `summary` | Full call summary |
+| `pricing_discussed` | Pricing covered on call, or "not discussed" |
+| `key_objections` | Objections raised on the call |
+| `next_steps` | Agreed next steps from the call |
+| `proposal_link` | Google Doc URL from Step 5, or null |
+
+#### Voice rules
+
+Direct, conversational, warm-confident. Founder-to-founder, not vendor-to-buyer.
+
+- Short paragraphs (1–3 sentences each).
+- Lowercase `i` is acceptable in casual mid-sentence usage ("i think this will be a slam dunk").
+- Hyphens only. Never em-dashes.
+- **Banned phrases:** "I hope this finds you well", "As discussed", "Please don't hesitate", "Circle back", "Touch base", "Bandwidth", "Synergy", "Going forward".
+- **Banned openings:** "I wanted to", "Just wanted to", "I'm reaching out", "Following up to". Lead with substance — never a meta-statement about the fact that you're emailing.
+
+#### Structure — proposal-link route
+
+```
+Hey {first_name},
+
+Hook — one-line reference to the call + a specific observation about their company /
+product / stage, drawn from summary. Never invent details.
+
+Bridge — "As promised, I've put together a customized proposal for the {scope}
+engagement we discussed." Infer scope from summary + pricing_discussed (e.g.,
+"3-month cold email + cold calling", "fractional SDR training build-out").
+
+[Optional confidence line] — only if a concrete past RevCentric campaign result was
+explicitly mentioned in the call summary. Never fabricate campaign names or numbers.
+Skip entirely if no signal exists.
+
+A few highlights from the proposal:
+- *{Component}* - {one-liner of what + why for THEM}
+- *{Component}* - {one-liner of what + why for THEM}
+- *{Component}* - {one-liner of what + why for THEM}
+
+Exactly 3 bullets. Components reflect actual scope (Cold Calling, Cold Email,
+X-Month Commitment, ICP Targeting, SuperSDR Coaching, etc.). Value lines must be
+tailored to their context, never generic.
+
+CTA — "Take a look {with your team / co-founder / business partner} and note any
+questions - happy to walk through everything {on our follow-up / on Friday / at our
+next call}." Use real names from the call if available ("with your brother/co-founder").
+
+[Optional next-meeting line] — only if next_steps names a specific day/time:
+*{Day} Follow-Up: {Time} {TZ}* - cal invite should already be in your inbox.
+Append "{Other RC Attendee} will also be looped in." only if explicitly known.
+
+Talk soon,
+Hunter
+```
+
+Do not append title, phone, or email after Hunter — Gmail signature handles that.
+
+**Length:** 100–180 words.
+
+#### Structure — needs-followup route
+
+```
+Hey {first_name},
+
+Hook (same rule — call reference + specific observation).
+
+One direct sentence on where we left off.
+
+Soft CTA — book a follow-up call, share more context, or reply with timing.
+
+Talk soon,
+Hunter
+```
+
+**Length:** 60–130 words.
+
+#### Subject line patterns
+
+- `{Company} x RevCentric Proposal + {Day} Follow-Up`
+- `{Company} - Quick Follow-Up`
+- `{Company} Proposal`
+
+Always include the company name. Match the pattern to the route — use the first pattern for proposal-link, second or third for needs-followup.
+
+#### Reference output (Pinprick, 2026-05-05)
+
+```
+Subject: Pinprick x RevCentric Proposal + Friday Follow-Up
+
+Hey Nick,
+
+Really great catching up today love what you're building with Pinprick.
+
+As promised, I've put together a customized proposal for the 3-month cold email +
+cold calling engagement we discussed. Given the results from our Crux campaign, i
+think this will be a slam dunk.
+
+A few highlights from the proposal:
+- *Cold Calling* - dedicated dialing for higher-touch conversion with qualified prospects
+- *Cold Email* - high-volume, personalized sequences targeting your ICP (companies
+  spending $50K-7 figures/month on paid ads)
+- *3-Month Commitment* - enough runway to optimize, iterate, and deliver real pipeline
+
+Take a look with your brother/co-founder and note any questions - happy to walk through
+everything on Friday.
+
+*Friday Follow-Up: 9:30 AM PST* - should've already received the cal invite. Jace will
+also be looped in.
+
+Talk soon,
+Hunter
+```
 
 ## Assets
 
 - `assets/terms_and_conditions.md` — T&Cs boilerplate. Replace `{AGENCY_LEGAL_NAME}` with your legal entity name once. Then per-proposal: swap `{COMPANY}`, `{ENGAGEMENT_DESCRIPTION}`, `{FEES_LANGUAGE}`, and optional §8 exclusivity addendum language.
 - `assets/appendix_a_completed_conversation_criteria.md` — Appendix A defining Completed Conversations + all billable / non-billable disposition criteria.
-- `assets/build_proposal_template.js` — Reference docx-js build script with helpers and styling baked in. Copy, adapt content arrays, run.
 - `assets/reference_proposal_homegrown.md` — Full example proposal (calling + email pilot) as a structural reference for combined-channel proposals.
 
 ## References
@@ -199,5 +341,4 @@ Give the user a `computer://` link to the .docx and a short prose summary of the
 - **Pricing tiers track conversations, not meetings.** The completed-conversations model is the differentiator. Frame meetings as a *projected outcome* of conversation volume, not as the unit of commitment.
 - **Reflect their language back.** If the prospect named a specific bad experience or industry term, use it in the proposal. This is the single highest-signal thing you can do.
 - **Never fabricate prior campaign references.** Only cite a past client campaign by name if the user explicitly mentioned it in the call context. Making up campaign names or numbers destroys trust if the prospect asks.
-- **Don't add `--break-system-packages` flags or other build hacks** unless the environment actually requires them.
-- **Always validate the .docx before delivering.** docx-js can occasionally produce subtle XML issues that render fine in LibreOffice but break in Word.
+- **gdocs.py `overwrite` replaces all content** — only call it once with the complete proposal. If you need to fix a section after, use `write-section` instead.
