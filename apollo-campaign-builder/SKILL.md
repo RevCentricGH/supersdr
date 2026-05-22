@@ -148,4 +148,38 @@ WORKFLOWS
 [ ] Disposition: Meeting Booked  — active, sequence + list names show [client]
 ```
 
-When all boxes are checked, the client is fully set up in Apollo and ready to run.
+## Step 5 — Visual campaign map
+
+After verification, output a Mermaid diagram showing how the 3 workflows route SDR dispositions into sequences. Cowork renders this natively — gives the user a single visual that maps the entire campaign logic.
+
+````
+```mermaid
+flowchart TD
+    SDR[SDR sets contact disposition]
+    SDR --> AL{Activated Lead}
+    SDR --> NT{Nurture}
+    SDR --> MB{Meeting Booked}
+
+    AL --> AL_SEQ[Sequence:<br/>{client} - Activated Lead<br/>7 steps]
+    AL --> AL_DEAL[Create Deal<br/>stage: Activated Lead]
+    AL --> AL_LINK[Associate Contact<br/>to Deal]
+
+    NT --> NT_SEQ[Sequence:<br/>{client} - Nurture<br/>7 steps]
+
+    MB --> MB_LIST[Add to List:<br/>{client} - Meetings Booked]
+    MB --> MB_SEQ[Sequence:<br/>{client} - Pending Meeting<br/>2 steps]
+
+    OTHER[Other entry points] -.-> CO[{client} - Call Only<br/>10 steps]
+    OTHER -.-> CFU[{client} - Cold Follow-Up<br/>14 steps]
+    OTHER -.-> RS[{client} - Reschedule<br/>10 steps]
+    OTHER -.-> RF[{client} - Referred To<br/>10 steps]
+
+    style AL fill:#fff3e0
+    style NT fill:#e8f5e9
+    style MB fill:#e3f2fd
+```
+````
+
+Substitute `{client}` with the actual client name. The dotted lines from "Other entry points" represent the 4 sequences that aren't workflow-triggered — SDRs add contacts to those manually.
+
+When all boxes are checked and the visual map is rendered, the client is fully set up in Apollo and ready to run.

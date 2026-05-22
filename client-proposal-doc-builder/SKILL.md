@@ -208,6 +208,25 @@ Read back the doc using the connector and confirm these sections are present and
 
 Give the user the Google Doc URL and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
 
+Include a Mermaid timeline of the 90-day engagement so the user has a single visual to share with the prospect (or paste into a follow-up message). Cowork renders this natively.
+
+````
+```mermaid
+timeline
+    title 90-Day Engagement — {Client}
+    Week 1            : Foundations
+                      : ICP refinement, infrastructure setup, copy & list prep
+    Weeks 2-3         : Launch & Calibrate
+                      : First outreach live, tune messaging on real responses
+    Weeks 4-10        : Scale & Optimize
+                      : Volume up, refine playbook, expand winning sequences
+    Weeks 11-12       : Results Review
+                      : Performance analysis, ROI report, expansion plan
+```
+````
+
+Substitute `{Client}` with the prospect company name.
+
 ### Step 8 — Draft the follow-up email
 
 After the doc is delivered, immediately draft the follow-up email Hunter will send with the proposal link. Present `subject` and `body` as plain text the user can copy straight into Gmail.

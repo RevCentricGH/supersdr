@@ -253,8 +253,22 @@ If no campaign MCPs are connected, skip this stage. Just tell the user where the
 
 ## Final summary to the user
 
-```
+Include a Mermaid funnel diagram showing how contacts moved through each stage. Cowork renders this natively — the user sees the drop-off visually instead of just reading numbers.
+
+````
 Built [N] contacts for [Client].
+
+```mermaid
+flowchart LR
+    A[Apollo Pull<br/>{total}] --> B[After Tier Filter<br/>{after_tier}]
+    B --> C[After ICP Qual<br/>{after_qual}]
+    C --> D[After Reveal<br/>{revealed} emails]
+    D --> E[Email Valid<br/>{valid_email}]
+    E --> F[Phone Mobile/Landline<br/>{good_phone}]
+    F --> G[Ready to Dial<br/>{ready}]
+    style A fill:#e1f5ff
+    style G fill:#c8e6c9
+```
 
 Channel readiness:
   Email valid:    [X] ([pct]%)
@@ -278,7 +292,9 @@ Top intent signals:
 Output: [Google Sheet URL] or [CSV path or "inline above"]
 
 Next: Red Hot needs AE attention today. Hot contacts → sequence today.
-```
+````
+
+Fill the diagram's `{placeholder}` values from the actual stage counts. If a stage was skipped (e.g. no email validation MCPs), omit that node and reconnect the arrows.
 
 ---
 
