@@ -20,7 +20,7 @@ Run this skill after the SPOT doc is complete. The lead list is built separately
 
 ---
 
-## What You Need Before Starting
+## Prerequisites
 
 - Client name confirmed — all sequences/workflows will be prefixed with it
 - Apollo open and logged in at app.apollo.io in Chrome
