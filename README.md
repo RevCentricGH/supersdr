@@ -63,6 +63,10 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 >
 > `list-builder` is now a single SKILL.md file — it runs entirely through MCP tools and Claude's reasoning. No scripts, no API keys to manage. (A legacy script version with local API keys is preserved under `list-builder/legacy/` for users running Claude Code locally.)
 
+## Optional — async notifications via Channels
+
+If you want to interact with the skills from your phone (Telegram, Discord, iMessage) or trigger them via webhooks from services like Smartlead, see [CHANNELS.md](CHANNELS.md). Skip this entirely if you only use Cowork from your desktop.
+
 ## Data flow
 
 ```
