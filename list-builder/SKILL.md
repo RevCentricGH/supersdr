@@ -298,13 +298,11 @@ Fill the diagram's `{placeholder}` values from the actual stage counts. If a sta
 
 ---
 
-## Remaining trade-offs vs the legacy script version
+## Trade-offs to know
 
-Most of the original script-version capabilities are now restored via MCPs (ZeroBounce for email validation, Twilio for phone line-type, Clay for fallback enrichment, Smartlead/Instantly/HeyReach for downstream push). One real trade-off remains:
+Most capabilities run through MCPs (ZeroBounce for email validation, Twilio for phone line-type, Clay for fallback enrichment, Smartlead/Instantly/HeyReach for downstream push). One real trade-off:
 
-- **Persistent dedup across runs**: no local cache like the script version had. Workaround: use Apollo's contact tagging or `already_contacted` filters to suppress prior outreach. Tag contacts you've worked from previous lists so they're excluded on the next pull.
-
-For users who specifically need local dedup state, the legacy script version (in `legacy/`) is still available if you run Claude Code locally with API keys in a `.env` file.
+- **Persistent dedup across runs**: no local cache. Workaround: use Apollo's contact tagging or `already_contacted` filters to suppress prior outreach. Tag contacts you've worked from previous lists so they're excluded on the next pull.
 
 ---
 
@@ -317,3 +315,15 @@ If the client doesn't have a SPOT doc:
 Don't accept ad-hoc ICP via chat for ongoing work. The SPOT doc is the source of truth; if it's not there, build it first.
 
 If the user really wants a quick one-off list without a SPOT doc, you can take the ICP details inline (titles, size, location, exclusions) and proceed — but surface this as a one-time path and recommend creating a SPOT doc after.
+
+---
+
+## Voice Rules
+
+Apply to all Claude-authored output — greetings, confirmations, stage summaries, error messages.
+
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
+- No em-dashes. Hyphen or rewrite.
+- Short. Direct. One idea per sentence.

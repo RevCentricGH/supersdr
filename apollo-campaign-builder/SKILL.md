@@ -183,3 +183,15 @@ flowchart TD
 Substitute `{client}` with the actual client name. The dotted lines from "Other entry points" represent the 4 sequences that aren't workflow-triggered — SDRs add contacts to those manually.
 
 When all boxes are checked and the visual map is rendered, the client is fully set up in Apollo and ready to run.
+
+---
+
+## Voice Rules
+
+Apply to all Claude-authored output — greetings, confirmations, step reports, error messages.
+
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
+- No em-dashes. Hyphen or rewrite.
+- Short. Direct. One idea per sentence.

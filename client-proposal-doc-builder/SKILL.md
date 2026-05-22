@@ -188,6 +188,13 @@ Confident, founder-to-founder, not corporate. Anchored in what this prospect sai
 
 See `references/positioning_and_style.md` for objection-handling copy, channel vocabulary, and worked examples.
 
+**Claude's own messages** (greetings, clarifying questions, delivery summaries) follow these additional rules:
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
+- No em-dashes in Claude's own messages (em-dashes in the proposal body are fine per the style guide above)
+- Short. Direct. One idea per sentence.
+
 ### Step 5 — Create the Google Doc
 
 Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. The connector must have write permission enabled.

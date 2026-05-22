@@ -165,3 +165,15 @@ Next: run /list-builder when you're ready to pull an enriched, dial-ready list f
 **Filter chip not found:** Some filters live under "More Filters" — click that to expand the full panel.
 
 **Save search not available:** The user may be on a plan that doesn't support saved searches. They'd need to upgrade in Apollo settings.
+
+---
+
+## Voice Rules
+
+Apply to all Claude-authored output — greetings, filter confirmations, status reports, error messages.
+
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
+- No em-dashes. Hyphen or rewrite.
+- Short. Direct. One idea per sentence.

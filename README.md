@@ -18,6 +18,22 @@ Claude Cowork skills for the SuperSDR community.
 
 Complete this once before running any skills that require external connections.
 
+**Project Instructions (recommended — one-time)** — enforces natural, non-AI-sounding output across all sessions
+
+Go to Claude → Settings → Project → Instructions in Cowork and paste this:
+
+```
+Voice rules — apply to all output:
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive", "cutting-edge"
+- No em-dashes. Hyphen or rewrite.
+- Short paragraphs. Write like a person, not a vendor.
+```
+
+Each skill also has these rules embedded — this just ensures they apply globally even outside any skill context.
+
+
 **Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, and `client-proposal-doc-builder`
 Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
 

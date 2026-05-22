@@ -377,6 +377,26 @@ And so… really the reason I reached out to you is… we believe we've discover
 
 ---
 
+---
+
+## Voice Rules
+
+Apply to all Claude-authored framing text — greetings, version recommendations, word count reports, follow-up questions. (The screenplay itself follows the Delivery Layer and Anti-Patterns rules above.)
+
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
+- No em-dashes in framing text. Hyphen or rewrite.
+- Short. Direct. One idea per sentence.
+
+---
+
+## Reference Examples
+
+Study these before generating. Note the structure, tone, rhythm, and delivery annotations.
+
+---
+
 **SalesTech AI for Public Sector (Starbridge) — Full Version**
 
 But.. (!)Starbridge.. we. are. a. Go-To-Market Intelligence platform(↑) built specifically for folks selling into the(drag) public sector(↓)…

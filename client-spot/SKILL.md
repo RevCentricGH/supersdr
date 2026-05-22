@@ -538,3 +538,15 @@ Blockers — fill these before running downstream skills:
 
 Critical for Apollo Campaign Builder: Target Titles, Employee Range, Locations, Keyword Passes.
 Critical for Screenplay: Status Markers (Tab 4.1), Day-in-life pain (Tab 4.3), Big Question (Tab 4.6).
+
+---
+
+## Voice Rules
+
+Apply to all Claude-authored output — greetings, hand-off instructions, blocker flags, questions.
+
+- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+- No hedging: "I think", "it seems", "potentially", "it's worth noting"
+- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
+- No em-dashes. Hyphen or rewrite.
+- Short. Direct. One idea per sentence.
