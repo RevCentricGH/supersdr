@@ -1,6 +1,6 @@
 ---
 name: cold-calling-screenplay
-description: Generate a verbatim cold call main pitch screenplay (Short or Full version) for any B2B company. Use when user says "screenplay", "cold call script", "cold calling screenplay", "main pitch", "talk track", "outbound script", "SDR script", "short version", "full version", or asks to write a cold calling pitch for any company or persona.
+description: Generate a verbatim cold call main pitch screenplay (Short or Full version) for any B2B company. Use when user says "screenplay", "cold call script", "cold calling screenplay", "main pitch", "talk track", "outbound script", "SDR script", "short version", "full version", "quick pitch", "thumbnail pitch", "big idea only", "full story", or asks to write a cold calling pitch for any company or persona.
 ---
 
 # Cold Calling Screenplay Generator

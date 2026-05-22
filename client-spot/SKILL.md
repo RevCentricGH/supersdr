@@ -44,7 +44,7 @@ When this skill is loaded, greet the user:
 
 ## Workflow — One-Shot Generation
 
-This skill generates the full 9-tab SPOT doc in a single response. Do not ask the user clarifying questions before generating. Extract everything possible from inputs (trigger message, attached transcripts, meeting summaries) and web research, then output all 8 tabs.
+This skill generates the full 9-tab SPOT doc in a single response. Do not ask the user clarifying questions before generating. Extract everything possible from inputs (trigger message, attached transcripts, meeting summaries) and web research, then output all 9 tabs.
 
 ### Input priority
 
