@@ -160,6 +160,8 @@ Next: run /list-builder when you're ready to pull an enriched, dial-ready list f
 
 **0 results:** Tell the user which filters are likely too narrow — broaden in this order: # Employees → Location → Industry → Keywords. (Same order as `tam_filter_builder.py`'s EXECUTION_GUIDE STEP J.)
 
+**Result count not updating after a filter is applied:** Apollo does not always auto-apply changes. Click "Apply Filters" at the top of the filter sidebar to force the update.
+
 **Filter chip not found:** Some filters live under "More Filters" — click that to expand the full panel.
 
 **Save search not available:** The user may be on a plan that doesn't support saved searches. They'd need to upgrade in Apollo settings.
