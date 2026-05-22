@@ -77,15 +77,24 @@ Read every attached file in full — call transcript, call summary PDF, any refe
 
 If a key fact is missing or ambiguous, plan to ask about it in Step 3 rather than guessing.
 
-### Step 2 — Web-research the prospect (light touch)
+### Step 2 — Web-research the prospect
 
-Run 1–2 web searches to ground the executive summary in current context. Look for:
+**Default mode (transcript provided):** 1–2 inline web searches is plenty. The proposal is grounded in the call, not market analysis. Look for:
 
 - Recent funding or strategic moves (e.g., "<company> funding 2026", "<company> acquisition")
 - Public positioning and ICP signals from their site
 - Headline statistics about their market or category
 
-Don't over-research. The proposal is grounded in the call, not in market analysis. Two searches is plenty. If the prospect has no meaningful web presence, skip this step.
+**Deep research mode (thin or no transcript):** if the user only provided a company name + website with no call material, spawn parallel sub-agents using the Agent tool (`Explore` subagent type) — same pattern as `/client-spot` deep research mode. Recommended split:
+
+- Agent 1: Product, positioning, traction milestones, founding story (read their site + recent press)
+- Agent 2: Customers, case studies, named logos, segments served
+- Agent 3: Market context — competitors, category dynamics, the non-avoidable shift creating urgency now
+- Agent 4: Target buyer pain in symptomese — what does their Tuesday afternoon look like (forums, podcasts, LinkedIn, review sites)
+
+Run all in a single message with multiple Agent tool calls. Synthesize when they return.
+
+If the prospect has no meaningful web presence at all, skip this step and lean on the user's call material in Step 3.
 
 ### Step 3 — Ask clarifying questions
 

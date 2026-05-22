@@ -124,7 +124,18 @@ For contacts with locked emails, call Apollo MCP's enrich/match tool to reveal e
 
 For each Tier 1 contact, do signal research and apply compound intent scoring. This is the high-leverage step.
 
-**Search per company:**
+**Use parallel sub-agents.** Layer 4 is research-heavy — sequential web search across 30+ unique companies is slow and burns context. Spawn parallel sub-agents instead:
+
+- Batch Tier 1 contacts by unique company (typically 30-50 companies for a 100-contact pull)
+- Split into 4-6 batches of ~5-10 companies each
+- Spawn one sub-agent per batch using the Agent tool (`Explore` subagent type works well for read-heavy research)
+- Each sub-agent's prompt: list of companies + the signal taxonomy below + instructions to return structured findings per contact
+- Run all sub-agents in parallel (single message, multiple Agent tool calls)
+- Synthesize results when they return
+
+This typically cuts Layer 4 wall time by 5-10× and keeps your main context clean.
+
+**Each sub-agent searches per company:**
 - Funding round in last 90 days
 - Hiring signals (engineering / sales / leadership scaling)
 - Job change for the contact specifically (14-45 days in role = sweet spot)
@@ -132,7 +143,7 @@ For each Tier 1 contact, do signal research and apply compound intent scoring. T
 - Product launches / news
 - Self-authored content from the contact (for hooks)
 
-If Perplexity MCP / Apollo MCP / other research tools are connected, use them automatically.
+If Perplexity MCP / Apollo MCP / other research tools are connected, sub-agents use them automatically — they inherit the user's MCP environment.
 
 **Compound INTENT_SCORE:**
 ```

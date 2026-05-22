@@ -70,7 +70,20 @@ Use the persona calibration rules below to set the right version and word ceilin
 
 ## Step 4 — Research if needed
 
-If URL or company name provided but limited detail, search the web for:
+If a SPOT doc was provided, skip this step — Tab 3 and Tab 4 cover it. Otherwise, research the missing context.
+
+**If the gap is small (1-2 missing facts):** a couple of inline web searches is fine.
+
+**If the gap is large (no SPOT doc, minimal context):** spawn parallel sub-agents to research multiple angles at once using the Agent tool (`Explore` subagent type). Recommended split:
+
+- Agent 1: Product, what it does, plain-vanilla mechanics, twist/differentiator
+- Agent 2: Customer logos, case studies, awards from `site:[clientdomain.com]` (for status thumbnail)
+- Agent 3: Target persona's day-in-the-life pain in symptomese (forums, podcasts, review sites)
+- Agent 4: Industry-specific "change in the world" — non-avoidable shift creating urgency now
+
+Run all in a single message with multiple Agent tool calls. Synthesize results when they return. This cuts research time significantly and keeps the screenplay grounded in real evidence rather than generic language.
+
+For the single-threaded path, search the web for:
 - What the product actually does (the "plain vanilla")
 - What makes it different (the "twist")
 - Real pain points the target persona faces today
