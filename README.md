@@ -27,15 +27,27 @@ Go to Settings → MCP Servers in Cowork and connect Apollo (`apollo-io`). One-t
 **Browser automation** — required by `tam-contact-mapper` and `apollo-campaign-builder`
 Go to Settings → Computer Use in Cowork and enable browser control. Log into Apollo in Chrome and keep that tab open when running these skills.
 
-**Perplexity MCP** (optional) — used by `list-builder` for richer Layer 4 signal research
-If connected, the skill uses it automatically. Otherwise falls back to native web search.
+**Optional MCPs for `list-builder`** — each unlocks a stage of the pipeline if connected:
 
-| Skill | Google Drive | Apollo MCP | Browser automation | Perplexity MCP |
+| MCP | What it adds |
+|---|---|
+| Perplexity | Richer Layer 4 signal research (otherwise falls back to native web search) |
+| ZeroBounce | Real email validation (otherwise relies on Apollo's verified/unverified flag) |
+| Twilio | Phone line-type detection (mobile / landline / VoIP) |
+| Clay | Fallback contact enrichment when Apollo's hit rate is low |
+| Common Room | Intent signals (website visitors, community engagement) |
+| Smartlead / Instantly | Push the finished list directly to a cold email campaign |
+| HeyReach | Push the finished list to a LinkedIn outreach sequence |
+| HubSpot | Sync contacts into CRM as leads |
+
+All optional MCPs degrade gracefully — connect whichever ones you have access to.
+
+| Skill | Google Drive | Apollo MCP | Browser automation | Other MCPs |
 |---|---|---|---|---|
 | client-spot | | | | |
 | cold-calling-screenplay | | | | |
 | tam-contact-mapper | required | | required | |
-| list-builder | required | required | | optional |
+| list-builder | required | required | | many optional (see table above) |
 | apollo-campaign-builder | | | required | |
 | objection-drill | | | | |
 | client-proposal-doc-builder | required (write) | | | |

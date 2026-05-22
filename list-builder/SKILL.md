@@ -12,11 +12,23 @@ Builds a dial-ready contact list using the client's SPOT doc as the ICP source a
 ## Prerequisites (check at startup)
 
 Required MCPs the user must have connected to their Claude account:
-- **Apollo MCP** (`apollo-io`) — sourcing + enrichment
+- **Apollo MCP** (`apollo-io`) — sourcing + contact enrichment
 
-Optional but useful:
-- **Google Drive / Sheets MCP** — reading the SPOT doc + writing the output sheet
-- **Perplexity MCP** — richer signal research in Layer 4
+Optional MCPs — each adds a stage to the pipeline if connected, otherwise that stage is skipped or downgraded:
+
+| MCP | What it adds |
+|---|---|
+| **Google Drive / Sheets** | SPOT doc reading + Google Sheet output |
+| **ZeroBounce** | Email validation (replaces "trust Apollo's verified status" with a real deliverability check) |
+| **Twilio** | Phone line-type detection (mobile / landline / VoIP) via Twilio Lookup |
+| **Perplexity** | Richer signal research in Layer 4 |
+| **Clay** | Additional enrichment passes if Apollo's hit rate is low |
+| **Common Room** | Intent signals (website visitors, community engagement) for Layer 4 |
+| **Smartlead** / **Instantly** | Push the final list to a cold email campaign in one step |
+| **HeyReach** | Push the final list to a LinkedIn outreach sequence in one step |
+| **HubSpot** | Sync the final contacts into CRM as leads |
+
+Detect what's available at startup. Use what you have. Don't ask the user to set things up they don't need.
 
 If Apollo MCP isn't available, stop and tell the user:
 
@@ -118,9 +130,25 @@ Use native web search. If Perplexity MCP is connected, use that for richer check
 
 ### Stage 4 — Reveal contact info (Apollo MCP)
 
-For contacts with locked emails, call Apollo MCP's enrich/match tool to reveal email + phone. Apollo MCP returns email status (verified/unverified) — use that as the email validation signal.
+For contacts with locked emails, call Apollo MCP's enrich/match tool to reveal email + phone. Apollo MCP returns its own email status (verified/unverified) — keep it as a first-pass signal, but the next stage does the real validation if the right MCPs are connected.
 
-### Stage 5 — Layer 4 enrichment (Tier 1 only)
+### Stage 5 — Validate emails + phones (optional MCPs)
+
+This stage runs only if the relevant MCPs are connected. If neither is, mark everything as "Not validated — dial and see" and continue.
+
+**Email validation (ZeroBounce MCP):**
+- For every contact with an email, call ZeroBounce's `validate_email` (single) or `validate_email_batch` (bulk) tool
+- Map results: `valid` → Email Ready = true; `catch-all` → Email Ready = true (lower confidence); `invalid` / `do_not_mail` / `spamtrap` → Email Ready = false; `unknown` → Email Ready = false but keep the row
+- Drop rows with `invalid` emails AND no phone
+
+**Phone line-type (Twilio MCP):**
+- For every contact with a phone, call Twilio Lookup's phone number lookup tool with `line_type_intelligence` enabled
+- Map: `mobile` → MOBILE; `landline` → LANDLINE; `voip` / `nonFixedVoip` → VOIP; 404 → INVALID
+- Phone Ready = MOBILE or LANDLINE (VoIP usually has low connect rate — flag but don't drop)
+
+If a user has Clay MCP connected and Apollo's enrichment hit rate was low (<40%), offer to run a Clay enrichment pass on the unrevealed contacts before validating.
+
+### Stage 6 — Layer 4 enrichment (Tier 1 only)
 
 For each Tier 1 contact, do signal research and apply compound intent scoring. This is the high-leverage step.
 
@@ -178,7 +206,7 @@ Red Hot requires Strong Hook — if no Bucket 1-2 found, try escalating to a dif
 
 ---
 
-## Output
+### Stage 7 — Output
 
 **If Google Sheets MCP is connected:** Create a new sheet titled `{Client} List — {date}` and write all rows. Share the URL with the user.
 
@@ -186,13 +214,30 @@ Red Hot requires Strong Hook — if no Bucket 1-2 found, try escalating to a dif
 
 Either way, the column schema is the same. This is the contract downstream channel tools read.
 
+### Stage 8 — Push to downstream channel (optional)
+
+After the sheet/CSV is written, check which campaign MCPs are connected. If any are available, ask:
+
+> "List is ready. Want me to push it directly to [Smartlead / Instantly / HeyReach / HubSpot]?"
+
+If yes:
+
+- **Smartlead MCP** → create a new campaign named `{Client} - {date}` and upload all `Email Ready = true` contacts. Default to paused state for safety.
+- **Instantly MCP** → same pattern. Always start paused.
+- **HeyReach MCP** → for LinkedIn outreach. Push contacts where `LinkedIn Ready = true` into a new sequence.
+- **HubSpot MCP** → create contacts in CRM with lead source tagged as the client list. Useful for tracking even without immediate outreach.
+
+If multiple are connected, offer them as a multi-select. Always default to paused/draft state — the user reviews before activating.
+
+If no campaign MCPs are connected, skip this stage. Just tell the user where the sheet is.
+
 ### Output schema (the contract)
 
 | Column | Filled by | Notes |
 |---|---|---|
 | First Name, Last Name, Title, Company, Company Domain | Apollo MCP | Identity |
-| Email, Email Status, **Email Ready** (bool) | Apollo MCP | Email Ready = status is verified |
-| Phone, **Phone Ready** (bool) | Apollo MCP | Phone Ready = number is present (no line-type detection in Cowork — see trade-offs) |
+| Email, Email Status, **Email Ready** (bool) | Apollo + ZeroBounce if connected | Email Ready = ZeroBounce `valid` / `catch-all`, or Apollo `verified` as fallback |
+| Phone, Phone Type, **Phone Ready** (bool) | Apollo + Twilio if connected | Phone Ready = MOBILE or LANDLINE; Phone Type from Twilio Lookup |
 | LinkedIn URL, **LinkedIn Ready** (bool) | Apollo MCP | LinkedIn Ready = URL present |
 | **Fit Score** (0-100) | Claude inline | Heuristic ICP score |
 | Fit Tier (1-3) | Claude inline | Tier 1 = ≥75 |
@@ -237,15 +282,13 @@ Next: Red Hot needs AE attention today. Hot contacts → sequence today.
 
 ---
 
-## Honest trade-offs vs the legacy script version
+## Remaining trade-offs vs the legacy script version
 
-Because Cowork runs on connected MCPs (not local API keys), some pieces of the original pipeline don't have MCP equivalents yet:
+Most of the original script-version capabilities are now restored via MCPs (ZeroBounce for email validation, Twilio for phone line-type, Clay for fallback enrichment, Smartlead/Instantly/HeyReach for downstream push). One real trade-off remains:
 
-- **Email validation waterfall** (MillionVerifier → ZeroBounce → Prospeo → LeadMagic): no MCPs exist. We rely on Apollo MCP's verified/unverified status. For sender reputation-critical sends, recommend running the output CSV through a validation service before loading into sequences.
-- **Phone line-type detection** (mobile vs landline vs VoIP via Twilio Lookup): no Twilio MCP. Phones come back from Apollo as just numbers — line type isn't detected.
-- **Persistent dedup across runs**: no local cache. Use Apollo's contact tagging / "already contacted" filters if you need to suppress prior outreach.
+- **Persistent dedup across runs**: no local cache like the script version had. Workaround: use Apollo's contact tagging or `already_contacted` filters to suppress prior outreach. Tag contacts you've worked from previous lists so they're excluded on the next pull.
 
-For SuperSDR users who need any of those: the legacy script version (in `legacy/`) still works if you run Claude Code locally with API keys in a `.env` file.
+For users who specifically need local dedup state, the legacy script version (in `legacy/`) is still available if you run Claude Code locally with API keys in a `.env` file.
 
 ---
 
