@@ -1,18 +1,9 @@
 """
-Apollo Sequence Builder
------------------------
-Data model for all 7 standard sequences.
+Apollo Sequence Builder — DATA FILE
 
-This file is NOT run directly. It is read by the apollo-campaign-builder skill,
-which uses Claude in Chrome MCP tools to execute each sequence in the Apollo UI.
-
-Usage (via skill):
-  The skill reads SEQUENCES and EXECUTION_GUIDE, then drives the browser
-  through each sequence creation using vision + DOM interaction tools.
-
-Direct reference:
-  python3 sequence_builder.py --list          # print all sequences
-  python3 sequence_builder.py --sequence 1    # print one sequence
+Read by the apollo-campaign-builder skill. The skill loads SEQUENCES and
+EXECUTION_GUIDE as Python constants, then drives the Apollo UI via the
+Claude in Chrome MCP tools. This file is not executed — there is no CLI.
 """
 
 # ------------------------------------------------------------------
@@ -239,39 +230,3 @@ KNOWN UI DETAILS:
 """
 
 
-# ------------------------------------------------------------------
-# CLI for local reference
-# ------------------------------------------------------------------
-
-def print_sequence(num: int, client: str = "ClientName"):
-    seq = SEQUENCES[num]
-    name = seq["full_name"].format(client=client)
-    print(f"\n{'='*60}")
-    print(f"Sequence {num}: {name}")
-    print(f"Objective: {seq['objective']}")
-    print(f"Steps ({len(seq['steps'])}):")
-    for i, step in enumerate(seq["steps"], 1):
-        timing = "immediately" if step["unit"] == "immediately" else f"+{step['delay']} {step['unit']}"
-        note = f"  ← {step['note']}" if "note" in step else ""
-        print(f"  {i:>2}. {step['type']:<18} {timing}{note}")
-
-
-if __name__ == "__main__":
-    import sys
-
-    client = "ClientName"
-    if "--client" in sys.argv:
-        idx = sys.argv.index("--client")
-        client = sys.argv[idx + 1]
-
-    if "--sequence" in sys.argv:
-        idx = sys.argv.index("--sequence")
-        num = int(sys.argv[idx + 1])
-        print_sequence(num, client)
-    elif "--list" in sys.argv:
-        for num in SEQUENCES:
-            print_sequence(num, client)
-    else:
-        print("Usage:")
-        print("  python3 sequence_builder.py --list [--client 'Acme Corp']")
-        print("  python3 sequence_builder.py --sequence 1 [--client 'Acme Corp']")

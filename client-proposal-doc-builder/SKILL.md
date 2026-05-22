@@ -25,13 +25,22 @@ Every outbound agency proposal has the same skeleton: a positioning section grou
 
 ## Setup (first use)
 
-On first use, Claude will ask for your agency's legal entity name and substitute it throughout the T&Cs automatically. You don't need to edit any files manually.
+On first use, Claude will ask for two things and substitute them throughout the proposal automatically. You don't need to edit any files manually:
 
-The skill reads these files from the folder you uploaded — they come pre-filled with placeholder content you can customize later if needed:
+1. **Your agency's legal entity name** — used in the T&Cs and signature block
+2. **Your real proof points** — past client results, conversation rates, show rates, named logos. The skill ships with placeholder examples (see `references/positioning_and_style.md` lines 66–86) that MUST be replaced with your numbers before sending a proposal to a real prospect
+
+The skill reads these files from the folder you uploaded:
 
 - `assets/terms_and_conditions.md` — T&Cs boilerplate
 - `assets/appendix_a_completed_conversation_criteria.md` — Completed Conversations definition
-- `references/positioning_and_style.md` — Voice guide and proof points
+- `references/positioning_and_style.md` — Voice guide + proof point examples (placeholders until you provide yours)
+
+**On every first run for a fresh upload of this skill**, ask the user for their proof points before generating the proposal:
+
+> "Quick one before I draft this — I have placeholder examples in the positioning guide (X% set rate, Y% show rate, etc.). What are your actual numbers? Give me 2–3 specific data points and any named client logos I can reference. I'll use these in the credibility paragraph."
+
+Cache the user's answers in the session and apply them. If the user says "use the defaults" or skips, fall back to generic language ("strong conversion rates", "high show rates") — never use the placeholder numbers as if they were real.
 
 ## Getting started
 

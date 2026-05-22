@@ -65,7 +65,7 @@ Don't fight the build path — name it and price it. "An in-house SDR is $80–1
 
 ## Worked examples
 
-Replace these with your agency's real proof points before using this guide with clients.
+> ⚠️ **PLACEHOLDER PROOF POINTS BELOW.** The skill prompts the user for real numbers on first run and substitutes them. If you see specific percentages (14%, 75%, etc.) below being inserted verbatim into a real proposal, the skill skipped the proof point prompt — stop and ask the user for their actual data before continuing.
 
 ### Example: DTC creative SaaS
 

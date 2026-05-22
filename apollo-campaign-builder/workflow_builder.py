@@ -1,21 +1,13 @@
 """
-Apollo Workflow Builder
------------------------
-Data model for the 3 standard workflow plays.
+Apollo Workflow Builder — DATA FILE
 
-This file is NOT run directly. It is read by the apollo-campaign-builder skill,
-which uses Claude in Chrome MCP tools to execute each workflow in the Apollo UI.
+Read by the apollo-campaign-builder skill. The skill loads WORKFLOWS and
+EXECUTION_GUIDE as Python constants, then drives the Apollo UI via the
+Claude in Chrome MCP tools. This file is not executed — there is no CLI.
 
-Workflows in Apollo trigger automatic actions when a contact's disposition changes.
-They must be created AFTER sequences — each play references a specific client sequence.
-
-Usage (via skill):
-  The skill reads WORKFLOWS and EXECUTION_GUIDE, then drives the browser
-  through each workflow creation using vision + DOM interaction tools.
-
-Direct reference:
-  python3 workflow_builder.py --list
-  python3 workflow_builder.py --workflow 1
+Workflows in Apollo trigger automatic actions when a contact's disposition
+changes. They must be created AFTER sequences — each play references a
+specific client sequence by name.
 """
 
 # ------------------------------------------------------------------
@@ -202,48 +194,3 @@ CRITICAL CHECKS BEFORE ACTIVATING:
 """
 
 
-# ------------------------------------------------------------------
-# CLI for local reference
-# ------------------------------------------------------------------
-
-def print_workflow(num: int, client: str = "ClientName"):
-    wf = WORKFLOWS[num]
-    name = wf["name"].format(client=client)
-    trigger = wf["trigger"]
-    print(f"\n{'='*60}")
-    print(f"Workflow {num}: {name}")
-    print(f"Trigger: {trigger['type']} → disposition = \"{trigger['disposition']}\"")
-    print(f"  ({trigger['description']})")
-    print(f"Actions ({len(wf['actions'])}):")
-    for i, action in enumerate(wf["actions"], 1):
-        atype = action["type"]
-        detail = ""
-        if "sequence" in action:
-            detail = f" → {action['sequence'].format(client=client)}"
-        elif "list_name" in action:
-            detail = f" → {action['list_name'].format(client=client)}"
-        elif "deal_stage" in action:
-            detail = f" → stage: {action['deal_stage']}"
-        note = f"\n     NOTE: {action['note']}" if "note" in action else ""
-        print(f"  {i}. {atype}{detail}{note}")
-
-
-if __name__ == "__main__":
-    import sys
-
-    client = "ClientName"
-    if "--client" in sys.argv:
-        idx = sys.argv.index("--client")
-        client = sys.argv[idx + 1]
-
-    if "--workflow" in sys.argv:
-        idx = sys.argv.index("--workflow")
-        num = int(sys.argv[idx + 1])
-        print_workflow(num, client)
-    elif "--list" in sys.argv:
-        for num in WORKFLOWS:
-            print_workflow(num, client)
-    else:
-        print("Usage:")
-        print("  python3 workflow_builder.py --list [--client 'Acme Corp']")
-        print("  python3 workflow_builder.py --workflow 1 [--client 'Acme Corp']")
