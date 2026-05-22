@@ -1,0 +1,40 @@
+name: Build per-skill ZIPs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build ZIPs for skills containing SKILL.md
+        run: |
+          mkdir -p dist
+          for dir in */; do
+            dir="${dir%/}"
+            if [ -f "$dir/SKILL.md" ]; then
+              echo "Zipping $dir"
+              (cd "$dir" && zip -r "../dist/$dir.zip" .)
+            fi
+          done
+          echo "Built:"
+          ls -la dist/
+
+      - name: Replace 'latest' release with fresh ZIPs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag 2>/dev/null || true
+          gh release create latest \
+            --target "${{ github.sha }}" \
+            --title "Latest skills (auto-built from main)" \
+            --notes "Per-skill ZIPs auto-built from the latest \`main\` commit. The README's Download ZIP links resolve here once swapped to native GitHub release URLs." \
+            dist/*.zip
