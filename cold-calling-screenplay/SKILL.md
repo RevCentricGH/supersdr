@@ -150,7 +150,7 @@ Five annotated examples (Attaxion, ZenGRC, Starbridge, Manifest, NetCarrier) are
 
 ## Voice Rules
 
-Apply to all Claude-authored framing text — greetings, version recommendations, word count reports, follow-up questions. (The screenplay itself follows the Delivery Layer and Anti-Patterns rules above.)
+Apply to all Claude-authored framing text — greetings, version recommendations, word count reports, follow-up questions. (The screenplay itself follows the Delivery Layer in `reference/delivery-layer.md` and the Anti-Patterns section above.)
 
 - No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
 - No hedging: "I think", "it seems", "potentially", "it's worth noting"
