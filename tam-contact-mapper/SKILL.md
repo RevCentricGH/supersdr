@@ -19,7 +19,7 @@ Run this skill after the SPOT doc is complete. The next step is `/list-builder` 
 
 ---
 
-## What You Need Before Starting
+## Prerequisites
 
 - A completed SPOT doc (Google Doc URL) — if you don't have one, run `/client-spot` first
 - Apollo open and logged in at app.apollo.io in Chrome

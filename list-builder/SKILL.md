@@ -5,7 +5,9 @@ description: Build an enriched, dial-ready contact list from a client's SPOT doc
 
 # List Builder
 
-Builds a dial-ready contact list using the client's SPOT doc as the ICP source and Apollo MCP for sourcing + enrichment. Everything runs through MCP tools and Claude's reasoning. Zero local setup.
+## Purpose
+
+Builds a dial-ready, intent-scored contact list using a client's SPOT doc as the ICP source and Apollo MCP for sourcing + enrichment. Outputs a Google Sheet (or inline table) with email status, phone line-type, fit score, intent score, urgency tier, and a hook per contact. Everything runs through MCP tools — no scripts, no API keys, no local files.
 
 ---
 
@@ -38,7 +40,7 @@ Don't try to substitute — Apollo is the core dependency.
 
 ---
 
-## Starting
+## Getting started
 
 Parse the client name from the user's message. If missing, ask once: "Which client?"
 
@@ -173,36 +175,7 @@ This typically cuts Layer 4 wall time by 5-10× and keeps your main context clea
 
 If Perplexity MCP / Apollo MCP / other research tools are connected, sub-agents use them automatically — they inherit the user's MCP environment.
 
-**Compound INTENT_SCORE:**
-```
-INTENT_SCORE = Σ (trigger_points × recency_multiplier)
-```
-
-Trigger points: job change in window 40 | funding round 35 | hiring signal 20 | tech stack change 15 | content engagement 10
-
-Recency multipliers: yesterday 1.5× | this week 1.2× | this month 1.0× | 30+ days 0.3×
-
-**Urgency tier:**
-- 150+ → Red Hot (escalate to AE, <1hr SLA)
-- 100-149 → Hot (<24hr SLA)
-- 50-99 → Warm
-- 20-49 → Cool
-- <20 → Cold
-
-**Top Signals:** 3-5 strongest with recency, semicolon-separated.
-
-**Hook generation (7-bucket framework, ranked by value):**
-1. Self-authored content (posts, articles, podcasts) → Strong
-2. Engaged content (likes, shares) → Strong
-3. Self-identified traits (LinkedIn headline) → Lite
-4. Junk drawer (interests, schools) → Lite
-5. Background (tenure, awards) → Lite
-6. Company-level (funding, news) → Lite
-7. Technographics (tools, stack) → Lite
-
-Try in order, stop at first hit. Bucket 1-2 = Personalization Depth `strong`. Bucket 3+ = `lite`.
-
-Red Hot requires Strong Hook — if no Bucket 1-2 found, try escalating to a different contact at the same company.
+Load `reference/output-schema.md` for the INTENT_SCORE formula, urgency tier thresholds, and hook bucket framework. Apply them here.
 
 ---
 
@@ -233,21 +206,7 @@ If no campaign MCPs are connected, skip this stage. Just tell the user where the
 
 ### Output schema (the contract)
 
-| Column | Filled by | Notes |
-|---|---|---|
-| First Name, Last Name, Title, Company, Company Domain | Apollo MCP | Identity |
-| Email, Email Status, **Email Ready** (bool) | Apollo + ZeroBounce if connected | Email Ready = ZeroBounce `valid` / `catch-all`, or Apollo `verified` as fallback |
-| Phone, Phone Type, **Phone Ready** (bool) | Apollo + Twilio if connected | Phone Ready = MOBILE or LANDLINE; Phone Type from Twilio Lookup |
-| LinkedIn URL, **LinkedIn Ready** (bool) | Apollo MCP | LinkedIn Ready = URL present |
-| **Fit Score** (0-100) | Claude inline | Heuristic ICP score |
-| Fit Tier (1-3) | Claude inline | Tier 1 = ≥75 |
-| **Intent Score** (0-200+) | Claude inline (Tier 1 only) | Compound signal × recency |
-| **Urgency Tier** | Claude inline | Red Hot / Hot / Warm / Cool / Cold |
-| **Top Signals** | Claude inline | 3-5 strongest with recency |
-| **Hook** | Claude inline | 1-line opener using 7-bucket framework |
-| **Personalization Depth** | Claude inline | strong / lite |
-| List Source Tier | SPOT doc | A / B / C (defaults to C — Apollo firmographic) |
-| List Status | Derived | READY / EMAIL_ONLY / MOBILE_ONLY / etc. |
+See `reference/output-schema.md` for the full column definitions, urgency tier thresholds, intent score formula, and hook bucket framework. Load it before Stage 7.
 
 ---
 
@@ -298,11 +257,11 @@ Fill the diagram's `{placeholder}` values from the actual stage counts. If a sta
 
 ---
 
-## Trade-offs to know
+## Gotchas
 
-Most capabilities run through MCPs (ZeroBounce for email validation, Twilio for phone line-type, Clay for fallback enrichment, Smartlead/Instantly/HeyReach for downstream push). One real trade-off:
-
-- **Persistent dedup across runs**: no local cache. Workaround: use Apollo's contact tagging or `already_contacted` filters to suppress prior outreach. Tag contacts you've worked from previous lists so they're excluded on the next pull.
+- **Persistent dedup across runs**: no local cache. Use Apollo's contact tagging or `already_contacted` filters to suppress prior outreach. Tag contacts from previous lists so they're excluded on the next pull.
+- **Apollo MCP hit rate low (<40%)**: offer a Clay enrichment pass on unrevealed contacts before proceeding to validation.
+- **Layer 4 wall time**: always spawn parallel sub-agents for Tier 1 enrichment — sequential web search across 30+ companies is too slow and burns context.
 
 ---
 
