@@ -100,7 +100,7 @@ If the prospect has no meaningful web presence at all, skip this step and lean o
 
 Use the AskUserQuestion tool. Ask only the questions you don't already have clear answers to from the call and prior conversation. The default question set:
 
-1. **Agency name** — What is your agency's name and legal entity name? (Used in the title block and T&Cs. Example: "RevCentric" / "RevCentric LLC")
+1. **Agency name** — What is your agency's name and legal entity name? (Used in the title block and T&Cs. Example: "YourAgency" / "YourAgency LLC")
 2. **Pricing structure** — Which tier(s) to present? Single tier or two side-by-side? Ask the user to confirm the conversation volumes and monthly investment for each tier they want to include.
 3. **Channels** — Calling only, email only, or combined? (Default to what was pitched on the call.)
 4. **Exclusivity / lead overlap** — Hard exclusivity clause in T&Cs, mention in body with soft language, or defer to next call? (Defer is the safest default unless the user wants to commit.)
@@ -229,7 +229,7 @@ Substitute `{Client}` with the prospect company name.
 
 ### Step 8 — Draft the follow-up email
 
-After the doc is delivered, immediately draft the follow-up email Hunter will send with the proposal link. Present `subject` and `body` as plain text the user can copy straight into Gmail.
+After the doc is delivered, immediately draft the follow-up email you will send with the proposal link. Present `subject` and `body` as plain text the user can copy straight into Gmail.
 
 #### Route selection
 
@@ -270,7 +270,7 @@ Bridge — "As promised, I've put together a customized proposal for the {scope}
 engagement we discussed." Infer scope from summary + pricing_discussed (e.g.,
 "3-month cold email + cold calling", "fractional SDR training build-out").
 
-[Optional confidence line] — only if a concrete past RevCentric campaign result was
+[Optional confidence line] — only if a concrete past campaign result from your agency was
 explicitly mentioned in the call summary. Never fabricate campaign names or numbers.
 Skip entirely if no signal exists.
 
@@ -292,10 +292,10 @@ next call}." Use real names from the call if available ("with your brother/co-fo
 Append "{Other RC Attendee} will also be looped in." only if explicitly known.
 
 Talk soon,
-Hunter
+[Your Name]
 ```
 
-Do not append title, phone, or email after Hunter — Gmail signature handles that.
+Do not append title, phone, or email after the sign-off name — Gmail signature handles that.
 
 **Length:** 100–180 words.
 
@@ -311,53 +311,51 @@ One direct sentence on where we left off.
 Soft CTA — book a follow-up call, share more context, or reply with timing.
 
 Talk soon,
-Hunter
+[Your Name]
 ```
 
 **Length:** 60–130 words.
 
 #### Subject line patterns
 
-- `{Company} x RevCentric Proposal + {Day} Follow-Up`
+- `{Company} x [Your Agency] Proposal + {Day} Follow-Up`
 - `{Company} - Quick Follow-Up`
 - `{Company} Proposal`
 
 Always include the company name. Match the pattern to the route — use the first pattern for proposal-link, second or third for needs-followup.
 
-#### Reference output (Pinprick, 2026-05-05)
+#### Reference output
 
 ```
-Subject: Pinprick x RevCentric Proposal + Friday Follow-Up
+Subject: {Company} x [Your Agency] Proposal + Friday Follow-Up
 
-Hey Nick,
+Hey {First Name},
 
-Really great catching up today love what you're building with Pinprick.
+Really great catching up today — love what you're building with {Company}.
 
 As promised, I've put together a customized proposal for the 3-month cold email +
-cold calling engagement we discussed. Given the results from our Crux campaign, i
-think this will be a slam dunk.
+cold calling engagement we discussed. Given the results from our {Prior Client} campaign,
+i think this will be a slam dunk.
 
 A few highlights from the proposal:
 - *Cold Calling* - dedicated dialing for higher-touch conversion with qualified prospects
-- *Cold Email* - high-volume, personalized sequences targeting your ICP (companies
-  spending $50K-7 figures/month on paid ads)
+- *Cold Email* - high-volume, personalized sequences targeting your ICP ({relevant ICP signal})
 - *3-Month Commitment* - enough runway to optimize, iterate, and deliver real pipeline
 
-Take a look with your brother/co-founder and note any questions - happy to walk through
+Take a look with your {co-founder/partner} and note any questions - happy to walk through
 everything on Friday.
 
-*Friday Follow-Up: 9:30 AM PST* - should've already received the cal invite. Jace will
-also be looped in.
+*Friday Follow-Up: 9:30 AM PST* - should've already received the cal invite. {Colleague}
+will also be looped in.
 
 Talk soon,
-Hunter
+[Your Name]
 ```
 
 ## Assets
 
 - `assets/terms_and_conditions.md` — T&Cs boilerplate. Replace `{AGENCY_LEGAL_NAME}` with your legal entity name once. Then per-proposal: swap `{COMPANY}`, `{ENGAGEMENT_DESCRIPTION}`, `{FEES_LANGUAGE}`, and optional §8 exclusivity addendum language.
 - `assets/appendix_a_completed_conversation_criteria.md` — Appendix A defining Completed Conversations + all billable / non-billable disposition criteria.
-- `assets/reference_proposal_homegrown.md` — Full example proposal (calling + email pilot) as a structural reference for combined-channel proposals.
 
 ## References
 

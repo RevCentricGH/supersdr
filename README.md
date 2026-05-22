@@ -65,7 +65,7 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 
 > Some skills (`apollo-campaign-builder`, `client-proposal-doc-builder`) include Python scripts and asset files that Claude needs alongside SKILL.md. Uploading the whole folder ensures nothing is missing.
 >
-> `list-builder` is now a single SKILL.md file — it runs entirely through MCP tools and Claude's reasoning. No scripts, no API keys to manage. (A legacy script version with local API keys is preserved under `list-builder/legacy/` for users running Claude Code locally.)
+> `list-builder` is now a single SKILL.md file — it runs entirely through MCP tools and Claude's reasoning. No scripts, no API keys to manage.
 
 ## Optional — async notifications via Channels
 
