@@ -104,7 +104,7 @@ Ask the user to confirm or provide a custom search name before proceeding.
 
 Read `tam_filter_builder.py`. It contains:
 - `FILTER_SCHEMA` — how each extracted SPOT field maps onto an Apollo filter section (UI type, include/exclude support, special toggles)
-- `EXECUTION_GUIDE` — the ordered, step-by-step browser walkthrough (STEP A → STEP L)
+- `EXECUTION_GUIDE` — the ordered, step-by-step browser walkthrough (STEP A → STEP K)
 
 Follow `EXECUTION_GUIDE` exactly. Use `mcp__Claude_in_Chrome__navigate` to open `https://app.apollo.io/#/people` and confirm the page loaded (not redirected to login) before STEP B.
 
@@ -119,22 +119,22 @@ If a verification fails twice in a row on the same filter, stop and screenshot b
 **After all filters are applied:**
 
 ```
-Filter         Apollo section         Applied   Result count after
--------------  ---------------------  --------  ------------------
-Job Title      Job Title               ✓         { … }
-Seniority      Seniority Level         ✓         { … }
-# Employees    # Employees             ✓         { … }
-Location       Location (Company HQ)   ✓         { … }
-Industry       Industry                ✓         { … }
-Technologies   Technologies            ✓         { … }
-Funding Stage  Funding Stage           ✓         { … }
-Keywords       Keywords                ✓         { … }
-Exclusions     Company Domain (excl.)  ✓         { … }
+SPOT field         Apollo section               Applied   Result count after
+-----------------  ---------------------------  --------  ------------------
+Job Titles         Job Titles                    ✓         { … }
+Seniority          Job Titles → Mgmt Levels      ✓         { … }
+# Employees        # Employees                   ✓         { … }
+Location           Location (Account HQ tab)     ✓         { … }
+Industry           Industry & Keywords           ✓         { … }
+Keywords           Industry & Keywords           ✓         { … }
+Technologies       Technologies                  ✓         { … }
+Funding            Funding                       ✓         { … }
+Exclusions         per-section inline            ✓         { … }
 
 Final TAM size: ~{N} contacts
 ```
 
-Then proceed to STEP L (save the search) per `EXECUTION_GUIDE`.
+Then proceed to STEP K (save the search) per `EXECUTION_GUIDE`.
 
 ---
 
@@ -158,7 +158,7 @@ Next: run /list-builder when you're ready to pull an enriched, dial-ready list f
 
 ## Fallbacks
 
-**0 results:** Tell the user which filters are likely too narrow — start with Employee Range, then Location, then Industry.
+**0 results:** Tell the user which filters are likely too narrow — broaden in this order: # Employees → Location → Industry → Keywords. (Same order as `tam_filter_builder.py`'s EXECUTION_GUIDE STEP J.)
 
 **Filter chip not found:** Some filters live under "More Filters" — click that to expand the full panel.
 

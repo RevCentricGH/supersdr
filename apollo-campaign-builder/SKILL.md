@@ -5,6 +5,8 @@ description: Set up a new client's full Apollo campaign — automatically create
 
 # Apollo Campaign Builder
 
+> **STATUS: DRY-RUN VALIDATED 2026-05-20.** UI references in `sequence_builder.py` and `workflow_builder.py`'s `EXECUTION_GUIDE` constants were validated against the live Apollo UI via a manual dry run on 2026-05-20. Re-validate after any major Apollo UI release and bump the date in all three files when you do.
+
 ## Purpose
 
 Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 3 workflow plays directly in the Apollo UI — no manual clicking.
