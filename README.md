@@ -9,7 +9,7 @@ Claude Cowork skills for the SuperSDR community.
 | [client-spot](client-spot/) | Generate a complete multi-tab Single Point of Truth (SPOT) Google Doc for a new client — campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup |
 | [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically |
 | [tam-contact-mapper](tam-contact-mapper/) | Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view — broad contact universe, no enrichment, stays in Apollo |
-| [list-builder](list-builder/) | Build an enriched, validated, signal-enriched dial-ready list from the TAM saved search or fresh from the SPOT doc — reveals emails and phones, validates, adds signal notes per company |
+| [list-builder](list-builder/) | Build an enriched, intent-scored, dial-ready contact list from the client's SPOT doc — uses Apollo MCP for sourcing/enrichment, Claude inline for ICP qualification, Layer 4 signal research, and 7-bucket hook generation. Outputs a Google Sheet with channel routing per contact (Red Hot / Hot / Warm / Cool / Cold) |
 | [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 3 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) |
 | [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families |
 | [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block |
@@ -19,18 +19,18 @@ Claude Cowork skills for the SuperSDR community.
 Complete this once before running any skills that require external connections.
 
 **Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, and `client-proposal-doc-builder`
-Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder).
+Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
 
-**Apollo API key** — required by `list-builder`
-Go to Apollo → Settings → Integrations → API and copy your key. Requires an Apollo paid plan. The skill will ask for it on first run.
+**Apollo MCP** — required by `list-builder`
+Go to Settings → MCP Servers in Cowork and connect Apollo (`apollo-io`). One-time setup. The skill calls Apollo through the MCP — no API key needed in the skill itself.
 
 **Browser automation** — required by `tam-contact-mapper` and `apollo-campaign-builder`
 Go to Settings → Computer Use in Cowork and enable browser control. Log into Apollo in Chrome and keep that tab open when running these skills.
 
-**Email validation key** (optional) — used by `list-builder` for email verification
-BounceBan or NeverBounce API key. Without it, emails are marked UNVERIFIED rather than validated. Recommended before loading contacts into sequences.
+**Perplexity MCP** (optional) — used by `list-builder` for richer Layer 4 signal research
+If connected, the skill uses it automatically. Otherwise falls back to native web search.
 
-| Skill | Google Drive | Apollo API key | Browser automation | Email validation key |
+| Skill | Google Drive | Apollo MCP | Browser automation | Perplexity MCP |
 |---|---|---|---|---|
 | client-spot | | | | |
 | cold-calling-screenplay | | | | |
@@ -47,7 +47,9 @@ BounceBan or NeverBounce API key. Without it, emails are marked UNVERIFIED rathe
 3. In Claude Cowork, upload the entire skill folder (not just SKILL.md — some skills need companion files)
 4. Follow the instructions in the skill
 
-> Some skills (`list-builder`, `apollo-campaign-builder`, `client-proposal-doc-builder`) include Python scripts and asset files that Claude needs alongside SKILL.md. Uploading the whole folder ensures nothing is missing.
+> Some skills (`apollo-campaign-builder`, `client-proposal-doc-builder`) include Python scripts and asset files that Claude needs alongside SKILL.md. Uploading the whole folder ensures nothing is missing.
+>
+> `list-builder` is now a single SKILL.md file — it runs entirely through MCP tools and Claude's reasoning. No scripts, no API keys to manage. (A legacy script version with local API keys is preserved under `list-builder/legacy/` for users running Claude Code locally.)
 
 ## Data flow
 
