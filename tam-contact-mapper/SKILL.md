@@ -5,11 +5,17 @@ description: Apply a client's ICP filters in Apollo's People tab and save the se
 
 # TAM Contact Mapper
 
+> **STATUS: LIVE-VALIDATED 2026-05-22.** The Apollo People UI references in `tam_filter_builder.py`'s `EXECUTION_GUIDE` were validated against the live Apollo UI via a Playwright DOM probe on 2026-05-22. Re-validate after any major Apollo UI release and bump the date in both files when you do. Still pending: a full end-to-end click-through that actually applies filters and clicks "Save as new search" inside Claude Cowork (where `mcp__Claude_in_Chrome__*` browser tools are available) — the probe only inspected and opened panels, it did not exercise the full save flow.
+
 ## Purpose
 
 Reads a client's SPOT doc, extracts ICP filters, and applies them in Apollo's People tab using browser automation. Saves the filtered search as a named view — this is the broad TAM. No contacts are imported or enriched at this stage. The saved search is the output.
 
 Run this skill after the SPOT doc is complete. The next step is `/list-builder` when you're ready to build a dial-ready enriched list from this TAM.
+
+## Files
+
+- `tam_filter_builder.py` — `FILTER_SCHEMA` mapping SPOT fields to Apollo filter sections + the `EXECUTION_GUIDE` constant the skill follows during browser automation
 
 ---
 
@@ -96,71 +102,39 @@ Ask the user to confirm or provide a custom search name before proceeding.
 
 ## Step 4 — Apply filters in Apollo (Browser Automation)
 
-Navigate to `https://app.apollo.io/#/people`. Apply filters in this order using the EXECUTION_GUIDE below.
+Read `tam_filter_builder.py`. It contains:
+- `FILTER_SCHEMA` — how each extracted SPOT field maps onto an Apollo filter section (UI type, include/exclude support, special toggles)
+- `EXECUTION_GUIDE` — the ordered, step-by-step browser walkthrough (STEP A → STEP L)
 
-### EXECUTION_GUIDE
+Follow `EXECUTION_GUIDE` exactly. Use `mcp__Claude_in_Chrome__navigate` to open `https://app.apollo.io/#/people` and confirm the page loaded (not redirected to login) before STEP B.
 
-**Navigate to People tab**
-- Go to `https://app.apollo.io/#/people`
-- Wait for the page to load and the filter bar to appear
+**Verification checkpoints — run after EACH filter is applied:**
 
-**Job Titles**
-- Click the "Job Titles" filter chip
-- For each title in `target_titles`: type the title → select from the autocomplete dropdown
-- Click away or press Escape to close
+1. The corresponding active-filter pill appears above the results table
+2. The result count drops (or changes) — if it does not change, the filter did not take and you must retry that filter before continuing
+3. The sidebar section shows the filter as applied (check or count indicator)
 
-**Seniority** (if provided)
-- Click the "Seniority" filter chip
-- Check each matching level (e.g. Director, VP, C-Suite, Manager, Owner)
-- Click away to close
+If a verification fails twice in a row on the same filter, stop and screenshot before retrying. Do not skip filters silently.
 
-**Employee Count**
-- Click the "# Employees" filter chip
-- Enter the min and max values from `employee_range`
-- Confirm the range
+**After all filters are applied:**
 
-**Location** (Company HQ)
-- Click the "Location" filter chip
-- Select "Company HQ Location" (not person location) if given the choice
-- For each location: type → select from dropdown
-- Click away to close
+```
+Filter         Apollo section         Applied   Result count after
+-------------  ---------------------  --------  ------------------
+Job Title      Job Title               ✓         { … }
+Seniority      Seniority Level         ✓         { … }
+# Employees    # Employees             ✓         { … }
+Location       Location (Company HQ)   ✓         { … }
+Industry       Industry                ✓         { … }
+Technologies   Technologies            ✓         { … }
+Funding Stage  Funding Stage           ✓         { … }
+Keywords       Keywords                ✓         { … }
+Exclusions     Company Domain (excl.)  ✓         { … }
 
-**Industry** (if provided)
-- Click the "Industry" filter chip
-- For each industry: type → select from dropdown
-- Click away to close
+Final TAM size: ~{N} contacts
+```
 
-**Technologies** (if `tech_signals` provided)
-- Click the "Technologies" filter chip
-- For each technology: type → select from dropdown
-- Use "Currently uses any of" (not "all of")
-- Click away to close
-
-**Funding Stage** (if provided)
-- Click the "Funding Stage" filter chip
-- Check each matching stage
-- Click away to close
-
-**Keywords** (if provided)
-- Click the "Keywords" filter chip
-- Enter keywords
-- Click away to close
-
-**Exclusions** (if provided)
-- Look for "Exclude" options — may be under "More Filters"
-- Find domain exclusion and enter each exclusion domain
-- Click away to close
-
-**Review result count**
-- Note the total contact count shown at the top of the results
-- If 0 results: stop and report back — suggest broadening Employee Range or Location first
-- If results look reasonable, proceed to save
-
-**Save the search**
-- Click "Save search" or "Save as new search" (top right of the People search area)
-- Enter the name: `{client_name} - TAM - {YYYY-MM-DD}`
-- Confirm/Save
-- Verify it appears in the saved searches list
+Then proceed to STEP L (save the search) per `EXECUTION_GUIDE`.
 
 ---
 
