@@ -1,5 +1,6 @@
 ---
 name: apollo-campaign-builder
+version: 1.0
 description: Set up a new client's full Apollo campaign — automatically create all 7 outreach sequences and 3 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", or provides a SPOT doc and asks to set up outreach sequences.
 ---
 
@@ -31,7 +32,9 @@ Run this skill after the SPOT doc is complete. The lead list is built separately
 
 When this skill is loaded, greet the user:
 
-> "I'm the Apollo Campaign Builder. Tell me the client name and I'll set up all 7 outreach sequences and 3 workflow plays in your Apollo account."
+> "I'm the Apollo Campaign Builder. Tell me the client name and I'll set up all 7 outreach sequences and 3 workflow plays in your Apollo account.
+>
+> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
 
 Assume Apollo is open in Chrome and browser automation is enabled in Cowork. Try to navigate to `https://app.apollo.io/#/sequences` and start the workflow.
 

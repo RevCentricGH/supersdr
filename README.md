@@ -14,6 +14,26 @@ Claude Cowork skills for the SuperSDR community.
 | [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
 | [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
 
+## Stay updated
+
+Skills improve over time. Two ways to know when something changes:
+
+**Watch this repo** — click **Watch → Custom → Releases only** at the top of this page. GitHub will email you whenever a new version ships. Takes 10 seconds.
+
+**Check the version line** — every skill shows its version number when you load it (e.g. "Version 1.2"). If the version in your uploaded copy doesn't match the current version in this README's table, re-download and re-upload that skill's ZIP.
+
+| Skill | Current version |
+|---|---|
+| client-spot | 1.0 |
+| cold-calling-screenplay | 1.0 |
+| tam-contact-mapper | 1.0 |
+| list-builder | 1.0 |
+| apollo-campaign-builder | 1.0 |
+| objection-drill | 1.0 |
+| client-proposal-doc-builder | 1.0 |
+
+---
+
 ## Setup
 
 Complete this once before running any skills that require external connections.

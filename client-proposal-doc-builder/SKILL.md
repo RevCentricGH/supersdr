@@ -1,5 +1,6 @@
 ---
 name: client-proposal-doc-builder
+version: 1.0
 description: Build a polished, send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a Google Doc, grounded in a discovery-call transcript or summary, then draft the follow-up email to send the prospect the proposal link. Trigger this skill aggressively whenever the user mentions building a proposal, a DFY calling proposal, a Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect in any context involving outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. The skill bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, produces a complete Google Doc with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs, and then drafts the follow-up email (proposal-link or soft follow-up route).
 ---
 
@@ -34,7 +35,9 @@ When this skill is loaded, greet the user:
 
 > "I'm the Proposal Builder. I'll draft a complete, ready-to-send proposal for your prospect plus a follow-up email to send with the link.
 >
-> Share what you have from the discovery call — paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works."
+> Share what you have from the discovery call — paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works.
+>
+> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
 
 Assume Google Drive is connected with edit access. Proceed straight to the Workflow once the user provides call material.
 
