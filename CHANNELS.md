@@ -10,9 +10,9 @@ This unlocks async, event-driven workflows that the SuperSDR skills alone don't 
 
 You probably don't need channels to use any of the SuperSDR skills. The skills work fine in normal back-and-forth Claude sessions. Channels are for when you want:
 
-- **Async status checks from your phone** — "check Cekura campaign stats" from Telegram → Claude pulls Smartlead numbers → replies back
-- **Webhook-driven reactions** — Smartlead webhook fires when bounce rate spikes → Claude auto-investigates the bounce list and flags invalid emails
-- **Team coordination** — Hunter/Nelson can ping Claude from Discord/Telegram without opening Cowork
+- **Async status checks from your phone** — "check campaign stats for [client]" from Telegram → Claude pulls SmartLead numbers → replies back
+- **Webhook-driven reactions** — SmartLead webhook fires when bounce rate spikes → Claude auto-investigates the bounce list and flags invalid emails
+- **Team coordination** — teammates can ping Claude from Discord/Telegram without opening Cowork
 - **Off-session triggers** — something fires while you're away, Claude handles it and you see the summary when you come back
 
 Skip this entirely if you're a solo operator who only uses Claude from the desktop. The skills already cover that case.
@@ -23,10 +23,10 @@ Skip this entirely if you're a solo operator who only uses Claude from the deskt
 
 | Channel | Status | Best for |
 |---|---|---|
-| Telegram | Official plugin | Personal async checks ("how's Cekura looking?") |
+| Telegram | Official plugin | Personal async checks ("how's [client] looking?") |
 | Discord | Official plugin | Team coordination, shared workflows |
 | iMessage | Official plugin | Mac-only, lower friction for solo use |
-| Webhook | Custom MCP | Production triggers (Smartlead bounce alerts, Apollo signal events) |
+| Webhook | Custom MCP | Production triggers (SmartLead bounce alerts, Apollo signal events) |
 
 ---
 
@@ -61,28 +61,28 @@ Discord and iMessage follow the same pattern with their respective bot/auth setu
 
 ### list-builder
 
-- "Build a list for Acme" from Telegram → Claude runs the skill end-to-end → Telegram gets the final summary with the Google Sheet link
-- Smartlead webhook on a campaign bounce spike → Claude opens the bounce list, identifies the bad rows, pushes a "validation needed" alert back to Telegram with the count
+- "Build a list for [client]" from Telegram → Claude runs the skill end-to-end → Telegram gets the final summary with the Google Sheet link
+- SmartLead webhook on a campaign bounce spike → Claude opens the bounce list, identifies the bad rows, pushes a "validation needed" alert back to Telegram with the count
 
 ### apollo-campaign-builder
 
-- Long-running browser automation can take 30+ minutes for all 7 sequences and 3 workflows. Set up a Telegram channel so Claude pushes a notification when each sequence completes ("✓ Cekura - Call Only created, 10 steps, active") instead of you watching the screen
+- Long-running browser automation can take 30+ minutes for all 7 sequences and 3 workflows. Set up a Telegram channel so Claude pushes a notification when each sequence completes ("✓ [Client] - Call Only created, 10 steps, active") instead of you watching the screen
 
 ### client-proposal-doc-builder
 
-- Hunter on a call: "I need the Acme proposal in 10 min" → Telegram → Claude generates the proposal + drafts the follow-up email → Telegram gets the doc URL + email body to copy
-- Useful when the user isn't at their desk during the discovery call
+- On a call: "I need the [client] proposal in 10 min" → Telegram → Claude generates the proposal + drafts the follow-up email → Telegram gets the doc URL + email body to copy
+- Useful when you're not at your desk during a discovery call
 
 ### Generic — cross-skill
 
-- Discord channel `#campaign-alerts` where the team gets pinged on Red Hot Layer 4 contacts (intent score ≥150 from the list-builder)
+- Discord channel for campaign alerts where the team gets pinged on high-intent contacts (intent score ≥150 from the list-builder)
 - Telegram alerts when scheduled tasks (nightly list refresh, weekly campaign health check) finish
 
 ---
 
 ## Custom webhook channels
 
-For production triggers (Smartlead bounce events, Apollo signal events, calendar booking confirmations), you'll want a webhook channel rather than a person-driven channel. Pattern:
+For production triggers (SmartLead bounce events, Apollo signal events, calendar booking confirmations), you'll want a webhook channel rather than a person-driven channel. Pattern:
 
 1. Build a small webhook receiver (any framework — Fly.io, Railway, Cloudflare Worker)
 2. Register it as a custom MCP channel in your Cowork settings
