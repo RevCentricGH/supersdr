@@ -4,15 +4,15 @@ Claude Cowork skills for the SuperSDR community.
 
 ## Skills
 
-| Skill | What it does |
-|-------|-------------|
-| [client-spot](client-spot/) | Generate a complete multi-tab Single Point of Truth (SPOT) Google Doc for a new client — campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup |
-| [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically |
-| [tam-contact-mapper](tam-contact-mapper/) | Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view — broad contact universe, no enrichment, stays in Apollo |
-| [list-builder](list-builder/) | Build an enriched, intent-scored, dial-ready contact list from the client's SPOT doc — uses Apollo MCP for sourcing/enrichment, Claude inline for ICP qualification, Layer 4 signal research, and 7-bucket hook generation. Outputs a Google Sheet with channel routing per contact (Red Hot / Hot / Warm / Cool / Cold) |
-| [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 3 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) |
-| [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families |
-| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block |
+| Skill | What it does | |
+|-------|-------------|---|
+| [client-spot](client-spot/) | Generate a complete multi-tab Single Point of Truth (SPOT) Google Doc for a new client — campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/client-spot) |
+| [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/cold-calling-screenplay) |
+| [tam-contact-mapper](tam-contact-mapper/) | Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view — broad contact universe, no enrichment, stays in Apollo | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/tam-contact-mapper) |
+| [list-builder](list-builder/) | Build an enriched, intent-scored, dial-ready contact list from the client's SPOT doc — uses Apollo MCP for sourcing/enrichment, Claude inline for ICP qualification, Layer 4 signal research, and 7-bucket hook generation. Outputs a Google Sheet with channel routing per contact (Red Hot / Hot / Warm / Cool / Cold) | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/list-builder) |
+| [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 3 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/apollo-campaign-builder) |
+| [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/objection-drill) |
+| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | [Download ZIP](https://download-directory.github.io/?url=https://github.com/RevCentricGH/supersdr/tree/main/client-proposal-doc-builder) |
 
 ## Setup
 
@@ -54,10 +54,14 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 
 ## How to use
 
-1. Click the green **Code** button at the top of this page → **Download ZIP**
-2. Extract the ZIP and open the folder for the skill you want (e.g. `client-spot`)
-3. In Claude Cowork, upload the entire skill folder (not just SKILL.md — some skills need companion files)
-4. Follow the instructions in the skill
+**Recommended (1-click per skill):**
+
+1. Click the **Download ZIP** link next to the skill you want in the table above. You get a ZIP of just that skill folder.
+2. Extract the ZIP.
+3. In Claude Cowork, upload the entire extracted folder (not just SKILL.md — some skills need companion files).
+4. Follow the instructions in the skill.
+
+**Alternative (whole repo):** Click the green **Code** button at the top of this page → **Download ZIP** to grab everything, then extract and upload the folder for the skill you want.
 
 > Some skills (`apollo-campaign-builder`, `client-proposal-doc-builder`) include Python scripts and asset files that Claude needs alongside SKILL.md. Uploading the whole folder ensures nothing is missing.
 >
