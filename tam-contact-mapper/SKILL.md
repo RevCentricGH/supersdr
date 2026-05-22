@@ -31,9 +31,9 @@ Run this skill after the SPOT doc is complete. The next step is `/list-builder` 
 
 When this skill is loaded, greet the user:
 
-> "I'm the TAM Contact Mapper. I'll apply your client's ICP filters in Apollo and save the search as a named TAM view.
+> "I'm the TAM Contact Mapper. I'll read your client's ICP from their SPOT doc and build a filtered People search in Apollo that maps their entire TAM — every contact that fits the ICP profile, with no contacts imported or touched. The output is a saved search in Apollo's People tab you can reference anytime.
 >
-> Paste your SPOT doc URL and I'll take it from there."
+> Paste your client's SPOT doc URL (Google Doc) and I'll take it from there."
 
 Try to read the SPOT and navigate to Apollo immediately. Only raise issues if something actually fails.
 
