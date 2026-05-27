@@ -38,7 +38,7 @@ Skills improve over time. Two ways to know when something changes:
 
 Complete this once before running any skills that require external connections.
 
-**Claude Desktop App Installation** — Required to use Cowork and Code
+**Claude Desktop App Installation** — Required to use Cowork and Code https://claude.com/download
 
 **Project Instructions (recommended — one-time)** — enforces natural, non-AI-sounding output across all sessions
 
