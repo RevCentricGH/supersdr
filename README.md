@@ -38,6 +38,8 @@ Skills improve over time. Two ways to know when something changes:
 
 Complete this once before running any skills that require external connections.
 
+**Claude Desktop App Installation** — Required to use Cowork and Code
+
 **Project Instructions (recommended — one-time)** — enforces natural, non-AI-sounding output across all sessions
 
 Go to Claude → Settings → Project → Instructions in Cowork and paste this:
@@ -52,7 +54,6 @@ Voice rules — apply to all output:
 ```
 
 Each skill also has these rules embedded — this just ensures they apply globally even outside any skill context.
-
 
 **Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, and `client-proposal-doc-builder`
 Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
