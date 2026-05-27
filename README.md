@@ -79,7 +79,7 @@ Go to Settings → Computer Use in Cowork and enable browser control. Log into A
 
 All optional MCPs degrade gracefully — connect whichever ones you have access to.
 
-| Skill | Google Drive | Apollo MCP | Browser automation | Other MCPs |
+| Skill | Google Drive | Apollo MCP | Browser automation (Claude in Chrome) | Other MCPs |
 |---|---|---|---|---|
 | client-spot | | | | |
 | cold-calling-screenplay | | | | |
