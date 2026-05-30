@@ -46,7 +46,6 @@ DISPOSITIONS = [
 EXECUTION_GUIDE = """
 APOLLO DISPOSITIONS SETUP — BROWSER EXECUTION STEPS
 =====================================================
-STATUS: NEEDS DRY-RUN VALIDATION. Validate against live Apollo UI before marking as confirmed.
 
 BEFORE STARTING: Confirm explicit user approval.
   The skill must have already prompted: "This will delete all existing dispositions

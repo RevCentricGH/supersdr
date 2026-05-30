@@ -1,6 +1,5 @@
 ---
 name: client-spot
-version: 1.0
 description: Generate a client single point of truth (SPOT) document — multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. One-shot generation that pulls from onboarding call transcripts, meeting summaries, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
 ---
 
@@ -35,9 +34,7 @@ When this skill is loaded, greet the user:
 >
 > Share meeting notes from your strategy call with them — an onboarding call, a post-closing call, or any combination of calls. Paste them in, or share a doc/transcript link.
 >
-> If you don't have notes yet, just give me the client's name and website and I'll do deep research instead — I'll spawn parallel research agents to dig into their product, customers, competitors, and market.
->
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> If you don't have notes yet, just give me the client's name and website and I'll do deep research instead — I'll spawn parallel research agents to dig into their product, customers, competitors, and market."
 
 **If the user provides meeting notes or a transcript** → proceed with the standard Workflow (Step 1 onward), using the notes as the highest-priority input.
 

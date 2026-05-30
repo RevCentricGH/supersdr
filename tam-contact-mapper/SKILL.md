@@ -1,12 +1,9 @@
 ---
 name: tam-contact-mapper
-version: 1.0
 description: Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view. Use when user says "map the TAM for [client]", "build the TAM for [client]", "save the Apollo search for [client]", or provides a SPOT doc and asks to set up the people search.
 ---
 
 # TAM Contact Mapper
-
-> **STATUS: LIVE-VALIDATED 2026-05-22.** The Apollo People UI references in `tam_filter_builder.py`'s `EXECUTION_GUIDE` were validated against the live Apollo UI via a Playwright DOM probe on 2026-05-22. Re-validate after any major Apollo UI release and bump the date in both files when you do. Still pending: a full end-to-end click-through that actually applies filters and clicks "Save as new search" inside Claude Cowork (where `mcp__Claude_in_Chrome__*` browser tools are available) — the probe only inspected and opened panels, it did not exercise the full save flow.
 
 ## Purpose
 
@@ -34,9 +31,9 @@ When this skill is loaded, greet the user:
 
 > "I'm the TAM Contact Mapper. I'll read your client's ICP from their SPOT doc and build a filtered People search in Apollo that maps their entire TAM — every contact that fits the ICP profile, with no contacts imported or touched. The output is a saved search in Apollo's People tab you can reference anytime.
 >
-> Paste your client's SPOT doc URL (Google Doc) and I'll take it from there.
+> One pause before I hit Apollo: I'll show you the extracted filters and the search name for confirmation before applying anything. After that it runs on its own.
 >
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> Paste your client's SPOT doc URL (Google Doc) and I'll take it from there."
 
 Try to read the SPOT and navigate to Apollo immediately. Only raise issues if something actually fails.
 

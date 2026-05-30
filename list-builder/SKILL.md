@@ -1,6 +1,5 @@
 ---
 name: list-builder
-version: 1.0
 description: Build an enriched, dial-ready contact list from a client's SPOT doc using Apollo MCP. Pure Claude Cowork — no API keys, no scripts, no local files. Outputs a Google Sheet (or inline table) ready for downstream channel tools. Use when user says "build me a list for [client]", "dial list for [client]", "build the list", "run list builder", or "build contacts for [client]".
 ---
 
@@ -18,9 +17,7 @@ When this skill is loaded, greet the user:
 
 > "I'm the List Builder. I'll pull enriched, dial-ready contacts from Apollo using your client's ICP from their SPOT doc.
 >
-> Tell me the client name — I'll find the SPOT doc and run the full pipeline.
->
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> Tell me the client name — I'll find the SPOT doc and run the full pipeline."
 
 ---
 

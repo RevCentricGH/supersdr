@@ -1,12 +1,9 @@
 ---
 name: apollo-account-setup
-version: 1.0
 description: One-time Apollo account setup for new SuperSDR students — link workspace email, register outbound number with Free Caller Registry, configure 19 custom dispositions, and add 11 contact stages. Run once before any client campaigns are built. Use when user says "set up my Apollo account", "configure Apollo", "Apollo account setup", "set up dispositions", "set up contact stages", "Apollo onboarding", or is setting up Apollo for the first time.
 ---
 
 # Apollo Account Setup
-
-> **STATUS: NEEDS DRY-RUN VALIDATION.** The disposition and contact-stage UI steps in `dispositions_builder.py` and `stages_builder.py` have not yet been validated against the live Apollo UI. Run a manual dry run, fix any drift, then add the validation date to all three files.
 
 ## Purpose
 
@@ -46,9 +43,7 @@ These are the source of truth for all disposition and stage data. Do not proceed
 
 When this skill is loaded, greet the user:
 
-> "I'm the Apollo Account Setup skill. I'll get your Apollo account ready before you build any campaigns — email linking, caller registration, dispositions, and contact stages. This runs once per account.
->
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> "I'm the Apollo Account Setup skill. I'll get your Apollo account ready before you build any campaigns — email linking, caller registration, dispositions, and contact stages. This runs once per account."
 
 Then work through the steps in order.
 

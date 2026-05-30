@@ -9,6 +9,7 @@ Claude in Chrome MCP tools. This file is not executed — there is no CLI.
 # ------------------------------------------------------------------
 # Data model
 # ------------------------------------------------------------------
+# priority: "High" for steps 1-4, "Medium" for steps 5-7, "Low" for steps 8+
 
 SEQUENCES = {
     1: {
@@ -16,16 +17,16 @@ SEQUENCES = {
         "full_name": "{client} - Call Only",
         "objective": "High-intensity call blitz for fresh leads or fast follow-up cycles.",
         "steps": [
-            {"type": "Phone Call",      "delay": 0,  "unit": "immediately"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
+            {"type": "Phone Call",      "delay": 0,  "unit": "immediately", "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Low"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Low"},
         ]
     },
     2: {
@@ -33,13 +34,13 @@ SEQUENCES = {
         "full_name": "{client} - Activated Lead",
         "objective": "Follow-up with lead who just spoke with an SDR but didn't book.",
         "steps": [
-            {"type": "Manual Email",    "delay": 0,  "unit": "immediately",  "note": "Personalized — reference the conversation"},
-            {"type": "Phone Call",      "delay": 2,  "unit": "days"},
-            {"type": "Automatic Email", "delay": 5,  "unit": "days",         "note": "Automated reminder with CTA to book"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
+            {"type": "Manual Email",    "delay": 0,  "unit": "immediately", "priority": "High",   "note": "Personalized — reference the conversation"},
+            {"type": "Phone Call",      "delay": 2,  "unit": "days",        "priority": "High"},
+            {"type": "Automatic Email", "delay": 5,  "unit": "days",        "priority": "High",   "note": "Automated reminder with CTA to book"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
         ]
     },
     3: {
@@ -47,13 +48,13 @@ SEQUENCES = {
         "full_name": "{client} - Nurture",
         "objective": "Re-engage cold or long-term prospects, light-touch.",
         "steps": [
-            {"type": "Manual Email",    "delay": 0,  "unit": "immediately",  "note": "Personalized re-engagement"},
-            {"type": "Automatic Email", "delay": 45, "unit": "days",         "note": "Hands-off automated check-in"},
-            {"type": "Phone Call",      "delay": 15, "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 15, "unit": "days"},
+            {"type": "Manual Email",    "delay": 0,  "unit": "immediately", "priority": "High",   "note": "Personalized re-engagement"},
+            {"type": "Automatic Email", "delay": 45, "unit": "days",        "priority": "High",   "note": "Hands-off automated check-in"},
+            {"type": "Phone Call",      "delay": 15, "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 15, "unit": "days",        "priority": "Medium"},
         ]
     },
     4: {
@@ -61,20 +62,20 @@ SEQUENCES = {
         "full_name": "{client} - Cold Follow-Up",
         "objective": "High-frequency blitz for previously unresponsive leads.",
         "steps": [
-            {"type": "Phone Call",      "delay": 0,  "unit": "immediately"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "hours"},
+            {"type": "Phone Call",      "delay": 0,  "unit": "immediately", "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Low"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Low"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Low"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "hours",       "priority": "Low"},
         ]
     },
     5: {
@@ -82,8 +83,8 @@ SEQUENCES = {
         "full_name": "{client} - Pending Meeting",
         "objective": "Ensure confirmed meetings actually show up.",
         "steps": [
-            {"type": "Manual Email",    "delay": 30, "unit": "minutes",      "note": "Confirmation email + meeting instructions"},
-            {"type": "Action Item",     "delay": 0,  "unit": "immediately",  "note": "Internal: confirm meeting day before, send confirmation + call day before"},
+            {"type": "Manual Email",    "delay": 30, "unit": "minutes",     "priority": "High",   "note": "Confirmation email + meeting instructions"},
+            {"type": "Action Item",     "delay": 0,  "unit": "immediately", "priority": "High",   "note": "Internal: confirm meeting day before, send confirmation + call day before"},
         ]
     },
     6: {
@@ -91,16 +92,16 @@ SEQUENCES = {
         "full_name": "{client} - Reschedule",
         "objective": "Rebook missed or cancelled meetings.",
         "steps": [
-            {"type": "Phone Call",      "delay": 0,  "unit": "immediately"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
+            {"type": "Phone Call",      "delay": 0,  "unit": "immediately", "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Low"},
         ]
     },
     7: {
@@ -108,16 +109,16 @@ SEQUENCES = {
         "full_name": "{client} - Referred To",
         "objective": "Reconnect via referral — same cadence as Reschedule.",
         "steps": [
-            {"type": "Phone Call",      "delay": 0,  "unit": "immediately"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 1,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
-            {"type": "Phone Call",      "delay": 3,  "unit": "days"},
+            {"type": "Phone Call",      "delay": 0,  "unit": "immediately", "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "High"},
+            {"type": "Phone Call",      "delay": 1,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Medium"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Low"},
+            {"type": "Phone Call",      "delay": 3,  "unit": "days",        "priority": "Low"},
         ]
     },
 }
@@ -130,7 +131,6 @@ SEQUENCES = {
 EXECUTION_GUIDE = """
 APOLLO SEQUENCE CREATION — BROWSER EXECUTION STEPS
 ====================================================
-Validated via dry run on 2026-05-20. These steps match the live Apollo UI exactly.
 
 Before starting:
   1. Confirm Chrome is open and logged in at app.apollo.io
@@ -179,6 +179,9 @@ For EACH sequence in SEQUENCES (1–7):
             ( ) Execute step after [30] [minutes]
         - Select "Immediately after contact is added"
         - Click "Save"
+    - Set the Task Priority to match step["priority"] (High / Medium / Low)
+        - In the step edit panel, locate the Priority or Task Priority dropdown
+        - Select the value from step["priority"]
     - Click "Save changes" (top-right button) to persist
 
   STEP C — Add steps 2 through N
@@ -201,8 +204,11 @@ For EACH sequence in SEQUENCES (1–7):
             unit == "hours"       → set value, select "hours"
             unit == "days"        → set value, select "days"
         - Click "Save" on the timing popup
-    5. Repeat for all remaining steps
-    6. Click "Save changes" after adding all steps
+    5. Set the Task Priority to match step["priority"] (High / Medium / Low)
+        - In the step edit panel, locate the Priority or Task Priority dropdown
+        - Select the value from step["priority"]
+    6. Repeat for all remaining steps
+    7. Click "Save changes" after adding all steps
 
   STEP D — Verify step count
     - Step counter in top-left shows "N steps"
@@ -228,5 +234,3 @@ KNOWN UI DETAILS:
   - Timing popup closes after clicking Save — no page reload needed
   - Step count in header updates immediately when a step is added
 """
-
-

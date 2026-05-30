@@ -34,27 +34,26 @@ STAGES = [
 EXECUTION_GUIDE = """
 APOLLO CONTACT STAGES SETUP — BROWSER EXECUTION STEPS
 ======================================================
-STATUS: PATH/NAV VALIDATED 2026-05-29 (live Apollo UI). Add-stage FORM FIELDS still
-        unvalidated — the "+ Add Stage" button is disabled on non-admin seats, so the
-        add flow could not be exercised. Re-validate Step 2 on an admin/owner seat.
 
 PERMISSION REQUIREMENT: Adding stages requires an admin/owner permission profile.
   On a restricted seat (e.g. "Call Assistant") the "+ Add Stage" button is disabled.
   Confirm you are on an admin seat before starting.
 
-STEP 1 — Navigate (VALIDATED)
+STEP 1 — Navigate
   - Go to: https://app.apollo.io/#/settings/contacts/stages
   - Nav path: Settings → Data management → "Objects, fields, stages"
               → "Contact fields & stages" → "Stages" tab
   - The stage list is typically NOT empty — Apollo ships a default set. Do not assume
     a clean slate. Check which STAGES entries already exist before adding.
 
-STEP 2 — Add missing stages in order (FORM FIELDS UNVALIDATED)
+STEP 2 — Add missing stages in order
   For each stage name in STAGES not already present (keep STAGES order):
-    a. Click "+ Add Stage"
-    b. Enter the stage name exactly as written
-    c. Save — confirm the stage appears in the list
-    d. Continue to the next stage
+    a. Click "+ Add Stage" — opens the "New Contact Stage" dialog
+    b. Enter the stage name in the "Name" field exactly as written
+    c. Leave "Category" on its default "No Category" (other options:
+       In Progress / Succeeded / Not Succeeded — not used by this setup)
+    d. Click "Create Stage" (the button is labeled "Create Stage", not "Save")
+    e. Confirm the stage appears in the list, then continue to the next
 
   Order matters. Build them top to bottom as listed.
 

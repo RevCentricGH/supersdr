@@ -1,6 +1,5 @@
 ---
 name: objection-drill
-version: 1.0
 description: Cold call objection handling drill and roleplay tool for SDRs. Two modes — Quick Drill (paste an objection, get framed responses) and Live Roleplay (skill plays the prospect, you respond, get graded). Use when user says "drill me on objections", "how do I handle [objection]", "I keep getting hit with [X]", "roleplay me as a [persona]", "objection drill", "practice objections", "give me responses to [objection]", or pastes a real objection from a recent call. Also use when the user asks for help mid-call prep or wants to train on a specific client's objection set.
 ---
 
@@ -27,9 +26,7 @@ When this skill is loaded, greet the user:
 > - **Quick Drill** — paste an objection you keep hearing and I'll give you three ready-to-use responses
 > - **Live Roleplay** — I play the prospect, you respond, and I grade you after
 >
-> Drop an objection to start a Quick Drill, or tell me you want to roleplay and I'll set it up.
->
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> Drop an objection to start a Quick Drill, or tell me you want to roleplay and I'll set it up."
 
 No setup required. Jump straight in — if the user pastes an objection without specifying a mode, default to Quick Drill.
 

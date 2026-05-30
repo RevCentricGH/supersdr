@@ -1,23 +1,20 @@
 ---
 name: apollo-campaign-builder
-version: 1.0
-description: Set up a new client's full Apollo campaign — automatically create all 7 outreach sequences and 3 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", or provides a SPOT doc and asks to set up outreach sequences.
+description: Set up a new client's full Apollo campaign — automatically create all 7 outreach sequences and 4 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", or provides a SPOT doc and asks to set up outreach sequences.
 ---
 
 # Apollo Campaign Builder
 
-> **STATUS: DRY-RUN VALIDATED 2026-05-20.** UI references in `sequence_builder.py` and `workflow_builder.py`'s `EXECUTION_GUIDE` constants were validated against the live Apollo UI via a manual dry run on 2026-05-20. Re-validate after any major Apollo UI release and bump the date in all three files when you do.
-
 ## Purpose
 
-Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 3 workflow plays directly in the Apollo UI — no manual clicking.
+Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 4 workflow plays directly in the Apollo UI — no manual clicking.
 
 Run this skill after the SPOT doc is complete. The lead list is built separately; this skill starts from the point where Apollo is open and the client name is confirmed.
 
 ## Files
 
 - `sequence_builder.py` — step definitions for all 7 sequences + browser execution guide
-- `workflow_builder.py` — definitions for all 3 workflow plays + browser execution guide
+- `workflow_builder.py` — definitions for all 4 workflow plays + browser execution guide
 
 ---
 
@@ -32,9 +29,7 @@ Run this skill after the SPOT doc is complete. The lead list is built separately
 
 When this skill is loaded, greet the user:
 
-> "I'm the Apollo Campaign Builder. Tell me the client name and I'll set up all 7 outreach sequences and 3 workflow plays in your Apollo account.
->
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> "I'm the Apollo Campaign Builder. Tell me the client name and I'll set up all 7 outreach sequences and 4 workflow plays in your Apollo account."
 
 Assume Apollo is open in Chrome and browser automation is enabled in Cowork. Try to navigate to `https://app.apollo.io/#/sequences` and start the workflow.
 
@@ -101,13 +96,13 @@ If a step modal behaves unexpectedly — screenshot and report before retrying. 
 
 ---
 
-## Step 3 — Create the 3 Workflow Plays (Browser Automation)
+## Step 3 — Create the 4 Workflow Plays (Browser Automation)
 
 Read `workflow_builder.py` — it contains the full workflow definitions and execution guide in `EXECUTION_GUIDE`.
 
 **Navigate** to `https://app.apollo.io/#/workflows`
 
-**For each workflow 1–3 in `workflow_builder.WORKFLOWS`:**
+**For each workflow 1–4 in `workflow_builder.WORKFLOWS`:**
 
 1. Click "New Workflow" / "Create Workflow"
 2. Enter the name: `{client} - Disposition: {disposition}`
@@ -121,12 +116,13 @@ Read `workflow_builder.py` — it contains the full workflow definitions and exe
    name contains the client name — wrong sequence is the #1 setup error
 6. Save and activate
 
-After all 3:
+After all 4:
 ```
-All 3 workflows created:
-  1. {client} - Disposition: Activated Lead  (active)
-  2. {client} - Disposition: Nurture         (active)
-  3. {client} - Disposition: Meeting Booked  (active)
+All 4 workflows created:
+  1. {client} - Disposition: Meeting Scheduled  (active)
+  2. {client} - Disposition: Activated Lead     (active)
+  3. {client} - Disposition: Connect Incomplete (active)
+  4. {client} - Disposition: Nurture            (active)
 ```
 
 ---
@@ -146,40 +142,48 @@ SEQUENCES
 [ ] Referred To        — 10 steps, active
 
 WORKFLOWS
-[ ] Disposition: Activated Lead  — active, sequence name shows [client]
-[ ] Disposition: Nurture         — active, sequence name shows [client]
-[ ] Disposition: Meeting Booked  — active, sequence + list names show [client]
+[ ] Disposition: Meeting Scheduled  — active, sequence + list names show [client]
+[ ] Disposition: Activated Lead     — active, sequence name shows [client]
+[ ] Disposition: Connect Incomplete — active, sequence name shows [client]
+[ ] Disposition: Nurture            — active, sequence name shows [client]
 ```
 
 ## Step 5 — Visual campaign map
 
-After verification, output a Mermaid diagram showing how the 3 workflows route SDR dispositions into sequences. Cowork renders this natively — gives the user a single visual that maps the entire campaign logic.
+After verification, output a Mermaid diagram showing how the 4 workflows route SDR dispositions into sequences. Cowork renders this natively — gives the user a single visual that maps the entire campaign logic.
 
 ````
 ```mermaid
 flowchart TD
     SDR[SDR sets contact disposition]
+    SDR --> MS{Meeting Scheduled}
     SDR --> AL{Activated Lead}
+    SDR --> CI{Connect Incomplete}
     SDR --> NT{Nurture}
-    SDR --> MB{Meeting Booked}
+
+    MS --> MS_LIST[Add to List:<br/>{client} - Meetings Booked]
+    MS --> MS_SEQ[Sequence:<br/>{client} - Pending Meeting<br/>2 steps]
+    MS --> MS_STAGE[Stage: Meeting Pending]
 
     AL --> AL_SEQ[Sequence:<br/>{client} - Activated Lead<br/>7 steps]
     AL --> AL_DEAL[Create Deal<br/>stage: Activated Lead]
-    AL --> AL_LINK[Associate Contact<br/>to Deal]
+    AL --> AL_LINK[Associate Contact to Deal]
+    AL --> AL_STAGE[Stage: Activated Lead]
+
+    CI --> CI_SEQ[Sequence:<br/>{client} - Cold Follow-Up<br/>14 steps]
+    CI --> CI_STAGE[Stage: Approaching]
 
     NT --> NT_SEQ[Sequence:<br/>{client} - Nurture<br/>7 steps]
+    NT --> NT_STAGE[Stage: Nurture]
 
-    MB --> MB_LIST[Add to List:<br/>{client} - Meetings Booked]
-    MB --> MB_SEQ[Sequence:<br/>{client} - Pending Meeting<br/>2 steps]
-
-    OTHER[Other entry points] -.-> CO[{client} - Call Only<br/>10 steps]
-    OTHER -.-> CFU[{client} - Cold Follow-Up<br/>14 steps]
+    OTHER[Manual entry points] -.-> CO[{client} - Call Only<br/>10 steps]
     OTHER -.-> RS[{client} - Reschedule<br/>10 steps]
     OTHER -.-> RF[{client} - Referred To<br/>10 steps]
 
+    style MS fill:#e3f2fd
     style AL fill:#fff3e0
+    style CI fill:#fce4ec
     style NT fill:#e8f5e9
-    style MB fill:#e3f2fd
 ```
 ````
 

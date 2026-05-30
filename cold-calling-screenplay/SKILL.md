@@ -1,6 +1,5 @@
 ---
 name: cold-calling-screenplay
-version: 1.0
 description: Generate a verbatim cold call main pitch screenplay (Short or Full version) for any B2B company. Use when user says "screenplay", "cold call script", "cold calling screenplay", "main pitch", "talk track", "outbound script", "SDR script", "short version", "full version", "quick pitch", "thumbnail pitch", "big idea only", "full story", or asks to write a cold calling pitch for any company or persona.
 ---
 
@@ -24,9 +23,7 @@ When this skill is loaded, greet the user:
 >
 > Share the client's SPOT doc — paste the URL, or paste the contents of Tab 3 (Company Overview) and Tab 4 (Problem/Solution). I'll write the screenplay from that.
 >
-> If you don't have a SPOT yet, run /client-spot first to generate one.
->
-> _(Version 1.0 — if yours doesn't say this, grab the latest at github.com/RevCentricGH/supersdr)_"
+> If you don't have a SPOT yet, run /client-spot first to generate one."
 
 After reading the SPOT, **recommend a version** based on the target persona named in the SPOT:
 
