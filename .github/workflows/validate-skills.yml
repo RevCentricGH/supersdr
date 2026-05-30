@@ -1,0 +1,59 @@
+name: Validate skills
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate every skill folder
+        run: |
+          python3 - <<'PY'
+          import os, sys, re
+
+          FORBIDDEN = ["DEV_STATUS.md",
+                       "apollo-account-setup/APOLLO_SETUP_SOP.md",
+                       ".internal"]
+          errors = []
+
+          # 1. No gitignored/internal files should ever be committed.
+          for f in FORBIDDEN:
+              if os.path.exists(f):
+                  errors.append(f"Forbidden file committed: {f} (this should never be in the repo)")
+          for root, dirs, files in os.walk("."):
+              if "__pycache__" in dirs:
+                  errors.append(f"__pycache__ committed under {root}")
+
+          # 2. Every top-level folder with a SKILL.md must be a valid skill.
+          for entry in sorted(os.listdir(".")):
+              skill = os.path.join(entry, "SKILL.md")
+              if not (os.path.isdir(entry) and os.path.isfile(skill)):
+                  continue
+              text = open(skill, encoding="utf-8").read()
+              m = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
+              if not m:
+                  errors.append(f"{skill}: missing YAML frontmatter (--- ... ---) at top")
+                  continue
+              fm = m.group(1)
+              name = re.search(r"^name:\s*(.+)$", fm, re.MULTILINE)
+              desc = re.search(r"^description:\s*(.+)$", fm, re.MULTILINE)
+              if not name or not name.group(1).strip():
+                  errors.append(f"{skill}: frontmatter is missing a non-empty 'name:'")
+              elif name.group(1).strip() != entry:
+                  errors.append(f"{skill}: frontmatter name '{name.group(1).strip()}' does not match folder '{entry}'")
+              if not desc or not desc.group(1).strip():
+                  errors.append(f"{skill}: frontmatter is missing a non-empty 'description:'")
+
+          if errors:
+              print("Validation FAILED:\n")
+              for e in errors:
+                  print("  - " + e)
+              sys.exit(1)
+          print("All skills valid.")
+          PY
