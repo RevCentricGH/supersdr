@@ -1,6 +1,6 @@
 ---
 name: apollo-account-setup
-description: One-time Apollo account setup for new SuperSDR students — link workspace email, register outbound number with Free Caller Registry, configure 19 custom dispositions, and add 11 contact stages. Run once before any client campaigns are built. Use when user says "set up my Apollo account", "configure Apollo", "Apollo account setup", "set up dispositions", "set up contact stages", "Apollo onboarding", or is setting up Apollo for the first time.
+description: One-time Apollo account setup for new SuperSDR students — link workspace email, register outbound number with Free Caller Registry, configure 19 custom dispositions, add 11 contact stages, and wire the 19 disposition→stage triggers. Run once before any client campaigns are built. Use when user says "set up my Apollo account", "configure Apollo", "Apollo account setup", "set up dispositions", "set up contact stages", "set up triggers", "Apollo onboarding", or is setting up Apollo for the first time.
 ---
 
 # Apollo Account Setup
@@ -17,17 +17,19 @@ Run this skill first. Run the Apollo Campaign Builder after.
 
 - `dispositions_builder.py` — the 19 custom dispositions (`DISPOSITIONS` list) + browser execution guide
 - `stages_builder.py` — the 11 contact stages (`STAGES` list) + browser execution guide
+- `triggers_builder.py` — the 19 disposition→stage triggers (`TRIGGERS` list) + browser execution guide
 
 ---
 
 ## Load Data Files First
 
-Before executing Steps 3 and 4, read both files into context:
+Before executing Steps 3, 4, and 5, read all three files into context:
 
 - `/Users/kevintran/supersdr/apollo-account-setup/dispositions_builder.py`
 - `/Users/kevintran/supersdr/apollo-account-setup/stages_builder.py`
+- `/Users/kevintran/supersdr/apollo-account-setup/triggers_builder.py`
 
-These are the source of truth for all disposition and stage data. Do not proceed until both are loaded.
+These are the source of truth for all disposition, stage, and trigger data. Do not proceed until all three are loaded.
 
 ---
 
@@ -119,7 +121,26 @@ Contact Stages: 11 stages added
 
 ---
 
-## Step 5 — Completion Summary
+## Step 5 — Triggers Setup (Browser Automation)
+
+Triggers auto-flip a contact's stage when a call is dispositioned. They handle stage changes; the Apollo Campaign Builder workflows handle sequence routing. Build both or the lifecycle will not move.
+
+This step depends on Steps 3 and 4 — all 19 dispositions and all 11 stages must already exist before triggers can be saved.
+
+Execute using `TRIGGERS` and `EXECUTION_GUIDE` from `triggers_builder.py`. The triggers section lives at the bottom of the same Dispositions page from Step 3. Add one trigger per disposition (19 total), each mapping a disposition to its target stage.
+
+After completion, report:
+
+```
+Triggers: 19 disposition→stage triggers added
+[ ] All 19 dispositions mapped, none left unmapped
+[ ] "Meeting Scheduled" → "Meeting Pending" (verified)
+[ ] "Left Voicemail" → "Approaching" (verified)
+```
+
+---
+
+## Step 6 — Completion Summary
 
 ```
 APOLLO ACCOUNT SETUP COMPLETE
@@ -128,6 +149,7 @@ APOLLO ACCOUNT SETUP COMPLETE
 [ ] FCR Registration    confirmed
 [ ] Dispositions        19 entries
 [ ] Contact Stages      11 stages
+[ ] Triggers            19 mappings
 
 Your Apollo account is ready.
 Next: run the Apollo Campaign Builder to set up your first client campaign.

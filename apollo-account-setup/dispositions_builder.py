@@ -35,7 +35,7 @@ DISPOSITIONS = [
     {"name": "Connect Incomplete - Bad Data",   "connected": False, "sentiment": None},
     {"name": "Left Voicemail",                  "connected": False, "sentiment": None},
     {"name": "Gatekeeper",                      "connected": False, "sentiment": None},
-    {"name": "No Answer/Not Available",         "connected": False, "sentiment": None},
+    {"name": "No Answer / Not Available",       "connected": False, "sentiment": None},
 ]
 
 
@@ -62,12 +62,16 @@ STEP 1 — Navigate (search-box method — resilient to Apollo URL changes)
     "+ Add Disposition" button is visible top-right.
   - Do NOT rely on the hardcoded hash URL /#/settings/dialer — it is stale and
     fails to load the dispositions view. Navigate via the search box instead.
-  - Note: the disposition→stage Triggers (set up separately) live at the BOTTOM
-    of this same Dispositions page.
+  - Note: the disposition→stage Triggers (set up separately, after stages exist)
+    live at the BOTTOM of this same Dispositions page. See triggers_builder.py.
 
 STEP 2 — Delete all existing dispositions
   - Delete each existing disposition one by one until the list is empty
   - Confirm the list shows zero entries before proceeding
+  - On a fresh account the defaults have no calls logged, so deletion is clean.
+    If a disposition being deleted already has calls logged against it, the
+    delete dialog asks you to REASSIGN those calls to another disposition —
+    do so, or that call history is nullified.
 
 STEP 3 — Add all 19 dispositions
   For each entry in DISPOSITIONS (in order):
