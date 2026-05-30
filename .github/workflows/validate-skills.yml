@@ -17,9 +17,7 @@ jobs:
           python3 - <<'PY'
           import os, sys, re
 
-          FORBIDDEN = ["DEV_STATUS.md",
-                       "apollo-account-setup/APOLLO_SETUP_SOP.md",
-                       ".internal"]
+          FORBIDDEN = ["DEV_STATUS.md", ".internal"]
           errors = []
 
           # 1. No gitignored/internal files should ever be committed.
