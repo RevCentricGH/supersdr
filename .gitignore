@@ -1,4 +1,6 @@
+CONTEXT.md
 DEV_STATUS.md
+docs/adr/
 .internal/
 .playwright-mcp/
 __pycache__/
