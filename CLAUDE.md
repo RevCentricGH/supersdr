@@ -14,3 +14,22 @@ Public Claude Cowork skills for the SuperSDR community (RevCentric). Each top-le
 - `CONTEXT.md`, `docs/adr/`, `DEV_STATUS.md`, and `.internal/` are gitignored internal-only — never commit them, and never commit `__pycache__/`. CI (`validate-skills.yml`) fails the PR if `DEV_STATUS.md`/`.internal` appear or if frontmatter is wrong.
 - Validation/dry-run status goes in `DEV_STATUS.md`, not in the public skill files.
 - Skill-content voice: no AI-tell openers, no hedging, no AI vocabulary, no em-dashes. Write like a person.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+`needs-triage`, `needs-info`, `afk`, `hitl`, `tracking`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+`docs/agents/domain.md` is the public, agent-facing domain summary (in the clone). The detailed
+`CONTEXT.md` and `docs/adr/` are gitignored and local-only — not available to ralph's managed clone.
+
+### Tests
+
+`.ralph.json` sets `testCmd` to `python3 scripts/validate_skills.py` — the same validator CI runs.
