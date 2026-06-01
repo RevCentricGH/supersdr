@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""Validate every top-level skill folder.
+
+Run from the repo root: `python3 scripts/validate_skills.py`.
+Exits non-zero with a list of problems if anything is wrong.
+
+Checks:
+  1. No gitignored/internal files (DEV_STATUS.md, .internal, __pycache__) are committed.
+  2. Every top-level folder with a SKILL.md has frontmatter whose `name:` matches the
+     folder and whose `description:` is non-empty.
+"""
+import os
+import sys
+import re
+import subprocess
+
+FORBIDDEN = ["DEV_STATUS.md", ".internal"]
+
+
+def main():
+    errors = []
+
+    # 1. No gitignored/internal files should ever be committed. Check what git
+    #    tracks (staged or committed), not what merely sits on disk — gitignored
+    #    files like DEV_STATUS.md are expected in the local working tree.
+    tracked = subprocess.run(
+        ["git", "ls-files"], capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+    for f in FORBIDDEN:
+        prefix = f.rstrip("/") + "/"
+        if any(t == f or t.startswith(prefix) for t in tracked):
+            errors.append(f"Forbidden file committed: {f} (this should never be in the repo)")
+    for t in tracked:
+        if "__pycache__" in t.split("/"):
+            errors.append(f"__pycache__ committed: {t}")
+
+    # 2. Every top-level folder with a SKILL.md must be a valid skill.
+    for entry in sorted(os.listdir(".")):
+        skill = os.path.join(entry, "SKILL.md")
+        if not (os.path.isdir(entry) and os.path.isfile(skill)):
+            continue
+        text = open(skill, encoding="utf-8").read()
+        m = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
+        if not m:
+            errors.append(f"{skill}: missing YAML frontmatter (--- ... ---) at top")
+            continue
+        fm = m.group(1)
+        name = re.search(r"^name:\s*(.+)$", fm, re.MULTILINE)
+        desc = re.search(r"^description:\s*(.+)$", fm, re.MULTILINE)
+        if not name or not name.group(1).strip():
+            errors.append(f"{skill}: frontmatter is missing a non-empty 'name:'")
+        elif name.group(1).strip() != entry:
+            errors.append(f"{skill}: frontmatter name '{name.group(1).strip()}' does not match folder '{entry}'")
+        if not desc or not desc.group(1).strip():
+            errors.append(f"{skill}: frontmatter is missing a non-empty 'description:'")
+
+    if errors:
+        print("Validation FAILED:\n")
+        for e in errors:
+            print("  - " + e)
+        sys.exit(1)
+    print("All skills valid.")
+
+
+if __name__ == "__main__":
+    main()
