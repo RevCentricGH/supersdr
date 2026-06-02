@@ -10,10 +10,13 @@ description: Generate a tailored prospect deck end-to-end from a single prospect
 > Google OAuth token file. Do not upload it into the Cowork desktop app. Run it from a terminal
 > with `python3 run.py`.
 
-Build a deck tailored to one prospect, grounded in their call and their website, rendered to
-Google Slides + PDF, and returned as a View link. This is the ad-hoc, single-prospect tracer
-bullet for the deck pipeline. Branding config, section auto-omit, the refuse-boilerplate quality
-gate, and queue mode (reading activated leads off the master-tracker sheet) are later slices.
+Build a deck tailored to one prospect, grounded in their call and their website, branded as
+your own agency, rendered to Google Slides + PDF, and returned as a View link. Agency identity
+(name, logo, sender, copy voice) and proof (stat cards, case studies, client logos, founder-
+authority cards) all come from config and bundled assets, so the deck is yours and nothing is
+hardcoded. A proof section you leave empty is dropped, so you ship a clean shorter deck rather
+than empty placeholder slides. The refuse-boilerplate quality gate and queue mode (reading
+activated leads off the master-tracker sheet) are later slices.
 
 ## What it does on a run
 
@@ -30,8 +33,10 @@ gate, and queue mode (reading activated leads off the master-tracker sheet) are 
    `INSUFFICIENT_SIGNAL`, and the run stops rather than shipping boilerplate.
 4. **Process tokens.** Each copy token is capped at a per-token character budget (the excess is
    logged, never silently dropped) and wrapped to a line width.
-5. **Render.** A Marp deck source is built (with the company name and a clickable CTA) and rendered
-   to a PDF and a PPTX.
+5. **Render.** A Marp deck source is built - branded with your agency identity (name, logo,
+   sender, copy voice) and your proof (stat cards, case studies, client logos, founder-authority
+   cards) from config, plus the prospect company and a clickable CTA - and rendered to a PDF and
+   a PPTX. Proof sections you leave empty in config are dropped from the deck.
 6. **Upload.** The PPTX is uploaded to Google Drive, converted to a Google Slides presentation,
    with retry/backoff on transient failures. The run returns the Slides View URL and verifies the
    uploaded slides actually carry the configured CTA link and the company name.
@@ -67,6 +72,15 @@ One-time per operator. Everything runs on your own accounts.
      always uses your configured CTA, not whatever the model writes).
    - `google_oauth.credentials_file` / `google_oauth.token_file` - your Google OAuth client
      secret and the token file written after the first authorization.
+   - `assets_dir` - the bundled assets folder, resolved relative to `config.json` (default
+     `assets`). Drop your logo and client logos in here; reference them as `assets/...`. Asset
+     paths must be relative and may not point outside the skill folder.
+   - `agency.name` / `agency.logo` / `agency.sender` / `agency.voice` - your agency identity.
+     `logo` is a path under your assets folder; `sender` is `{name, title, email}`; `voice` is
+     the brand line shown on the deck.
+   - `proof.stat_cards` / `proof.case_studies` / `proof.client_logos` / `proof.founder_authority`
+     - your proof. Each is a list; leave any of them empty and that section is omitted from the
+     deck. `client_logos` are paths under your assets folder.
 
 3. **Set up Google OAuth.** In Google Cloud Console, enable the Google Drive API and the Google
    Slides API, create an OAuth client (Desktop app), download the client secret JSON, and point
@@ -93,7 +107,10 @@ credentials needed to run the tests):
 - `deck_copy_generator.py` - `DeckCopyGenerator`: prompt build, tolerant JSON parse, key
   validation, and the `INSUFFICIENT_SIGNAL` refusal.
 - `token_processor.py` - `TokenProcessor`: per-token char budget and line-wrap.
-- `template_renderer.py` - `TemplateRenderer`: Marp source build + render to PDF and PPTX.
+- `branding.py` - `load_branding`: the agency-identity + proof config schema, with every asset
+  path resolved relative to `config.json` (no absolute or escaping paths).
+- `template_renderer.py` - `TemplateRenderer`: Marp source build (branded from config, empty
+  proof sections auto-omitted) + render to PDF and PPTX.
 - `drive_uploader.py` - `DriveUploader`: upload with retry/backoff, View-URL build, and a
   post-upload Slides verification of the CTA link and company name.
 - `build_deck.py` - wires the above into the full pipeline and the `main` CLI entry point.
