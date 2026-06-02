@@ -29,8 +29,18 @@ def _iso_week(date_str):
 
 
 class StatsBuilder:
-    def __init__(self, *, icp_column, meeting_dispositions, leaderboard_metric="calls", labels=None):
+    LEADERBOARD_METRICS = ("calls", "meetings")
+    DEFAULT_DISPOSITION_COLUMN = "Disposition"
+
+    def __init__(self, *, icp_column, meeting_dispositions, leaderboard_metric="calls",
+                 disposition_column=None, labels=None):
+        if leaderboard_metric not in self.LEADERBOARD_METRICS:
+            raise ValueError(
+                f"unknown leaderboard_metric {leaderboard_metric!r}; "
+                f"valid: {', '.join(self.LEADERBOARD_METRICS)}"
+            )
         self.icp_column = icp_column
+        self.disposition_column = disposition_column or self.DEFAULT_DISPOSITION_COLUMN
         self.meeting_dispositions = {d.strip().lower() for d in meeting_dispositions if d and d.strip()}
         self.leaderboard_metric = leaderboard_metric
         self.labels = {**DEFAULT_LABELS, **(labels or {})}
@@ -42,6 +52,7 @@ class StatsBuilder:
             icp_column=stats.get("icp_column"),
             meeting_dispositions=stats.get("meeting_dispositions", []),
             leaderboard_metric=stats.get("leaderboard_metric", "calls"),
+            disposition_column=stats.get("disposition_column"),
             labels=stats.get("labels"),
         )
 
@@ -56,7 +67,7 @@ class StatsBuilder:
         return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
 
     def _is_meeting(self, row):
-        return (row.get("Disposition") or "").strip().lower() in self.meeting_dispositions
+        return (row.get(self.disposition_column) or "").strip().lower() in self.meeting_dispositions
 
     def meeting_trends(self, rep_rows):
         weeks = {}
@@ -105,12 +116,18 @@ class StatsBuilder:
 def rebuild_summary(config, *, sheet, builder=None):
     """Read every configured rep tab live, rebuild the summary grid, and write it.
 
+    Precondition: ``config["stats"]["summary_tab"]`` must be set. run.py only calls this when
+    a ``stats`` block is present; if it is missing this raises a clear ``ValueError`` rather
+    than a bare ``KeyError``.
+
     Clears the summary tab before writing so stale rows from a previous, larger run never
     persist; reading live each time means the summary always reflects the current rep tabs.
     Returns the grid that was written.
     """
     builder = builder or StatsBuilder.from_config(config)
-    summary_tab = config["stats"]["summary_tab"]
+    summary_tab = (config.get("stats") or {}).get("summary_tab")
+    if not summary_tab:
+        raise ValueError("rebuild_summary requires config['stats']['summary_tab']")
     rep_rows = {rep_name: sheet.read_rows(rep_name) for rep_name in config["reps"]}
     grid = builder.build_grid(rep_rows)
     sheet.clear_tab(summary_tab)

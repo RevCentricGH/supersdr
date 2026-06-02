@@ -76,6 +76,11 @@ def main(argv=None):
     if config.get("stats"):
         rebuild_summary(config, sheet=sheet)
         print(f"Summary tab '{config['stats']['summary_tab']}' rebuilt from the live rep tabs.")
+    elif args.stats_only:
+        print(
+            "--stats-only was passed but config has no 'stats' block; nothing to rebuild.",
+            file=sys.stderr,
+        )
 
 
 if __name__ == "__main__":
