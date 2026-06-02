@@ -16,6 +16,7 @@ from urllib.parse import urljoin
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from customdecks.branding import load_branding
 from customdecks.deck_copy_generator import REQUIRED_KEYS
 from customdecks.errors import InputError
 
@@ -58,6 +59,7 @@ def build_deck(
     deck_name=None,
     cta_text=None,
     cta_url=None,
+    branding=None,
 ):
     # Validate inputs before any network call: a bad invocation must cost nothing.
     if not transcript and not audio_url:
@@ -77,7 +79,7 @@ def build_deck(
     tokens["cta_text"] = cta_text or copy["cta_text"]
     tokens["cta_url"] = cta_url or copy["cta_url"]
 
-    render = deps.renderer.render(tokens, prospect, out_dir)
+    render = deps.renderer.render(tokens, prospect, out_dir, branding=branding)
     name = deck_name or f"{prospect['company']} - Custom Deck"
     result = deps.uploader.upload(render.pptx_path, name)
     return result["view_url"]
@@ -175,6 +177,10 @@ def main(argv=None):
     prospect = {"name": args.name, "company": args.company, "website": args.website}
     deps = _build_deps(config)
 
+    # Branding (agency identity + proof) and its bundled assets are resolved relative to the
+    # config file's own directory, so the deck is the student's agency with no machine paths.
+    branding = load_branding(config, args.config)
+
     view_url = build_deck(
         prospect,
         transcript=transcript,
@@ -184,6 +190,7 @@ def main(argv=None):
         out_dir=args.out_dir,
         cta_text=config["cta_text"],
         cta_url=config["cta_url"],
+        branding=branding,
     )
 
     # Confirm the uploaded Slides really carry the CTA link and the company name.

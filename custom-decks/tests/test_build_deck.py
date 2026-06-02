@@ -34,8 +34,8 @@ class FakeRenderer:
     def __init__(self):
         self.calls = []
 
-    def render(self, tokens, prospect, out_dir, basename="deck"):
-        self.calls.append((tokens, prospect))
+    def render(self, tokens, prospect, out_dir, basename="deck", branding=None):
+        self.calls.append((tokens, prospect, branding))
 
         class R:
             marp_path = "/tmp/deck.md"
@@ -81,6 +81,18 @@ def test_full_pipeline_returns_view_url_from_uploaded_file_id():
     assert url == "https://docs.google.com/presentation/d/DECKID42/view"
     # pipeline actually ran through render -> upload (no stub short-circuit)
     assert upload_fn.calls and upload_fn.calls[0][0] == "/tmp/deck.pptx"
+
+
+def test_branding_is_passed_through_to_the_renderer():
+    deepgram, groq = Spy("ignored"), Spy()
+    fetcher = Spy("<p>Acme builds widgets</p>")
+    claude = Spy(COPY_JSON)
+    upload_fn = Spy({"id": "ID"})
+    deps = _deps(deepgram, groq, fetcher, claude, upload_fn)
+    branding = {"agency": {"name": "Northstar Outbound"}, "proof": {"stat_cards": []}}
+    build_deck(PROSPECT, transcript="t", audio_url=None, deps=deps, subpages=[],
+               out_dir="/tmp", branding=branding)
+    assert deps.renderer.calls[0][2] == branding
 
 
 def test_provided_transcript_skips_transcription():

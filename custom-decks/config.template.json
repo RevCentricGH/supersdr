@@ -18,5 +18,36 @@
   "required_copy_keys": ["headline", "problem", "solution", "proof", "cta_text", "cta_url"],
 
   "cta_text": "Book a call",
-  "cta_url": "https://cal.com/your-handle/intro"
+  "cta_url": "https://cal.com/your-handle/intro",
+
+  "assets_dir": "assets",
+
+  "agency": {
+    "name": "Your Agency",
+    "logo": "assets/logo.svg",
+    "sender": {
+      "name": "Your Name",
+      "title": "Founder",
+      "email": "you@youragency.com"
+    },
+    "voice": "Direct, specific, and proof-led. No fluff, no filler."
+  },
+
+  "proof": {
+    "stat_cards": [
+      { "value": "3x", "label": "pipeline in 90 days" },
+      { "value": "42%", "label": "average reply-rate lift" }
+    ],
+    "case_studies": [
+      {
+        "client": "Example SaaS Co",
+        "result": "18 booked meetings in 30 days",
+        "detail": "Rebuilt their outbound from scratch and rewrote every sequence."
+      }
+    ],
+    "client_logos": ["assets/clients/example-client.svg"],
+    "founder_authority": [
+      { "name": "Your Name", "credential": "10 years running outbound for B2B teams" }
+    ]
+  }
 }
