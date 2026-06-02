@@ -87,7 +87,7 @@ class SheetWriter:
         self.service.values().update(
             spreadsheetId=self.spreadsheet_id,
             range=f"{tab}!A1",
-            valueInputOption="USER_ENTERED",
+            valueInputOption="RAW",
             body={"values": values_2d},
         ).execute()
 
