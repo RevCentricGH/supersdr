@@ -14,6 +14,7 @@
 
   "per_token_char_budget": 240,
   "line_width": 60,
+  "token_budget": 4000,
 
   "required_copy_keys": ["headline", "problem", "solution", "proof", "cta_text", "cta_url"],
 

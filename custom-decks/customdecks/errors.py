@@ -38,3 +38,13 @@ class CopyValidationError(CustomDecksError):
 
 class UploadError(CustomDecksError):
     """The Drive upload failed on every attempt, including retries."""
+
+
+class QualityGateError(CustomDecksError):
+    """The rendered deck failed one or more refuse-boilerplate checks, so the View link is
+    not written. The deck is kept locally for inspection. ``failures`` lists a distinct,
+    non-empty reason for every check that did not pass."""
+
+    def __init__(self, failures):
+        self.failures = list(failures)
+        super().__init__("deck did not pass the quality gate: " + "; ".join(self.failures))

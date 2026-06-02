@@ -3,5 +3,6 @@ anthropic>=0.40
 google-api-python-client>=2.120
 google-auth>=2.28
 google-auth-oauthlib>=1.2
+pypdf>=4.0
 # Marp is invoked via `npx @marp-team/marp-cli` (Node), not pip. Install Node 18+.
 # For Slides with selectable text and live hyperlinks, also install LibreOffice (soffice).
