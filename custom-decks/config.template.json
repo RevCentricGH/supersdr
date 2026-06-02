@@ -8,6 +8,14 @@
     "token_file": "token.json"
   },
 
+  "queue": {
+    "google_sheet_id": "",
+    "rep_tabs": ["Rep A", "Rep B"],
+    "keep_dispositions": ["Meeting Booked", "Interested"],
+    "decks_tab": "Custom Decks",
+    "lock_file": "custom-decks-queue.lock"
+  },
+
   "subpages": ["", "about", "pricing", "product", "customers"],
   "per_subpage_char_budget": 4000,
   "total_char_budget": 15000,

@@ -16,8 +16,9 @@ deck passes the refuse-boilerplate quality gate. Agency identity (name, logo, se
 voice) and proof (stat cards, case studies, client logos, founder-authority cards) all come
 from config and bundled assets, so the deck is yours and nothing is hardcoded. A proof section
 you leave empty is dropped, so you ship a clean shorter deck rather than empty placeholder
-slides. This is the ad-hoc, single-prospect pipeline; queue mode (reading activated leads off
-the master-tracker sheet) is a later slice.
+slides. Two modes: ad-hoc (one prospect in, one View link out) and queue mode, which reads
+the activated leads off the master-tracker sheet and builds a deck for each. The mode is
+chosen by config: set `queue.google_sheet_id` to run the queue, leave it blank for ad-hoc.
 
 ## What it does on a run
 
@@ -98,6 +99,8 @@ One-time per operator. Everything runs on your own accounts.
 
 ## Run
 
+Ad-hoc mode (no `queue.google_sheet_id` set):
+
 ```
 python3 run.py --name "Jane Doe" --company "Acme Corp" --website https://acme.com \
     --transcript path/to/call.txt
@@ -106,6 +109,17 @@ python3 run.py --name "Jane Doe" --company "Acme Corp" --website https://acme.co
 ```
 
 It prints the Google Slides View URL for the generated deck.
+
+Queue mode (set `queue.google_sheet_id` to the master-tracker sheet):
+
+```
+python3 run.py --config config.json
+```
+
+It reads the activated leads (a kept disposition) from each configured rep tab, builds a deck
+for every one that has a recording link plus a `Company` and `Website` (add those as manual
+columns on the rep tab), and writes the View link into the `Custom Decks` tab. It skips leads
+already linked, so re-running only fills the gaps, and a lock file blocks overlapping runs.
 
 ## How it is built
 
