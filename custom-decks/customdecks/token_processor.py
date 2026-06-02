@@ -34,4 +34,7 @@ class TokenProcessor:
         return "\n".join(lines)
 
     def process(self, tokens):
+        # Reset per call so reusing one processor across decks (batch/queue mode) does not
+        # accumulate truncation records from earlier decks.
+        self.truncations = []
         return {key: self.wrap(self.truncate(value, key)) for key, value in tokens.items()}

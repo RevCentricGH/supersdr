@@ -48,7 +48,7 @@ def test_raises_typed_error_after_exhausting_retries():
     uploader = DriveUploader(upload, sleep=lambda s: None, max_retries=3)
     with pytest.raises(UploadError):
         uploader.upload("/tmp/deck.pptx", "Deck")
-    assert upload.calls == 3  # at least twice before raising
+    assert upload.calls == 3  # exactly max_retries (3) attempts, then it raises
 
 
 def test_view_url_is_built_from_returned_file_id():

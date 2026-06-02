@@ -10,7 +10,7 @@ callable ``(prompt) -> str`` so the parsing and validation can be tested without
 import json
 import re
 
-from .errors import CopyValidationError, InsufficientSignalError
+from .errors import CopyParseError, CopyValidationError, InsufficientSignalError
 
 REQUIRED_KEYS = ("headline", "problem", "solution", "proof", "cta_text", "cta_url")
 INSUFFICIENT_SIGNAL = "INSUFFICIENT_SIGNAL"
@@ -74,13 +74,13 @@ class DeckCopyGenerator:
         end = raw.rfind("}")
         if start != -1 and end != -1 and end > start:
             return self._loads(raw[start : end + 1])
-        raise CopyValidationError(list(self.required_keys))
+        raise CopyParseError("no JSON object found in copy model response")
 
     def _loads(self, text):
         try:
             return json.loads(text)
-        except json.JSONDecodeError:
-            raise CopyValidationError(list(self.required_keys))
+        except json.JSONDecodeError as exc:
+            raise CopyParseError(f"copy model response contained malformed JSON: {exc}")
 
     def validate(self, data):
         missing = [k for k in self.required_keys if k not in data]
