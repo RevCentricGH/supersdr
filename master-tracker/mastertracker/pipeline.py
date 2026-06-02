@@ -12,9 +12,10 @@ each rep's calls to its own tab. The ordering that matters:
 Step 5 is the v2 fix: marking after the write means a failed write leaves the call out of
 the ledger, so the next run retries it.
 """
-from .call_row_mapper import AUTO_COLUMNS, CallRowMapper
+from .call_row_mapper import AUTO_COLUMNS, RECORDING_COLUMN, CallRowMapper
 from .deduper import Deduper
 from .disposition_filter import DispositionFilter
+from .recording_source import build_recording_source, safe_resolve
 
 
 def ingest_rep_calls(
@@ -27,6 +28,7 @@ def ingest_rep_calls(
     deduper,
     ingest_state,
     backfill_start=None,
+    recording_source=None,
 ):
     header = AUTO_COLUMNS + list(mapper.manual_columns)
     sheet.ensure_header(tab, header)
@@ -51,6 +53,10 @@ def ingest_rep_calls(
         if row.key not in new_keys:
             continue
         new_keys.discard(row.key)  # one write per dedup key, even on intra-batch dupes
+        # The recording source is the sole authority for the recording-link column. With no
+        # source, a non-resolving source, or one that raises, safe_resolve yields "" so the
+        # column is left blank rather than crashing the run.
+        row.values[RECORDING_COLUMN] = safe_resolve(recording_source, call)
         sheet.append_row(tab, row.as_list(header))  # may raise; mark only if it does not
         ingest_state.mark_ingested(call.get("id"))
         written += 1
@@ -64,6 +70,9 @@ def run(config, *, apollo, sheet, ingest_state, backfill_start=None):
     )
     mapper = CallRowMapper(manual_columns=config.get("manual_columns", []))
     deduper = Deduper()
+    # Built once at startup so an unknown source name fails fast here, before any rep is
+    # searched or any row is written, rather than silently blanking recordings at run time.
+    recording_source = build_recording_source(config)
 
     results = {}
     for rep_name, rep_cfg in config["reps"].items():
@@ -77,6 +86,7 @@ def run(config, *, apollo, sheet, ingest_state, backfill_start=None):
             deduper=deduper,
             ingest_state=ingest_state,
             backfill_start=backfill_start,
+            recording_source=recording_source,
         )
     ingest_state.save()
     return results

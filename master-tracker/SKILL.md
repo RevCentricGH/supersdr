@@ -25,8 +25,9 @@ For every rep in your config:
    re-evaluated on the next run.
 3. Maps each kept call to a row and dedupes by (date, lowercased prospect) against the rows
    already in the sheet, so no duplicates.
-4. Appends new rows to the rep's tab. It only appends, so the manual columns you added (Notes,
-   Next Step, and so on) are never overwritten.
+4. Appends new rows to the rep's tab, resolving the Recording URL column through the configured
+   recording source (Apollo, Trellus, or a manually attached URL) when one resolves. It only
+   appends, so the manual columns you added (Notes, Next Step, and so on) are never overwritten.
 5. Marks a call ingested only after its row is written. If a write fails, the call is retried
    next run. If a rep tags a call with a kept disposition after the dialer first logged it, the
    next run picks it up.
@@ -58,6 +59,18 @@ This is a one-time setup per operator. Everything runs on your own accounts.
    - `keep_prefixes` - disposition prefixes to keep, for families like `Callback - next week`.
    - `backfill_days` - how many days back to pull on each run.
    - `manual_columns` - columns you maintain by hand. Reserved on every row and never written to.
+   - `recording_source` - which dialer the Recording URL column is resolved from. `type` is one
+     of `apollo`, `trellus`, or `manual-url`. Remove the whole block (or set `type` to `""`) to
+     leave the column blank. The recording source is the sole authority for that column, so a
+     call's recording link only shows up once a source is configured and resolves one.
+     - `apollo` - use the recording URL Apollo's API attaches to each call. This is the default;
+       students dial in Apollo.
+     - `trellus` - parse the Trellus session id (a `sess_` token) out of the call note and build
+       the recording link. Optional `base_url` overrides the Trellus recording-URL base.
+     - `manual-url` - use a recording URL you attach per call by hand. Optional `field` overrides
+       the call key the URL is read from (default `manual_recording_url`).
+     An unknown `type` fails fast at startup with a clear error; a source that cannot resolve a
+     given call leaves that row's column blank without stopping the run.
    - `google_oauth.credentials_file` / `google_oauth.token_file` - paths to your Google OAuth
      client secret and the token file the skill writes after the first authorization.
    - `state_file` - where the ingested-call ledger is kept.
@@ -86,6 +99,8 @@ The logic lives in the `mastertracker` package and is unit-tested:
 - `call_row_mapper.py` - `CallRowMapper`: normalized call record to a sheet row.
 - `deduper.py` - `Deduper`: dedup by (date, lowercased prospect).
 - `ingest_state.py` - `IngestState`: the ingested-call ledger, marked only after a write.
+- `recording_source.py` - `RecordingSource`: pluggable `resolve(call)` with `apollo`, `trellus`,
+  and `manual-url` adapters selected by config; the single authority for the Recording URL column.
 - `pipeline.py` - wires the above and routes each rep's calls to its tab.
 
 The side-effecting wrappers are kept thin and validated by the manual end-to-end run:

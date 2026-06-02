@@ -14,6 +14,11 @@
 
   "manual_columns": ["Notes", "Next Step", "Deck Link"],
 
+  "recording_source": {
+    "_comment": "Which dialer the Recording URL column is resolved from. type must be one of: apollo, trellus, manual-url. Remove this whole block (or set type to \"\") to leave the Recording URL column blank. apollo: use the recording_url Apollo's API attaches to each call. trellus: parse the Trellus session id (a sess_ token) out of the call note and build the link; optional base_url overrides the Trellus recording-URL base. manual-url: use a recording URL you attach per call by hand; optional field overrides the call key the URL lives on (default manual_recording_url).",
+    "type": "apollo"
+  },
+
   "google_oauth": {
     "credentials_file": "credentials.json",
     "token_file": "token.json"

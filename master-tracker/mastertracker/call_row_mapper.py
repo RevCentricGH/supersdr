@@ -7,6 +7,8 @@ are never populated by the tool and never overwritten on re-run.
 Each row exposes ``key`` = (date, lowercased prospect), the identity the Deduper uses.
 """
 
+RECORDING_COLUMN = "Recording URL"
+
 AUTO_COLUMNS = [
     "Date",
     "Prospect",
@@ -14,7 +16,7 @@ AUTO_COLUMNS = [
     "Phone",
     "Duration (sec)",
     "Call ID",
-    "Recording URL",
+    RECORDING_COLUMN,
 ]
 
 

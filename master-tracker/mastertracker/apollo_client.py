@@ -111,6 +111,7 @@ class ApolloClient:
             "phone": raw.get("phone_number") or raw.get("to_number") or "",
             "duration_sec": raw.get("duration") or raw.get("duration_seconds"),
             "recording_url": raw.get("recording_url") or raw.get("call_recording_url") or "",
+            "note": raw.get("note") or raw.get("notes") or raw.get("comment") or "",
         }
 
 

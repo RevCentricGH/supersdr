@@ -92,3 +92,16 @@ def test_normalizes_raw_apollo_fields():
     assert call["date"] == "2026-05-20"
     assert call["prospect"] == "Jane Doe"
     assert call["disposition"] == "Meeting Booked"
+
+
+def test_normalizes_the_call_note_so_the_trellus_source_can_parse_it():
+    # the trellus RecordingSource parses a session id out of the note; the note must survive
+    # normalization for that to work on real Apollo data
+    raw = _raw("a", "2026-05-20", "Jane Doe")
+    raw["note"] = "Trellus session sess_ab12cd34"
+    transport = FakeTransport([
+        FakeResponse(200, {"phone_calls": [raw], "pagination": {"page": 1, "total_pages": 1}}),
+    ])
+    client = ApolloClient("key", transport=transport, sleep=lambda s: None)
+    call = client.search_calls({"apollo_user_id": "u1"})[0]
+    assert call["note"] == "Trellus session sess_ab12cd34"
