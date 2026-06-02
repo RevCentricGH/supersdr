@@ -2,5 +2,6 @@ CONTEXT.md
 DEV_STATUS.md
 docs/adr/
 .internal/
+.ralph/
 .playwright-mcp/
 __pycache__/
