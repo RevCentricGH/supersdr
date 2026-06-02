@@ -29,10 +29,11 @@ class IngestState:
         return set(data.get("ingested_ids", []))
 
     def is_ingested(self, call_id):
-        return call_id in self._ids
+        return bool(call_id) and call_id in self._ids
 
     def mark_ingested(self, call_id):
-        self._ids.add(call_id)
+        if call_id:
+            self._ids.add(call_id)
 
     def save(self):
         payload = {"ingested_ids": sorted(self._ids)}

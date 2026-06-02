@@ -37,13 +37,15 @@ class ApolloClient:
 
     def search_calls(self, rep_cfg, since=None):
         user_id = rep_cfg.get("apollo_user_id")
+        if not user_id:
+            raise ApolloError("rep config missing apollo_user_id; refusing to query all users")
         out = []
         page = 1
         while True:
             payload = {
                 "page": page,
                 "per_page": self.per_page,
-                "user_ids": [user_id] if user_id else [],
+                "user_ids": [user_id],
             }
             if since:
                 payload["call_created_at"] = {"min": since}

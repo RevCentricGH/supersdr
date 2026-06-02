@@ -42,7 +42,8 @@ def _build_sheets_service(oauth_cfg):
                 oauth_cfg["credentials_file"], SCOPES
             )
             creds = flow.run_local_server(port=0)
-        with open(token_file, "w", encoding="utf-8") as fh:
+        fd = os.open(token_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(creds.to_json())
     return build("sheets", "v4", credentials=creds).spreadsheets()
 
