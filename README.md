@@ -51,6 +51,9 @@ Go to Settings → MCP Servers in Cowork and connect Apollo (`apollo-io`). One-t
 **Browser automation** — required by `tam-contact-mapper` and `apollo-campaign-builder`
 Go to Settings → Computer Use in Cowork and enable browser control. Log into Apollo in Chrome and keep that tab open when running these skills.
 
+**Gmail connector** - required by `post-discovery-followup`
+Go to Settings → Connectors → Gmail in Cowork and connect your Google account with send access. The skill sends the approved follow-up email through this connector, and only after you approve the recipient, subject, and body. It never sends on its own.
+
 **Optional MCPs for `list-builder`** — each unlocks a stage of the pipeline if connected:
 
 | MCP | What it adds |
@@ -66,16 +69,17 @@ Go to Settings → Computer Use in Cowork and enable browser control. Log into A
 
 All optional MCPs degrade gracefully — connect whichever ones you have access to.
 
-| Skill | Google Drive | Apollo MCP | Browser automation (Claude in Chrome) | Other MCPs |
-|---|---|---|---|---|
-| apollo-account-setup | | | required | |
-| client-spot | | | | |
-| cold-calling-screenplay | | | | |
-| tam-contact-mapper | required | | required | |
-| list-builder | required | required | | many optional (see table above) |
-| apollo-campaign-builder | | | required | |
-| objection-drill | | | | |
-| client-proposal-doc-builder | required (write) | | | |
+| Skill | Google Drive | Apollo MCP | Browser automation (Claude in Chrome) | Gmail | Other MCPs |
+|---|---|---|---|---|---|
+| apollo-account-setup | | | required | | |
+| client-spot | | | | | |
+| cold-calling-screenplay | | | | | |
+| tam-contact-mapper | required | | required | | |
+| list-builder | required | required | | | many optional (see table above) |
+| apollo-campaign-builder | | | required | | |
+| objection-drill | | | | | |
+| client-proposal-doc-builder | required (write) | | | | |
+| post-discovery-followup | | | required | required | |
 
 ## How to use
 
