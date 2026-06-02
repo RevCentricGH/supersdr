@@ -12,6 +12,12 @@ override. On a draft outcome it chains into `client-proposal-doc-builder` for th
 follow-up email, sends it through the Gmail connector, and updates the deal stage in Apollo.
 On the other outcomes it reports the outcome and the manual next step and stops.
 
+The whole path runs in one Cowork session. The transcript, the company name, the confirmed
+outcome, the returned draft, and the recipient carry forward from step to step with no manual
+stitching. The skill uses connectors only - Google Drive, Gmail, and Claude-in-Chrome for
+Apollo - with no server, no cron, and no local API keys. Every external action (the email send
+and the Apollo write) waits for the operator's explicit approval.
+
 This file is the orchestrator. The outcome definitions, the classification criteria, the
 outcome-to-Apollo-stage map, and the draft-vs-report branching live in one place:
 `reference/outcome-taxonomy.md`. Read that file when you classify and when you branch. Do not
@@ -157,8 +163,6 @@ opportunity is confirmed, change nothing and say so.
 
 ## Completion summary
 
-<!-- COMPLETION SUMMARY SHELL: what a successful run outputs at the end. -->
-
 At the end of a run, output a short summary so the operator can verify it at a glance. The
 summary always reports:
 
@@ -179,8 +183,9 @@ summary also reports:
 - **Apollo stage** - confirmation of the stage the deal was moved to, or that the write was
   skipped because the opportunity match was not confirmed.
 
-The Draft line is active as of #16, the Apollo stage line as of #17, and the Email sent line as
-of this slice (#18). All three are live.
+This summary is the operator's single record of the run: the outcome, the proposal doc link (if
+one was made), whether the email sent, and the Apollo stage set, or which of those was skipped
+and why.
 
 ## Voice
 
