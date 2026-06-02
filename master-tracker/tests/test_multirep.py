@@ -44,3 +44,28 @@ def test_two_reps_route_to_separate_tabs(tmp_path):
     assert sheet.prospects("Bob") == ["Bob Prospect"]
     assert "Bob Prospect" not in sheet.prospects("Alice")
     assert "Alice Prospect" not in sheet.prospects("Bob")
+
+
+def test_state_is_persisted_when_a_rep_write_fails_midway(tmp_path):
+    # run() must save the ledger even if a mid-rep write raises, so rows written before the
+    # failure (c1) survive to disk and are not re-fetched next run; the failing call (c2) stays out
+    apollo = FakeApollo(
+        {
+            "u1": [
+                make_call(id="c1", prospect="Jane Doe", disposition="Interested"),
+                make_call(id="c2", prospect="John Roe", disposition="Interested"),
+            ]
+        }
+    )
+    sheet = FakeSheet(fail_on_call_id="c2")
+    path = str(tmp_path / "state.json")
+    config = _config({"Alice": {"apollo_user_id": "u1"}})
+
+    try:
+        run(config, apollo=apollo, sheet=sheet, ingest_state=IngestState(path))
+    except RuntimeError:
+        pass
+
+    reloaded = IngestState(path)  # read from disk: proves save() ran despite the failure
+    assert reloaded.is_ingested("c1") is True
+    assert reloaded.is_ingested("c2") is False

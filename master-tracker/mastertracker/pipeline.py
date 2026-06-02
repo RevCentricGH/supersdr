@@ -75,18 +75,22 @@ def run(config, *, apollo, sheet, ingest_state, backfill_start=None):
     recording_source = build_recording_source(config)
 
     results = {}
-    for rep_name, rep_cfg in config["reps"].items():
-        calls = apollo.search_calls(rep_cfg, since=backfill_start)
-        results[rep_name] = ingest_rep_calls(
-            calls=calls,
-            tab=rep_name,
-            sheet=sheet,
-            disposition_filter=disposition_filter,
-            mapper=mapper,
-            deduper=deduper,
-            ingest_state=ingest_state,
-            backfill_start=backfill_start,
-            recording_source=recording_source,
-        )
-    ingest_state.save()
+    try:
+        for rep_name, rep_cfg in config["reps"].items():
+            calls = apollo.search_calls(rep_cfg, since=backfill_start)
+            results[rep_name] = ingest_rep_calls(
+                calls=calls,
+                tab=rep_name,
+                sheet=sheet,
+                disposition_filter=disposition_filter,
+                mapper=mapper,
+                deduper=deduper,
+                ingest_state=ingest_state,
+                backfill_start=backfill_start,
+                recording_source=recording_source,
+            )
+    finally:
+        # Persist the ledger even when a mid-rep write raises: rows written before the
+        # failure stay marked, so the next run does not re-fetch and re-map them.
+        ingest_state.save()
     return results
