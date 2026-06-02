@@ -108,13 +108,35 @@ The confirmed outcome decides what comes back:
 When the builder returns, present the draft to the operator for review: the proposal doc link
 plus the email for `proposal`, the email alone for `needs_followup`.
 
-After the operator has reviewed the draft, update the Apollo deal stage (Step 5). The Gmail
-send (#18) is a later slice and does not run in this build, so no email is sent here.
+After the operator has reviewed the draft, send the approved follow-up email (Step 5), then
+update the Apollo deal stage (Step 6).
 
-## Step 5 - Update the Apollo deal stage
+## Step 5 - Send the approved follow-up email
 
 This step runs only on a confirmed `proposal` or `needs_followup` outcome, after the operator
-has reviewed the draft. The other five outcomes never reach it; they stop and report.
+has reviewed the draft from `client-proposal-doc-builder`. The other five outcomes never reach
+it. The email goes out through the Gmail connector.
+
+Before anything sends:
+
+- **Find the recipient.** Use the prospect's email address from the discovery context: the
+  transcript, the calendar event, or the contact the operator names. If you cannot determine a
+  usable recipient, stop and say so. Do not send to a guessed or empty address.
+- **Get explicit approval.** Show the operator the final email - recipient, subject, and body -
+  and require an explicit "yes" to send. Do not treat "sure", "ok", or "yeah" as approval. If
+  the operator edits the copy, send the edited version. Send nothing until they approve.
+
+On approval, send the subject and body to the recipient through the Gmail connector, then:
+
+- Confirm the send succeeded and report it.
+- If the send fails, report the failure plainly and do not claim it went out.
+
+No email is ever sent without a usable recipient and the operator's explicit approval.
+
+## Step 6 - Update the Apollo deal stage
+
+This step runs only on a confirmed `proposal` or `needs_followup` outcome, after the follow-up
+email step (Step 5). The other five outcomes never reach it; they stop and report.
 
 Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. Look up the target stage for
 the confirmed outcome in `reference/outcome-taxonomy.md` (the outcome-to-Apollo-stage map); the
@@ -157,9 +179,8 @@ summary also reports:
 - **Apollo stage** - confirmation of the stage the deal was moved to, or that the write was
   skipped because the opportunity match was not confirmed.
 
-The Draft line is active as of #16 and the Apollo stage line as of this slice (#17). The Email
-sent line is filled in by the later slice (#18); this build leaves it as a shell and sends no
-email.
+The Draft line is active as of #16, the Apollo stage line as of #17, and the Email sent line as
+of this slice (#18). All three are live.
 
 ## Voice
 
@@ -178,5 +199,5 @@ the completion summary) follow the repo voice rules in `CLAUDE.md`:
   outcome-to-Apollo-stage map, and the draft-vs-report branching. Single source of truth for
   triage and Apollo routing. Read it when you classify and when you branch.
 - `apollo_stage_update.py` - the browser EXECUTION_GUIDE for the Apollo deal-stage update
-  (search, confirm, flip, verify). Read it in Step 5. The outcome-to-stage map it uses lives in
+  (search, confirm, flip, verify). Read it in Step 6. The outcome-to-stage map it uses lives in
   `reference/outcome-taxonomy.md`, not in the .py.
