@@ -4,17 +4,20 @@ Claude Cowork skills for the SuperSDR community.
 
 ## Skills
 
-| Skill | What it does | |
-|-------|-------------|---|
-| [apollo-account-setup](apollo-account-setup/) | One-time Apollo account setup, run once before any campaigns — link workspace email, register your outbound number (FCR), and configure the 19 dispositions, 11 contact stages, and 19 disposition→stage triggers | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-account-setup.zip) |
-| [client-spot](client-spot/) | Generate a complete multi-tab Single Point of Truth (SPOT) Google Doc for a new client — campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-spot.zip) |
-| [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/cold-calling-screenplay.zip) |
-| [tam-contact-mapper](tam-contact-mapper/) | Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view — broad contact universe, no enrichment, stays in Apollo | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
-| [list-builder](list-builder/) | Build an enriched, intent-scored, dial-ready contact list from the client's SPOT doc — uses Apollo MCP for sourcing/enrichment, Claude inline for ICP qualification, Layer 4 signal research, and 7-bucket hook generation. Outputs a Google Sheet with channel routing per contact (Red Hot / Hot / Warm / Cool / Cold) | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
-| [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 4 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
-| [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
-| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
-| [post-discovery-followup](post-discovery-followup/) | Triage a discovery-call transcript to one of seven outcomes, then on a proposal or follow-up outcome chain into client-proposal-doc-builder for the draft, send the approved email through Gmail, and update the Apollo deal stage. The operator confirms every external action | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
+| Skill | What it does | Runtime | |
+|-------|-------------|---------|---|
+| [apollo-account-setup](apollo-account-setup/) | One-time Apollo account setup, run once before any campaigns — link workspace email, register your outbound number (FCR), and configure the 19 dispositions, 11 contact stages, and 19 disposition→stage triggers | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-account-setup.zip) |
+| [client-spot](client-spot/) | Generate a complete multi-tab Single Point of Truth (SPOT) Google Doc for a new client — campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-spot.zip) |
+| [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/cold-calling-screenplay.zip) |
+| [tam-contact-mapper](tam-contact-mapper/) | Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view — broad contact universe, no enrichment, stays in Apollo | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
+| [list-builder](list-builder/) | Build an enriched, intent-scored, dial-ready contact list from the client's SPOT doc — uses Apollo MCP for sourcing/enrichment, Claude inline for ICP qualification, Layer 4 signal research, and 7-bucket hook generation. Outputs a Google Sheet with channel routing per contact (Red Hot / Hot / Warm / Cool / Cold) | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
+| [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 4 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
+| [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
+| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
+| [post-discovery-followup](post-discovery-followup/) | Triage a discovery-call transcript to one of seven outcomes, then on a proposal or follow-up outcome chain into client-proposal-doc-builder for the draft, send the approved email through Gmail, and update the Apollo deal stage. The operator confirms every external action | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
+| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page Google Doc meeting brief — paste the transcript or link a Drive/Gemini/Fireflies recording, get back 5-8 bullets (concerns, objections, asks, commitments) each anchored to the exact transcript line | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
+| [master-tracker](master-tracker/) | Pull each rep's Apollo dialer calls into per-rep tabs of a Google Sheet — filtered to configured dispositions, deduped, idempotent. **Runs in a terminal, NOT Cowork.** Do not upload to Cowork. See [Claude Code Setup](#claude-code-setup) below. | Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
+| [custom-decks](custom-decks/) | Build a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides + PDF with a View link. **Runs in a terminal, NOT Cowork.** Do not upload to Cowork. See [Claude Code Setup](#claude-code-setup) below. | Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
 
 ## Stay updated
 
@@ -22,9 +25,9 @@ Skills improve over time. **Watch this repo** — click **Watch → Custom → R
 
 ---
 
-## Setup
+## Cowork Setup
 
-Complete this once before running any skills that require external connections.
+Complete this once before running any Cowork skills that require external connections.
 
 **Claude Desktop App Installation** — Required to use Cowork and Code https://claude.com/download
 
@@ -43,7 +46,7 @@ Voice rules — apply to all output:
 
 Each skill also has these rules embedded — this just ensures they apply globally even outside any skill context.
 
-**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, `client-proposal-doc-builder`, and `post-discovery-followup`
+**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, `client-proposal-doc-builder`, `post-discovery-followup`, and `pre-brief`
 Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
 
 **Apollo MCP** — required by `list-builder`
@@ -81,6 +84,58 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 | objection-drill | | | | | |
 | client-proposal-doc-builder | required (write) | | | | |
 | post-discovery-followup | required | | required | required | |
+| pre-brief | required (write) | | | | |
+
+## Claude Code Setup
+
+`master-tracker` and `custom-decks` are Claude Code skills. They run in a terminal with real Python, local API keys, and OAuth token files. **Do not upload them to Cowork** — they cannot run there.
+
+Each skill's SKILL.md opens with: "Claude Code skill - runs in a terminal, NOT Cowork. Do not upload it into the Cowork desktop app. Run it from a terminal with `python3 run.py`."
+
+### Credentials
+
+Provision these once and add them to the skill's `config.json` (copy `config.template.json` to start).
+
+**Apollo API key** — required by `master-tracker` and `custom-decks` for call data and contact lookup.
+Go to Apollo → Settings → Integrations → API and copy your key.
+
+**Google OAuth token** — required by both skills to read and write Google Sheets and Drive.
+Each skill walks you through the OAuth app setup. Each one needs its own token file (`token.json`).
+
+**Deepgram API key** — required by `custom-decks` for audio transcription.
+Sign up at deepgram.com and create an API key in your project dashboard.
+
+**Groq API key** — required by `custom-decks` as a transcription fallback. It fires only when Deepgram returns empty.
+Sign up at console.groq.com and create an API key.
+
+### Install
+
+**master-tracker:**
+
+```bash
+cd master-tracker
+pip install -r requirements.txt
+cp config.template.json config.json   # fill in your credentials
+```
+
+**custom-decks** (also requires Node and Marp for deck rendering):
+
+```bash
+cd custom-decks
+pip install -r requirements.txt
+npm install -g @marp-team/marp-cli
+cp config.template.json config.json   # fill in your credentials
+```
+
+### Run
+
+```bash
+# master-tracker — pull calls and update the sheet
+cd master-tracker && python3 run.py
+
+# custom-decks — build a deck for one prospect
+cd custom-decks && python3 run.py
+```
 
 ## How to use
 
