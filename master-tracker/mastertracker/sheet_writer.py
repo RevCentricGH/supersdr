@@ -59,6 +59,38 @@ class SheetWriter:
             body={"values": [values_list]},
         ).execute()
 
+    def read_rows(self, tab):
+        """Read a tab's data rows as header-keyed dicts. StatsBuilder reads the live rep
+        tabs through this, so the summary always reflects what is in the sheet right now."""
+        rows = self._get_values(f"{tab}!A1:ZZ")
+        if not rows:
+            return []
+        header = rows[0]
+        out = []
+        for row in rows[1:]:
+            out.append({col: (row[i] if i < len(row) else "") for i, col in enumerate(header)})
+        return out
+
+    def clear_tab(self, tab):
+        """Clear every value in a tab. Called before writing the summary so stale rows from
+        a previous, larger run never linger below the new content."""
+        self._add_tab_if_missing(tab)
+        self.service.values().clear(
+            spreadsheetId=self.spreadsheet_id,
+            range=f"{tab}!A1:ZZ",
+            body={},
+        ).execute()
+
+    def write_grid(self, tab, values_2d):
+        """Write a 2D block starting at A1 (the summary tab is rebuilt wholesale each run)."""
+        self._add_tab_if_missing(tab)
+        self.service.values().update(
+            spreadsheetId=self.spreadsheet_id,
+            range=f"{tab}!A1",
+            valueInputOption="USER_ENTERED",
+            body={"values": values_2d},
+        ).execute()
+
     def _get_values(self, rng):
         resp = (
             self.service.values()

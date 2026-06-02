@@ -20,6 +20,7 @@ from mastertracker.config import compute_backfill_start, load_config
 from mastertracker.ingest_state import IngestState
 from mastertracker.pipeline import run
 from mastertracker.sheet_writer import SheetWriter
+from mastertracker.stats_builder import rebuild_summary
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
@@ -51,22 +52,30 @@ def _build_sheets_service(oauth_cfg):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Pull Apollo calls into a Google Sheet.")
     parser.add_argument("--config", default="config.json", help="path to config.json")
+    parser.add_argument(
+        "--stats-only",
+        action="store_true",
+        help="skip the Apollo pull; just rebuild the summary tab from the live rep tabs",
+    )
     args = parser.parse_args(argv)
 
     config = load_config(args.config)
-    backfill_start = compute_backfill_start(config)
-
-    apollo = ApolloClient(config["apollo_api_key"])
     service = _build_sheets_service(config.get("google_oauth", {}))
     sheet = SheetWriter(service, config["google_sheet_id"])
-    state = IngestState(config.get("state_file", "state.json"))
 
-    results = run(config, apollo=apollo, sheet=sheet, ingest_state=state, backfill_start=backfill_start)
+    if not args.stats_only:
+        backfill_start = compute_backfill_start(config)
+        apollo = ApolloClient(config["apollo_api_key"])
+        state = IngestState(config.get("state_file", "state.json"))
+        results = run(config, apollo=apollo, sheet=sheet, ingest_state=state, backfill_start=backfill_start)
+        total = sum(results.values())
+        for rep, n in results.items():
+            print(f"  {rep}: {n} new row(s)")
+        print(f"Done. {total} new row(s) across {len(results)} rep tab(s).")
 
-    total = sum(results.values())
-    for rep, n in results.items():
-        print(f"  {rep}: {n} new row(s)")
-    print(f"Done. {total} new row(s) across {len(results)} rep tab(s).")
+    if config.get("stats"):
+        rebuild_summary(config, sheet=sheet)
+        print(f"Summary tab '{config['stats']['summary_tab']}' rebuilt from the live rep tabs.")
 
 
 if __name__ == "__main__":
