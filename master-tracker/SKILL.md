@@ -31,6 +31,27 @@ For every rep in your config:
 5. Marks a call ingested only after its row is written. If a write fails, the call is retried
    next run. If a rep tags a call with a kept disposition after the dialer first logged it, the
    next run picks it up.
+6. Rebuilds the summary tab from the live rep tabs: an ICP breakdown (counts per ICP category),
+   meeting trends (booked meetings bucketed by week), and a rep leaderboard (reps ranked by
+   activity). The summary tab is cleared and rewritten each run, so it is always current and
+   safe to re-run.
+
+## The summary tab
+
+After the pull, master-tracker rebuilds one summary tab (default name "Overall Statistics")
+straight from the rows in the live rep tabs. It owns that tab and rewrites it wholesale, so it
+never duplicates and never goes stale:
+
+- **ICP breakdown** - counts the rows in each rep tab by the value in your ICP column, totaled
+  across all reps. Fill in the `ICP` column (a manual column) per row to categorize a prospect.
+- **Meeting trends** - rows whose disposition is in `stats.meeting_dispositions`, bucketed by
+  ISO week, so you can see booked meetings rising or falling week over week.
+- **Rep leaderboard** - reps ranked by `stats.leaderboard_metric`: `calls` (all tracked rows)
+  or `meetings` (meeting-disposition rows).
+
+Tab names, the ICP column, the meeting dispositions, the metric, and every label are config
+(`stats` block), so nothing about the summary is hardcoded to one team. Rebuild it without
+re-pulling Apollo with `python3 run.py --stats-only`.
 
 ## Setup
 
@@ -59,6 +80,7 @@ This is a one-time setup per operator. Everything runs on your own accounts.
    - `keep_prefixes` - disposition prefixes to keep, for families like `Callback - next week`.
    - `backfill_days` - how many days back to pull on each run.
    - `manual_columns` - columns you maintain by hand. Reserved on every row and never written to.
+     Includes `ICP` by default, the column the summary tab's ICP breakdown counts.
    - `recording_source` - which dialer the Recording URL column is resolved from. `type` is one
      of `apollo`, `trellus`, or `manual-url`. Remove the whole block (or set `type` to `""`) to
      leave the column blank. The recording source is the sole authority for that column, so a
@@ -71,6 +93,10 @@ This is a one-time setup per operator. Everything runs on your own accounts.
        the call key the URL is read from (default `manual_recording_url`).
      An unknown `type` fails fast at startup with a clear error; a source that cannot resolve a
      given call leaves that row's column blank without stopping the run.
+   - `stats` - the summary tab. `summary_tab` is its tab name; `icp_column` is which manual
+     column holds the ICP category; `meeting_dispositions` are the dispositions counted as a
+     booked meeting; `leaderboard_metric` is `calls` or `meetings`; `labels` are every section
+     and column header in the summary. Change any of these without touching code.
    - `google_oauth.credentials_file` / `google_oauth.token_file` - paths to your Google OAuth
      client secret and the token file the skill writes after the first authorization.
    - `state_file` - where the ingested-call ledger is kept.
@@ -86,6 +112,7 @@ This is a one-time setup per operator. Everything runs on your own accounts.
 ```
 python3 run.py                      # uses ./config.json
 python3 run.py --config /path/to/config.json
+python3 run.py --stats-only         # rebuild the summary tab only, no Apollo pull
 ```
 
 It prints how many new rows each rep tab got. Run it again any time, or wire it into cron for an
@@ -102,6 +129,8 @@ The logic lives in the `mastertracker` package and is unit-tested:
 - `recording_source.py` - `RecordingSource`: pluggable `resolve(call)` with `apollo`, `trellus`,
   and `manual-url` adapters selected by config; the single authority for the Recording URL column.
 - `pipeline.py` - wires the above and routes each rep's calls to its tab.
+- `stats_builder.py` - `StatsBuilder`: pure aggregation of the live rep tabs into the summary
+  tab (ICP breakdown, meeting trends, leaderboard); `rebuild_summary` reads, clears, and writes.
 
 The side-effecting wrappers are kept thin and validated by the manual end-to-end run:
 

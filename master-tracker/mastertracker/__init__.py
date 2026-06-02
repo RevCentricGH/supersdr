@@ -7,6 +7,8 @@ Deep modules (pure, unit-tested):
   - IngestState        - ingested-call ledger; mark-only-after-write
   - RecordingSource    - pluggable resolve(call) -> recording link; apollo/trellus/manual-url
   - pipeline           - per-rep ingest orchestration
+  - StatsBuilder       - rebuild the summary tab (ICP breakdown, meeting trends, leaderboard)
+                         from the live rep tabs; config-driven tabs and labels, idempotent
 
 Thin side-effecting wrappers (validated by manual run):
   - ApolloClient       - paged phone-call search with 429 backoff
