@@ -6,7 +6,7 @@ Covers validation-contract assertions 10-15 and the required tests 38-42.
 import pytest
 
 from customdecks.deck_copy_generator import DeckCopyGenerator, REQUIRED_KEYS
-from customdecks.errors import CopyValidationError, InsufficientSignalError
+from customdecks.errors import CopyParseError, CopyValidationError, InsufficientSignalError
 
 PROSPECT = {"name": "Jane Doe", "company": "Acme Corp", "website": "https://acme.test"}
 GOOD = {
@@ -83,6 +83,21 @@ def test_validate_raises_listing_missing_keys():
     for key in ("proof", "cta_text", "cta_url"):
         assert key in exc.value.missing_keys
         assert key in str(exc.value)
+
+
+def test_extract_with_no_json_reports_no_json_not_missing_keys():
+    # a response with no fence and no braces is "no JSON found", not "missing keys"
+    with pytest.raises(CopyParseError) as exc:
+        DeckCopyGenerator(SpyClaude("")).extract("Sorry, I can't help with that.")
+    assert "no JSON" in str(exc.value)
+
+
+def test_extract_with_malformed_json_reports_malformed_not_missing_keys():
+    # braces present but unparseable -> "malformed JSON", distinct from a missing-keys error
+    raw = "```json\n{\"headline\": \"h\", oops not json}\n```"
+    with pytest.raises(CopyParseError) as exc:
+        DeckCopyGenerator(SpyClaude("")).extract(raw)
+    assert "malformed" in str(exc.value)
 
 
 def test_insufficient_signal_raises_distinct_error():

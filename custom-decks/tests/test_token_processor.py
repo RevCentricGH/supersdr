@@ -38,3 +38,12 @@ def test_process_applies_budget_and_wrap_per_token():
     assert all(len(line) <= 5 for line in out["headline"].splitlines())
     assert sum(len(line) for line in out["headline"].splitlines()) == 10
     assert out["cta_text"] == "Book"
+
+
+def test_truncations_do_not_carry_over_between_process_calls():
+    # reusing one processor across decks (batch/queue mode) must not accumulate truncations
+    tp = TokenProcessor(char_budget=10, line_width=100)
+    tp.process({"headline": "x" * 50})
+    assert len(tp.truncations) == 1
+    tp.process({"cta_text": "Book"})  # within budget, nothing truncated
+    assert tp.truncations == []

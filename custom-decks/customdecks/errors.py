@@ -27,6 +27,13 @@ class InsufficientSignalError(CustomDecksError):
     to ship generic boilerplate, so this stops the pipeline rather than rendering filler."""
 
 
+class CopyParseError(CustomDecksError):
+    """No parseable copy JSON was found in the model's response: either no JSON object was
+    present at all (no fence, no braces) or the candidate text would not parse. Distinct
+    from CopyValidationError, which means the JSON parsed fine but a required key was
+    absent - so a debugging operator is not misled into looking for missing keys."""
+
+
 class CopyValidationError(CustomDecksError):
     """The parsed copy JSON is missing one or more required keys. The message lists the
     specific missing keys."""
