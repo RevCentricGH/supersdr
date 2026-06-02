@@ -33,3 +33,16 @@ def test_marking_is_only_durable_after_save(tmp_path):
     assert IngestState(path).is_ingested("call_1") is False
     state.save()
     assert IngestState(path).is_ingested("call_1") is True
+
+
+def test_empty_call_id_never_poisons_the_ledger(tmp_path):
+    # regression: a missing/empty call id must never be marked or read as ingested, or it
+    # would match every other call with no id and silently drop their rows
+    path = str(tmp_path / "state.json")
+    state = IngestState(path)
+    state.mark_ingested("")
+    state.mark_ingested(None)
+    assert state.is_ingested("") is False
+    assert state.is_ingested(None) is False
+    state.save()
+    assert IngestState(path).is_ingested("") is False

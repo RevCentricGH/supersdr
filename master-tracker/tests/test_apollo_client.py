@@ -2,7 +2,9 @@
 
 Driven through an injected fake transport and a fake sleep, so no network and no real waits.
 """
-from mastertracker.apollo_client import ApolloClient
+import pytest
+
+from mastertracker.apollo_client import ApolloClient, ApolloError
 
 
 class FakeResponse:
@@ -105,3 +107,18 @@ def test_normalizes_the_call_note_so_the_trellus_source_can_parse_it():
     client = ApolloClient("key", transport=transport, sleep=lambda s: None)
     call = client.search_calls({"apollo_user_id": "u1"})[0]
     assert call["note"] == "Trellus session sess_ab12cd34"
+
+
+def test_normalize_defaults_absent_duration_to_zero():
+    # both duration fields absent -> a numeric 0, never None, so the sheet column stays
+    # all-numeric and downstream formulas do not choke on a JSON null
+    call = ApolloClient._normalize({"id": "x", "created_at": "2026-05-20T00:00:00Z"})
+    assert call["duration_sec"] == 0
+    assert call["duration_sec"] is not None
+
+
+def test_search_refuses_a_rep_with_no_user_id():
+    # regression: an empty apollo_user_id must not fall through to querying all users
+    client = ApolloClient("key", transport=FakeTransport([]), sleep=lambda s: None)
+    with pytest.raises(ApolloError):
+        client.search_calls({"apollo_user_id": ""})
