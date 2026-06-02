@@ -14,6 +14,7 @@ def make_call(
     phone="+15551230001",
     duration_sec=142,
     recording_url="",
+    note="",
     timestamp=None,
 ):
     return {
@@ -25,4 +26,5 @@ def make_call(
         "phone": phone,
         "duration_sec": duration_sec,
         "recording_url": recording_url,
+        "note": note,
     }

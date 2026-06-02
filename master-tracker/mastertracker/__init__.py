@@ -5,6 +5,7 @@ Deep modules (pure, unit-tested):
   - CallRowMapper      - normalized call record -> sheet row
   - Deduper            - dedup by (date, lowercased prospect)
   - IngestState        - ingested-call ledger; mark-only-after-write
+  - RecordingSource    - pluggable resolve(call) -> recording link; apollo/trellus/manual-url
   - pipeline           - per-rep ingest orchestration
 
 Thin side-effecting wrappers (validated by manual run):
