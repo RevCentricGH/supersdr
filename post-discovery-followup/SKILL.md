@@ -108,9 +108,30 @@ The confirmed outcome decides what comes back:
 When the builder returns, present the draft to the operator for review: the proposal doc link
 plus the email for `proposal`, the email alone for `needs_followup`.
 
-Stop there. This slice builds the handoff only. Do not send the email and do not write to
-Apollo. The Gmail send (#18) and the Apollo deal-stage update (#17) are later slices; neither
-runs in this build.
+After the operator has reviewed the draft, update the Apollo deal stage (Step 5). The Gmail
+send (#18) is a later slice and does not run in this build, so no email is sent here.
+
+## Step 5 - Update the Apollo deal stage
+
+This step runs only on a confirmed `proposal` or `needs_followup` outcome, after the operator
+has reviewed the draft. The other five outcomes never reach it; they stop and report.
+
+Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. Look up the target stage for
+the confirmed outcome in `reference/outcome-taxonomy.md` (the outcome-to-Apollo-stage map); the
+EXECUTION_GUIDE does not restate the map. Then, through Claude-in-Chrome browser automation on
+a logged-in Apollo:
+
+- Search Apollo opportunities for the company name (the same name passed to
+  `client-proposal-doc-builder`).
+- Show the matched opportunity and its current stage, and require an explicit operator "yes"
+  before any write.
+- On zero or multiple matches, let the operator pick or supply the opportunity. The calendar or
+  transcript name often differs from the Apollo account name (agency vs end-client, campaign
+  alias); the operator resolves that here, in the session. There is no alias table.
+- On confirmation, flip the stage to the target and verify the change took.
+
+Never write on a best-guess match. No silent top-match write. If the operator declines or no
+opportunity is confirmed, change nothing and say so.
 
 ## Completion summary
 
@@ -136,9 +157,9 @@ summary also reports:
 - **Apollo stage** - confirmation of the stage the deal was moved to, or that the write was
   skipped because the opportunity match was not confirmed.
 
-The Draft line is active as of this slice (#16). The Email sent and Apollo stage lines are
-filled in by the later slices (#18 send, #17 Apollo); this build leaves them as shells and
-performs no send or Apollo write.
+The Draft line is active as of #16 and the Apollo stage line as of this slice (#17). The Email
+sent line is filled in by the later slice (#18); this build leaves it as a shell and sends no
+email.
 
 ## Voice
 
@@ -156,3 +177,6 @@ the completion summary) follow the repo voice rules in `CLAUDE.md`:
 - `reference/outcome-taxonomy.md` - the seven outcomes, the classification criteria, the
   outcome-to-Apollo-stage map, and the draft-vs-report branching. Single source of truth for
   triage and Apollo routing. Read it when you classify and when you branch.
+- `apollo_stage_update.py` - the browser EXECUTION_GUIDE for the Apollo deal-stage update
+  (search, confirm, flip, verify). Read it in Step 5. The outcome-to-stage map it uses lives in
+  `reference/outcome-taxonomy.md`, not in the .py.
