@@ -1,0 +1,19 @@
+# Real config (the template is committed; the filled-in copy is not)
+config.json
+config.local.json
+*.local.json
+
+# Google OAuth secrets and tokens
+credentials.json
+token.json
+*.token
+service-account*.json
+client_secret*.json
+
+# Ingest state
+state.json
+*.state.json
+
+# Python
+__pycache__/
+*.pyc
