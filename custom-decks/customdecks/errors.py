@@ -47,6 +47,11 @@ class UploadError(CustomDecksError):
     """The Drive upload failed on every attempt, including retries."""
 
 
+class LockHeld(CustomDecksError):
+    """A custom-decks queue run is already in progress (its lock file exists), so this run
+    refuses to start rather than build the same sheet twice at once."""
+
+
 class QualityGateError(CustomDecksError):
     """The rendered deck failed one or more refuse-boilerplate checks, so the View link is
     not written. The deck is kept locally for inspection. ``failures`` lists a distinct,
