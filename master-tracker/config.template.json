@@ -1,0 +1,23 @@
+{
+  "apollo_api_key": "YOUR_APOLLO_API_KEY",
+  "google_sheet_id": "YOUR_GOOGLE_SHEET_ID",
+
+  "reps": {
+    "Alice Rep": { "apollo_user_id": "APOLLO_USER_ID_FOR_ALICE" },
+    "Bob Rep": { "apollo_user_id": "APOLLO_USER_ID_FOR_BOB" }
+  },
+
+  "keep_dispositions": ["Interested", "Meeting Booked", "Not Interested"],
+  "keep_prefixes": ["Callback"],
+
+  "backfill_days": 30,
+
+  "manual_columns": ["Notes", "Next Step", "Deck Link"],
+
+  "google_oauth": {
+    "credentials_file": "credentials.json",
+    "token_file": "token.json"
+  },
+
+  "state_file": "state.json"
+}
