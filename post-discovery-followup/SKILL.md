@@ -80,17 +80,37 @@ draft of any kind and make no write to Apollo. Example:
 > Manual next step: park the deal in Apollo and set a reminder to revisit. No draft and no
 > stage write from me on this one."
 
-**Draft-and-Apollo-write branch.** For an outcome the taxonomy marks draft-and-Apollo-write,
-hand the transcript, the confirmed outcome, and the company name to `client-proposal-doc-builder`
-and let it produce the draft (a full proposal document or a follow-up email, per the outcome).
-On its return, present the draft for approval, send the approved email through the Gmail
-connector, and update the deal stage in Apollo through browser automation after the operator
-confirms the matched opportunity.
+**Draft branch - hand off to `client-proposal-doc-builder`.** For an outcome the taxonomy
+marks draft-and-Apollo-write (`proposal` and `needs_followup`), hand off to the
+`client-proposal-doc-builder` skill and let it produce the draft. Do not build the proposal or
+write the email here. This skill owns triage and routing; `client-proposal-doc-builder` owns
+the proposal document, the follow-up email, the email-route selection, and the rule against
+fabricating prior-campaign references or proof points. Reproduce none of that in this file.
 
-The handoff, the Gmail send, and the Apollo stage update are built in the later slices of this
-skill (issues #16 through #19). In this walking skeleton, route a draft outcome to the
-proposal-builder handoff and stop there. Do not duplicate any proposal or email logic in this
-file.
+Pass three things to `client-proposal-doc-builder`:
+
+- **The full transcript** - the same text you read in Step 2, so the builder grounds the draft
+  in what the prospect actually said.
+- **The confirmed outcome** - `proposal` or `needs_followup`. This selects what the builder
+  produces.
+- **The company name** - the prospect's company, inferred from the transcript. If the
+  transcript does not name it clearly, ask the operator before handing off.
+
+The confirmed outcome decides what comes back:
+
+- **`proposal`** - the builder runs its full workflow: a complete proposal Google Doc, then the
+  follow-up email on its proposal-link route, so the email carries the Google Doc link. You get
+  back a proposal Google Doc and a drafted follow-up email.
+- **`needs_followup`** - the builder skips the proposal document and drafts only the follow-up
+  email on its needs-followup route (no document; `proposal_link` is null). You get back a
+  drafted follow-up email and no proposal document.
+
+When the builder returns, present the draft to the operator for review: the proposal doc link
+plus the email for `proposal`, the email alone for `needs_followup`.
+
+Stop there. This slice builds the handoff only. Do not send the email and do not write to
+Apollo. The Gmail send (#18) and the Apollo deal-stage update (#17) are later slices; neither
+runs in this build.
 
 ## Completion summary
 
@@ -108,15 +128,17 @@ that no draft was produced and no Apollo write happened.
 For a draft-and-Apollo-write outcome (the two outcomes the taxonomy marks as such), the
 summary also reports:
 
-- **Draft** - confirmation that the proposal document or follow-up email was drafted, with the
-  Google Doc link for a proposal.
+- **Draft** - for `proposal`, confirmation that the proposal Google Doc was created (with its
+  link) and the follow-up email was drafted. For `needs_followup`, confirmation that the
+  follow-up email was drafted, with no proposal document.
 - **Email sent** - confirmation that the approved email was sent through Gmail, or the failure
   if it did not send.
 - **Apollo stage** - confirmation of the stage the deal was moved to, or that the write was
   skipped because the opportunity match was not confirmed.
 
-The send and Apollo lines of the summary are filled in by the later slices; this skeleton
-ships the shell and the outcome and reasoning lines.
+The Draft line is active as of this slice (#16). The Email sent and Apollo stage lines are
+filled in by the later slices (#18 send, #17 Apollo); this build leaves them as shells and
+performs no send or Apollo write.
 
 ## Voice
 
