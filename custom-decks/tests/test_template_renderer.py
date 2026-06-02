@@ -94,6 +94,27 @@ def test_empty_proof_sections_are_omitted_from_the_deck():
     assert "Who you are working with" not in source
 
 
+def test_proof_sections_are_omitted_independently_when_empty():
+    # the omit is per-section, not all-or-nothing: in one deck, populated sections render
+    # while the empty ones beside them are dropped
+    mixed = {
+        "agency": BRANDING["agency"],
+        "proof": {
+            "stat_cards": [{"value": "3x", "label": "pipeline in 90 days"}],
+            "case_studies": [],
+            "client_logos": [],
+            "founder_authority": [{"name": "Casey Vault", "credential": "10 years running B2B outbound"}],
+        },
+    }
+    source = TemplateRenderer().build_marp_source(TOKENS, PROSPECT, mixed)
+    # the two populated sections render
+    assert "By the numbers" in source and "3x" in source
+    assert "Who you are working with" in source and "10 years running B2B outbound" in source
+    # the two empty sections beside them are dropped
+    assert "Case studies" not in source
+    assert "Trusted by" not in source
+
+
 def test_no_branding_leaks_no_agency_identity_or_proof():
     # With no branding config, the template must supply none of the agency values itself -
     # proof that nothing brand-identifying is hardcoded in the template.
