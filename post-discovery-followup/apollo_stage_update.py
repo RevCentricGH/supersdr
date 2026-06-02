@@ -127,10 +127,12 @@ STEP E - Move the deal to the target column
   - On the board, drag the deal's card from its current column to the confirmed
     target stage column. If drag is unreliable, open the deal and set the stage
     from the deal's own stage control, then return to the board.
-  - NOTE: this move has NOT been run end-to-end inside Claude Cowork. It writes
-    to live data, so validate it on a throwaway test deal, never on a real one.
-    If the board differs from this description, screenshot it, adapt, and note
-    what you saw. Do not force a guess on a real deal.
+  - NOTE: in a dry-run, creating and deleting a deal worked, but a scripted drag
+    did NOT move the card - Apollo's board drag-and-drop needs native pointer
+    input (Claude-in-Chrome provides this; a synthetic/scripted drag may not).
+    If the drag does not register, fall back to the deal's own stage control,
+    or screenshot and report. This step writes live data, so validate it on a
+    throwaway test deal, never on a real one.
 
 STEP F - Verify the move took
   - Confirm the card now sits in the target column and the column counts updated
