@@ -15,7 +15,6 @@ Claude Cowork skills for the SuperSDR community.
 | [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
 | [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
 | [post-discovery-followup](post-discovery-followup/) | Triage a discovery-call transcript to one of seven outcomes, then on a proposal or follow-up outcome chain into client-proposal-doc-builder for the draft, send the approved email through Gmail, and update the Apollo deal stage. The operator confirms every external action | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
-| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page Google Doc meeting brief — paste the transcript or link a Drive/Gemini/Fireflies recording, get back 5-8 bullets (concerns, objections, asks, commitments) each anchored to the exact transcript line | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
 | [master-tracker](master-tracker/) | Pull each rep's Apollo dialer calls into per-rep tabs of a Google Sheet — filtered to configured dispositions, deduped, idempotent. **Runs in a terminal, NOT Cowork.** Do not upload to Cowork. See [Claude Code Setup](#claude-code-setup) below. | Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
 | [custom-decks](custom-decks/) | Build a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides + PDF with a View link. **Runs in a terminal, NOT Cowork.** Do not upload to Cowork. See [Claude Code Setup](#claude-code-setup) below. | Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
 
@@ -46,7 +45,7 @@ Voice rules — apply to all output:
 
 Each skill also has these rules embedded — this just ensures they apply globally even outside any skill context.
 
-**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, `client-proposal-doc-builder`, `post-discovery-followup`, and `pre-brief`
+**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, `client-proposal-doc-builder`, and `post-discovery-followup`
 Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
 
 **Apollo MCP** — required by `list-builder`
@@ -84,7 +83,6 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 | objection-drill | | | | | |
 | client-proposal-doc-builder | required (write) | | | | |
 | post-discovery-followup | required | | required | required | |
-| pre-brief | required (write) | | | | |
 
 ## Claude Code Setup
 
