@@ -65,6 +65,8 @@ def requests_fetcher(*, transport=None, user_agent="custom-decks/1.0"):
 
         get = transport or requests.get
         resp = get(url, headers={"User-Agent": user_agent}, timeout=30)
+        if getattr(resp, "status_code", 200) >= 400:
+            return ""
         return resp.text or ""
 
     return fetch

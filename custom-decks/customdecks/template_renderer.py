@@ -99,6 +99,10 @@ def npx_marp_runner(npx="npx"):
             flag = "--pptx-editable" if shutil.which("soffice") else "--pptx"
         cmd = [npx, "-y", "@marp-team/marp-cli@latest", md_path, flag,
                "--allow-local-files", "-o", out_path]
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        try:
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+        except subprocess.CalledProcessError as exc:
+            detail = (exc.stderr or exc.stdout or "").strip()
+            raise RuntimeError(f"marp render failed ({fmt}): {detail}") from exc
 
     return run

@@ -38,7 +38,12 @@ def _subpage_urls(website, subpages):
     base = website if website.endswith("/") else website + "/"
     urls = [website]
     for sub in subpages or []:
-        urls.append(urljoin(base, str(sub).lstrip("/")))
+        sub = str(sub).strip().lstrip("/")
+        if not sub:
+            continue
+        url = urljoin(base, sub)
+        if url not in urls:
+            urls.append(url)
     return urls
 
 

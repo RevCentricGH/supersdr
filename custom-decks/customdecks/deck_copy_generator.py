@@ -69,12 +69,18 @@ class DeckCopyGenerator:
             )
         fenced = _FENCED.search(raw)
         if fenced:
-            return json.loads(fenced.group(1).strip())
+            return self._loads(fenced.group(1).strip())
         start = raw.find("{")
         end = raw.rfind("}")
         if start != -1 and end != -1 and end > start:
-            return json.loads(raw[start : end + 1])
+            return self._loads(raw[start : end + 1])
         raise CopyValidationError(list(self.required_keys))
+
+    def _loads(self, text):
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            raise CopyValidationError(list(self.required_keys))
 
     def validate(self, data):
         missing = [k for k in self.required_keys if k not in data]
