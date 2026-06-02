@@ -1,0 +1,25 @@
+# Real config (the template is committed; the filled-in copy is not)
+config.json
+config.local.json
+*.local.json
+
+# Google OAuth secrets and tokens
+credentials.json
+token.json
+*.token
+service-account*.json
+client_secret*.json
+
+# API keys / secrets dropped here by hand
+*.secret
+.env
+
+# Rendered decks and scratch output
+out/
+*.pdf
+*.pptx
+*.md.deck
+
+# Python
+__pycache__/
+*.pyc
