@@ -14,6 +14,7 @@ Claude Cowork skills for the SuperSDR community.
 | [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 4 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
 | [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
 | [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
+| [post-discovery-followup](post-discovery-followup/) | Triage a discovery-call transcript to one of seven outcomes, then on a proposal or follow-up outcome chain into client-proposal-doc-builder for the draft, send the approved email through Gmail, and update the Apollo deal stage. The operator confirms every external action | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
 
 ## Stay updated
 
@@ -42,13 +43,13 @@ Voice rules — apply to all output:
 
 Each skill also has these rules embedded — this just ensures they apply globally even outside any skill context.
 
-**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, and `client-proposal-doc-builder`
+**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, `client-proposal-doc-builder`, and `post-discovery-followup`
 Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
 
 **Apollo MCP** — required by `list-builder`
 Go to Settings → MCP Servers in Cowork and connect Apollo (`apollo-io`). One-time setup. The skill calls Apollo through the MCP — no API key needed in the skill itself.
 
-**Browser automation** — required by `tam-contact-mapper` and `apollo-campaign-builder`
+**Browser automation** — required by `tam-contact-mapper`, `apollo-campaign-builder`, and `post-discovery-followup`
 Go to Settings → Computer Use in Cowork and enable browser control. Log into Apollo in Chrome and keep that tab open when running these skills.
 
 **Gmail connector** - required by `post-discovery-followup`
@@ -79,7 +80,7 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 | apollo-campaign-builder | | | required | | |
 | objection-drill | | | | | |
 | client-proposal-doc-builder | required (write) | | | | |
-| post-discovery-followup | | | required | required | |
+| post-discovery-followup | required | | required | required | |
 
 ## How to use
 
