@@ -11,12 +11,13 @@ description: Generate a tailored prospect deck end-to-end from a single prospect
 > with `python3 run.py`.
 
 Build a deck tailored to one prospect, grounded in their call and their website, branded as
-your own agency, rendered to Google Slides + PDF, and returned as a View link. Agency identity
-(name, logo, sender, copy voice) and proof (stat cards, case studies, client logos, founder-
-authority cards) all come from config and bundled assets, so the deck is yours and nothing is
-hardcoded. A proof section you leave empty is dropped, so you ship a clean shorter deck rather
-than empty placeholder slides. The refuse-boilerplate quality gate and queue mode (reading
-activated leads off the master-tracker sheet) are later slices.
+your own agency, rendered to Google Slides + PDF, and returned as a View link only when the
+deck passes the refuse-boilerplate quality gate. Agency identity (name, logo, sender, copy
+voice) and proof (stat cards, case studies, client logos, founder-authority cards) all come
+from config and bundled assets, so the deck is yours and nothing is hardcoded. A proof section
+you leave empty is dropped, so you ship a clean shorter deck rather than empty placeholder
+slides. This is the ad-hoc, single-prospect pipeline; queue mode (reading activated leads off
+the master-tracker sheet) is a later slice.
 
 ## What it does on a run
 
@@ -38,8 +39,15 @@ activated leads off the master-tracker sheet) are later slices.
    cards) from config, plus the prospect company and a clickable CTA - and rendered to a PDF and
    a PPTX. Proof sections you leave empty in config are dropped from the deck.
 6. **Upload.** The PPTX is uploaded to Google Drive, converted to a Google Slides presentation,
-   with retry/backoff on transient failures. The run returns the Slides View URL and verifies the
-   uploaded slides actually carry the configured CTA link and the company name.
+   with retry/backoff on transient failures.
+7. **Quality gate.** Before the View link is surfaced, the deck must pass the refuse-boilerplate
+   gate: a rendered PDF is present and above a size floor, the preview link answers a real HTTP
+   request with a 2xx status, the copy did not overflow the token budget, the rendered text
+   carries no transcript artifacts (speaker labels, timestamps, inaudible/crosstalk markers), and
+   no generic wallpaper is applied across the slides. The gate runs every check and reports all
+   failures at once. On a full pass the run writes the Slides View URL and verifies the slides
+   carry the configured CTA link and company name. On any failure the deck is kept locally, the
+   View link is not published, and every failure reason is printed.
 
 ## Setup
 
@@ -67,6 +75,8 @@ One-time per operator. Everything runs on your own accounts.
    - `per_subpage_char_budget` / `total_char_budget` - how much scraped text to keep, per page
      and in total.
    - `per_token_char_budget` / `line_width` - the per-token cap and wrap width for copy.
+   - `token_budget` - the total deck-copy character budget the quality gate enforces. A deck
+     whose copy overflows this is rejected as over-stuffed.
    - `required_copy_keys` - the keys the copy JSON must contain.
    - `cta_text` / `cta_url` - your booking link. This is the CTA stamped on the deck (the deck
      always uses your configured CTA, not whatever the model writes).
@@ -113,6 +123,10 @@ credentials needed to run the tests):
   proof sections auto-omitted) + render to PDF and PPTX.
 - `drive_uploader.py` - `DriveUploader`: upload with retry/backoff, View-URL build, and a
   post-upload Slides verification of the CTA link and company name.
+- `quality_gate.py` - `QualityGate`: the refuse-boilerplate checks (PDF present + size floor,
+  preview link reachable, token-budget overflow, transcript-artifact text, generic-wallpaper
+  guard). Read-only; it never deletes the deck. Returns every failure reason; the View link is
+  written only on a full pass.
 - `build_deck.py` - wires the above into the full pipeline and the `main` CLI entry point.
 
 Run the tests from the repo root:
