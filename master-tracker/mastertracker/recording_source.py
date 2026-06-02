@@ -7,7 +7,8 @@ Students dial in Apollo, not Trellus, so the dialer is abstracted behind one int
 Adapters:
   - ``apollo``     - surface the recording URL Apollo's API already attached to the call.
   - ``trellus``    - parse the Trellus session id out of the call note and build the link.
-  - ``manual-url`` - return a recording URL the operator attached to the call by hand.
+  - ``manual-url`` - return a recording URL the operator attached to the call by hand
+    (also accepts the aliases ``manual_url`` and ``manual``).
 
 An adapter never raises on a malformed or unresolvable record; it returns "" so the caller
 leaves the recording-link column blank. ``safe_resolve`` adds a second belt: even an adapter
@@ -18,6 +19,10 @@ import re
 APOLLO = "apollo"
 TRELLUS = "trellus"
 MANUAL_URL = "manual-url"
+# Accepted spellings of the manual-url type, so a config that writes "manual_url" or
+# "manual" still selects the manual adapter. Listed in the build error so the aliases are
+# documented, not hidden.
+MANUAL_URL_ALIASES = ("manual_url", "manual")
 VALID_TYPES = (APOLLO, TRELLUS, MANUAL_URL)
 
 
@@ -110,10 +115,11 @@ def build_recording_source(config):
         return ApolloRecordingSource()
     if type_ == TRELLUS:
         return TrellusRecordingSource(base_url=cfg.get("base_url"))
-    if type_ in (MANUAL_URL, "manual_url", "manual"):
+    if type_ in (MANUAL_URL, *MANUAL_URL_ALIASES):
         return ManualUrlRecordingSource(field=cfg.get("field"))
     raise UnknownRecordingSource(
-        f"Unknown recording_source type {type_!r}. Valid types: {', '.join(VALID_TYPES)}."
+        f"Unknown recording_source type {type_!r}. Valid types: {', '.join(VALID_TYPES)} "
+        f"(aliases for {MANUAL_URL}: {', '.join(MANUAL_URL_ALIASES)})."
     )
 
 
@@ -129,9 +135,12 @@ def safe_resolve(source, call):
         result = source.resolve(call)
     except Exception:
         return ""
-    if result is None:
+    # Adapters resolve to a str link (or "" when unresolvable). None or any non-str is an
+    # adapter contract violation; degrade to "" instead of stringifying an arbitrary object
+    # into the recording column.
+    if not isinstance(result, str):
         return ""
-    return str(result).strip()
+    return result.strip()
 
 
 def _clean_url(value):

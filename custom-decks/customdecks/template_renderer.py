@@ -71,8 +71,10 @@ class TemplateRenderer:
     # --- slide builders (every agency value comes from `agency` / `proof`, never hardcoded) --
 
     def _title_slide(self, prospect, agency):
-        company = prospect.get("company", "")
         name = prospect.get("name", "")
+        # Fall back to the prospect name, then a neutral title, so the deck never opens with a
+        # bare "# " heading when the company field is empty.
+        company = prospect.get("company", "") or name or "Tailored proposal"
         agency_name = agency.get("name", "")
         lines = ["# " + company]
         if agency_name:
@@ -97,7 +99,11 @@ class TemplateRenderer:
         if case_studies:
             blocks = []
             for c in case_studies:
-                head = f"**{c.get('client', '')}** - {c.get('result', '')}".rstrip(" -")
+                client = c.get("client", "")
+                result = c.get("result", "")
+                # Only join with " - " when there is a result, so a result that itself ends
+                # in a dash (e.g. "conversion-driven") is never truncated by a blanket rstrip.
+                head = f"**{client}** - {result}" if result else f"**{client}**"
                 detail = c.get("detail", "")
                 blocks.append(head + ("\n" + detail if detail else ""))
             slides.append("## Case studies\n\n" + "\n\n".join(blocks))
@@ -109,7 +115,11 @@ class TemplateRenderer:
 
         founders = proof.get("founder_authority") or []
         if founders:
-            rows = [f"- **{f.get('name', '')}** - {f.get('credential', '')}".rstrip(" -") for f in founders]
+            rows = []
+            for f in founders:
+                name = f.get("name", "")
+                cred = f.get("credential", "")
+                rows.append(f"- **{name}** - {cred}" if cred else f"- **{name}**")
             slides.append("## Who you are working with\n\n" + "\n".join(rows))
 
         return slides

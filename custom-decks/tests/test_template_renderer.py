@@ -115,6 +115,34 @@ def test_proof_sections_are_omitted_independently_when_empty():
     assert "Trusted by" not in source
 
 
+def test_case_study_result_with_a_trailing_dash_is_not_truncated():
+    # the old blanket rstrip(" -") would strip a legit trailing dash off the result; the
+    # conditional join preserves the result text verbatim
+    branding = {
+        "agency": BRANDING["agency"],
+        "proof": {"case_studies": [{"client": "Beta SaaS", "result": "ranked top 3 -"}]},
+    }
+    source = TemplateRenderer().build_marp_source(TOKENS, PROSPECT, branding)
+    assert "**Beta SaaS** - ranked top 3 -" in source
+
+
+def test_case_study_with_no_result_omits_the_separator():
+    branding = {
+        "agency": BRANDING["agency"],
+        "proof": {"case_studies": [{"client": "Beta SaaS", "result": ""}]},
+    }
+    source = TemplateRenderer().build_marp_source(TOKENS, PROSPECT, branding)
+    assert "**Beta SaaS**" in source
+    assert "**Beta SaaS** -" not in source  # no dangling separator when result is empty
+
+
+def test_title_slide_falls_back_when_company_is_empty():
+    prospect = {"name": "Jane Doe", "company": "", "website": "https://acme.test"}
+    source = TemplateRenderer().build_marp_source(TOKENS, prospect, BRANDING)
+    assert "# Jane Doe" in source       # falls back to the prospect name...
+    assert "\n# \n" not in source       # ...never a bare "# " heading
+
+
 def test_no_branding_leaks_no_agency_identity_or_proof():
     # With no branding config, the template must supply none of the agency values itself -
     # proof that nothing brand-identifying is hardcoded in the template.

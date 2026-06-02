@@ -6,6 +6,8 @@ Covers the validation contract for issue #8:
   - clears stale content / idempotent (10, 11)
   - config-driven tab names (12, 13, 14) and labels (15, 16)
 """
+import pytest
+
 from mastertracker.stats_builder import StatsBuilder, rebuild_summary
 from tests.fakes import FakeSheet
 
@@ -273,3 +275,29 @@ def test_rebuild_summary_uses_configured_tab_names():
     assert sheet.grid("Team Stats")
     assert ["SDR One", 1] in sheet.grid("Team Stats")
     assert sheet.grid("Overall Statistics") == []
+
+
+def test_is_meeting_uses_the_configured_disposition_column():
+    # a sheet whose disposition column is named differently still counts meetings, instead of
+    # silently yielding zero from a hardcoded "Disposition" key
+    builder = _builder(disposition_column="Outcome")
+    rep_rows = {
+        "Rep A": [
+            {"Date": "2026-05-18", "Outcome": "Meeting Booked", "ICP": "SaaS"},
+            {"Date": "2026-05-19", "Outcome": "Interested", "ICP": "SaaS"},
+        ]
+    }
+    assert builder.meeting_trends(rep_rows) == [("2026-W21", 1)]
+
+
+def test_unknown_leaderboard_metric_is_rejected():
+    # a config typo ("meeting") raises instead of silently falling back to call counts
+    with pytest.raises(ValueError):
+        _builder(leaderboard_metric="meeting")
+
+
+def test_rebuild_summary_errors_clearly_when_stats_block_is_missing():
+    # documented precondition: no stats block -> a clear ValueError, not a bare KeyError
+    sheet = FakeSheet()
+    with pytest.raises(ValueError):
+        rebuild_summary({"reps": {"Rep A": {}}}, sheet=sheet)

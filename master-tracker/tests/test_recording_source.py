@@ -132,6 +132,15 @@ def test_factory_raises_a_clear_error_for_an_unknown_source_name():
         msg = str(err)
         assert "bogus" in msg
         assert "apollo" in msg and "trellus" in msg and "manual-url" in msg
+        # the manual-url aliases are documented in the error, not hidden
+        assert "manual_url" in msg and "manual" in msg
+
+
+def test_factory_accepts_the_documented_manual_url_aliases():
+    # "manual_url" and "manual" select the manual adapter, matching the documented aliases
+    for alias in ("manual_url", "manual"):
+        src = build_recording_source({"recording_source": {"type": alias}})
+        assert isinstance(src, ManualUrlRecordingSource)
 
 
 # --- safe_resolve degradation guard (contract 12) -----------------------------------
@@ -144,6 +153,11 @@ class _RaisingSource(RecordingSource):
 class _NoneSource(RecordingSource):
     def resolve(self, call):
         return None
+
+
+class _NonStringSource(RecordingSource):
+    def resolve(self, call):
+        return 12345  # contract violation: adapters must return str (or "")
 
 
 def test_safe_resolve_returns_blank_when_there_is_no_source():
@@ -159,6 +173,12 @@ def test_safe_resolve_swallows_an_adapter_that_raises():
 def test_safe_resolve_normalizes_a_none_or_whitespace_result_to_blank():
     # contract 12 - a source that returns nothing useful leaves the column blank
     assert safe_resolve(_NoneSource(), make_call()) == ""
+
+
+def test_safe_resolve_degrades_a_non_string_result_to_blank():
+    # a non-str adapter result is a contract violation; degrade to "" rather than
+    # stringifying an arbitrary object ("12345") into the recording column
+    assert safe_resolve(_NonStringSource(), make_call()) == ""
 
 
 def test_safe_resolve_returns_the_resolved_link_when_one_is_found():
