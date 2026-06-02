@@ -39,6 +39,8 @@ def resolve_asset(config_path, rel_path):
     """
     if not rel_path:
         return None
+    if not isinstance(rel_path, str):
+        raise BrandingError(f"asset path must be a string, got {type(rel_path).__name__}: {rel_path!r}")
     if os.path.isabs(rel_path):
         raise BrandingError(f"asset path must be relative to the config file, not absolute: {rel_path}")
     base = _config_dir(config_path)
@@ -69,6 +71,8 @@ def load_branding(config, config_path):
 
     proof_cfg = config.get("proof", {}) or {}
     proof = {section: list(proof_cfg.get(section, []) or []) for section in PROOF_SECTIONS}
-    proof["client_logos"] = [resolve_asset(config_path, p) for p in proof["client_logos"]]
+    proof["client_logos"] = [
+        r for r in (resolve_asset(config_path, p) for p in proof["client_logos"]) if r
+    ]
 
     return {"agency": agency, "proof": proof}
