@@ -1,15 +1,15 @@
 ---
 name: client-spot
-description: Generate a client single point of truth (SPOT) document - multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. One-shot generation that pulls from onboarding call transcripts, meeting summaries, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
+description: Generate a client single point of truth (SPOT) document - multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Confirms the Problem/Solution pain and ICP read with you at one checkpoint before generating the rest. Pulls from onboarding call transcripts, meeting summaries, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
 ---
 
 # Client SPOT Skill
 
 ## Purpose
 
-One-shot generates a complete single point of truth document for a new client, structured as 9 separate tabs.
+Generates a complete single point of truth document for a new client, structured as 9 separate tabs.
 
-The skill takes whatever info is in the trigger message, pulls the rest via web search, and outputs all 9 tabs in a single response. No clarifying questions, no back-and-forth. Anything not findable becomes `[TBD]`.
+The skill pulls from the trigger message, attached transcripts, and web research, then generates the tabs with one checkpoint. Tab 4 (Problem/Solution pain) and Tab 5 (ICP) are the two highest-stakes tabs - a wrong read there silently corrupts list-builder and the campaign builder downstream. So the skill generates those two first, shows them, and waits for you to confirm or tune before generating the remaining seven tabs in one pass. Anything not findable becomes `[TBD]`.
 
 The output is organized tab-by-tab so the user can create each tab in Google Docs and paste the matching content block.
 
@@ -44,9 +44,9 @@ When this skill is loaded, greet the user:
 
 ---
 
-## Workflow - One-Shot Generation
+## Workflow - Staged Generation
 
-This skill generates the full 9-tab SPOT doc in a single response. Do not ask the user clarifying questions before generating. Extract everything possible from inputs (trigger message, attached transcripts, meeting summaries) and web research, then output all 9 tabs.
+This skill generates the SPOT in two stages with one checkpoint. Do not ask the user clarifying questions before generating. Extract everything possible from inputs (trigger message, attached transcripts, meeting summaries) and web research first. Then generate Tab 4 and Tab 5, confirm them with the user, and generate the remaining tabs in one pass.
 
 ### Input priority
 
@@ -93,16 +93,26 @@ Pull anything you typed: client name, website, campaign type, anything else not 
 
 Synthesize agent reports into the SPOT. No search cap in deep research mode - it's the substitute for first-party material.
 
-### Step 4 - Generate all 9 tabs in one response
+### Step 4 - Generate Tab 4 and Tab 5, then checkpoint
 
-Output every tab as its own labeled code block. Mark anything still unknown as `[TBD]`. Do not pause mid-generation to confirm.
+Tab 4 (Problem / Solution) and Tab 5 (ICP & Buyer Persona) are the two highest-stakes tabs. The screenplay reads Tab 4; list-builder and apollo-campaign-builder read Tab 5. A wrong pain or ICP read silently corrupts everything downstream, so confirm these two before generating the rest.
+
+Generate Tab 4 and Tab 5 only. Output each as its own labeled code block, with anything still unknown marked `[TBD]`. Then stop and ask the user to confirm or tune:
+
+> "Here are the two tabs the rest of the SPOT is built on: the Problem/Solution pain (Tab 4) and the ICP (Tab 5). Check the core pain in Tab 4.3 and the ICP filters in Tab 5: do they match how you'd pitch and who you'd target? Reply 'confirmed' to generate the rest, or tell me what to change."
+
+Wait for the user's response. If they tune, regenerate the two tabs with their changes and ask again. Do not generate the remaining tabs until the user confirms.
+
+### Step 5 - Generate the remaining tabs in one pass
+
+Once the user confirms Tab 4 and Tab 5, generate the remaining seven tabs (1, 2, 3, 6, 7, 8, 9) in a single response. Output every tab as its own labeled code block. Mark anything still unknown as `[TBD]`. Do not pause again to confirm.
 
 When a transcript was provided, add a line at the top of Tab 1 (Campaign Status) under Key Direction:
 ```
 SOURCE: Onboarding call with [client contact name] on [date]
 ```
 
-### Step 5 - Hand off
+### Step 6 - Hand off
 
 After all 9 tabs are output, append the hand-off instructions at the bottom.
 
