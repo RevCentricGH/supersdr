@@ -1,17 +1,15 @@
 ---
 name: client-spot
-description: Generate a client single point of truth (SPOT) document - multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Confirms the Problem/Solution pain and ICP read with you at one checkpoint before generating the rest. Pulls from onboarding call transcripts, meeting summaries, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
+description: Generate a client single point of truth (SPOT) document - multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Pulls from onboarding call transcripts, meeting summaries, Google form responses, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
 ---
 
 # Client SPOT Skill
 
 ## Purpose
 
-Generates a complete single point of truth document for a new client, structured as 9 separate tabs.
+Generates a complete single point of truth document for a new client, structured as 9 separate tabs in a Google Doc.
 
-The skill pulls from the trigger message, attached transcripts, and web research, then generates the tabs with one checkpoint. Tab 4 (Problem/Solution pain) and Tab 5 (ICP) are the two highest-stakes tabs - a wrong read there silently corrupts list-builder and the campaign builder downstream. So the skill generates those two first, shows them, and waits for you to confirm or tune before generating the remaining seven tabs in one pass. Anything not findable becomes `[TBD]`.
-
-The output is organized tab-by-tab so the user can create each tab in Google Docs and paste the matching content block.
+The skill pulls from the trigger message, attached transcripts, Google form responses, and optionally web research, then generates all 9 tabs in one pass and creates the Google Doc via MCP.
 
 **Runtime: Claude Cowork**
 
@@ -32,91 +30,117 @@ Treat both as the readers when generating. Don't write generic copy - make every
 
 When this skill is loaded, greet the user:
 
-> "I'm the Client SPOT skill. I'll build a complete knowledge base for your new client.
+> "I'm the Client SPOT skill. I'll build a complete knowledge base for your new client and create the Google Doc.
 >
-> Share meeting notes from your strategy call with them - an onboarding call, a post-closing call, or any combination of calls. Paste them in, or share a doc/transcript link.
+> Share what you have - onboarding call notes, a Google form response, a transcript, or just the client's name and website. Paste it in directly.
 >
-> If you don't have notes yet, just give me the client's name and website and I'll do deep research instead - I'll spawn parallel research agents to dig into their product, customers, competitors, and market."
+> Do you want me to run web research to fill any gaps?"
 
-**If the user provides meeting notes or a transcript** → proceed with the standard Workflow (Step 1 onward), using the notes as the highest-priority input.
+Wait for the user's answer before proceeding. If they say yes to web research, run it in Step 3. If no, skip Step 3.
 
-**If the user provides only a name and/or website (no first-party material)** → switch to deep research mode. Spawn multiple Explore subagents in parallel to research the company from different angles - product/positioning, customers/case studies, competitors, funding, market context, target buyer pain. If subagents aren't available in this runtime, run the same angles as sequential web searches. Synthesize results into the SPOT.
+If the user provides only a client name and/or website with no first-party material, do not ask - tell them research will run and proceed with full deep research automatically.
 
 ---
 
-## Workflow - Staged Generation
-
-This skill generates the SPOT in two stages with one checkpoint. Do not ask the user clarifying questions before generating. Extract everything possible from inputs (trigger message, attached transcripts, meeting summaries) and web research first. Then generate Tab 4 and Tab 5, confirm them with the user, and generate the remaining tabs in one pass.
+## Workflow
 
 ### Input priority
 
-Use these sources in order. Earlier sources override later ones - first-party client info beats web research every time.
+Use these sources in order. Earlier sources override later ones.
 
-1. **Onboarding meeting transcripts or recordings (highest priority)** - anything pasted, attached, or referenced from a kickoff call, discovery call, or onboarding meeting. This is direct client voice and beats anything else.
-2. **Meeting summaries / call notes** - Gemini summaries, Fireflies notes, manual notes from client calls. Lower fidelity than raw transcripts but still first-party.
-3. **Trigger message details** - anything you typed directly into the prompt
-4. **Web research (fallback)** - only used to fill gaps left by 1–3
+1. **Onboarding meeting transcripts or recordings (highest priority)** - anything pasted, attached, or referenced from a kickoff call, discovery call, or onboarding meeting.
+2. **Google form responses** - client intake forms, onboarding questionnaires.
+3. **Meeting summaries / call notes** - Gemini summaries, Fireflies notes, manual notes from client calls.
+4. **Trigger message details** - anything typed directly into the prompt.
+5. **Web research (fallback, only if user said yes)** - used to fill gaps left by 1–4.
 
 ### Step 1 - Extract from provided client material
 
-If the user pasted or attached a transcript, summary, or meeting notes, extract:
+Pull from everything the user shared:
 - Client's exact words on what they do, who they sell to, why now
-- Pain points they described in their own customers' words
-- Competitors they mentioned (direct and indirect)
+- Pain points described in their own customers' words
+- Competitors mentioned (direct and indirect)
 - Objections they expect to hear or have already heard
 - ICP signals: titles they want targeted, companies to avoid, geo, size
 - Messaging the client wants used (or specifically does NOT want)
-- Open questions or unresolved items raised on the call
+- Open questions or unresolved items
 - Names of contacts at the client (founders, ops, engineering)
 
-Quote directly from the transcript when possible - these become the highest-credibility lines in the SPOT doc.
+Quote directly from transcripts or form responses when possible.
 
 ### Step 2 - Extract what else is in the trigger message
 
-Pull anything you typed: client name, website, campaign type, anything else not in the transcript.
+Pull anything typed in: client name, website, campaign type, anything not in the attached material.
 
-### Step 3 - Research to fill remaining gaps
+### Step 3 - Web research (only if user said yes)
 
-**If meeting notes or a transcript were provided:** run a light pass of 4–6 web searches to fill remaining gaps.
+**If meeting notes, a transcript, or form responses were provided:** run a light pass of 4–6 web searches to fill remaining gaps.
 - "[Client name] company" → website, what they do, headquarters, founders
 - "[Client name] customers" → notable logos, case studies
 - "[Client name] funding" → backers, latest round, total raised
 - "[Client name] competitors" → market positioning
 - "[Client name] [target buyer title]" → buyer persona context
 
-**If no first-party material was provided (deep research mode):** spawn parallel Explore subagents to dig deeper from multiple angles in one shot. Recommended split:
+**If no first-party material was provided (deep research mode):** skip the web research question - research is not optional when there is no other input. Tell the user you're running full research and proceed. Spawn parallel Explore subagents to dig deeper from multiple angles in one shot. Recommended split:
 
 - Agent 1: Product, positioning, founding story, traction milestones (read their site + recent press)
 - Agent 2: Customers and case studies (logos, named results, segments served)
 - Agent 3: Competitors and market positioning (direct, indirect, build-in-house)
 - Agent 4: Target buyer pain in symptomese (what does the buyer's Tuesday afternoon actually look like - search forums, podcasts, LinkedIn, review sites)
 
-Synthesize agent reports into the SPOT. If subagents aren't available in this runtime, run the four angles as sequential web searches instead. No search cap in deep research mode - it's the substitute for first-party material.
+Synthesize agent reports into the SPOT. If subagents aren't available in this runtime, run the four angles as sequential web searches instead.
 
-### Step 4 - Generate Tab 4 and Tab 5, then checkpoint
+### Step 4 - Generate all 9 tabs in one pass
 
-Tab 4 (Problem / Solution) and Tab 5 (ICP & Buyer Persona) are the two highest-stakes tabs. The screenplay reads Tab 4; list-builder and apollo-campaign-builder read Tab 5. A wrong pain or ICP read silently corrupts everything downstream, so confirm these two before generating the rest.
-
-Generate Tab 4 and Tab 5 only. Output each as its own labeled code block, with anything still unknown marked `[TBD]`. Then stop and ask the user to confirm or tune:
-
-> "Here are the two tabs the rest of the SPOT is built on: the Problem/Solution pain (Tab 4) and the ICP (Tab 5). Check the core pain in Tab 4.3 and the ICP filters in Tab 5: do they match how you'd pitch and who you'd target? Reply 'confirmed' to generate the rest, or tell me what to change."
-
-Wait for the user's response. If they tune, regenerate the two tabs with their changes and ask again. Do not generate the remaining tabs until the user confirms.
-
-### Step 5 - Generate the remaining tabs in one pass
-
-Once the user confirms Tab 4 and Tab 5, generate the remaining seven tabs (1, 2, 3, 6, 7, 8, 9) in a single response. Output every tab as its own labeled code block. Mark anything still unknown as `[TBD]`. Do not pause again to confirm.
+Generate all 9 tabs in a single response. Output each as its own labeled block. Mark anything still unknown as `[TBD]`. Do not pause to confirm.
 
 When a transcript was provided, add a line at the top of Tab 1 (Campaign Status) under Key Direction:
 ```
 SOURCE: Onboarding call with [client contact name] on [date]
 ```
 
+The full field-by-field templates for all 9 tabs are in `reference/tab-templates.md`. Load this file when generating tab content.
+
+### Step 5 - Create the Google Doc
+
+After generating all tab content, use the Google Docs or Google Drive MCP to create the document. Execute in this order:
+
+1. Create a new Google Doc titled "[Client Name] Single Point of Truth"
+2. Add 9 tabs to the document with these exact names (in order):
+   - Campaign Status
+   - Campaign Brief
+   - Company Overview
+   - Problem Solution
+   - ICP & Buyer Persona
+   - Competitor Overview
+   - Objection Handling
+   - Screenplay
+   - Apollo Campaign Setup
+3. For each tab, write the matching generated content block into the tab body
+
+Use whatever tab-creation and content-writing tools the MCP exposes. Check which tools are available before calling - do not guess tool names. If the MCP does not support tab creation, create the doc as a single document with each tab's content separated by a clear heading and notify the user that tabs must be added manually.
+
+**If Google Doc creation fails entirely:** output all 9 tab content blocks as labeled sections in the chat so the user can paste manually, and tell them what failed.
+
 ### Step 6 - Hand off
 
-After all 9 tabs are output, append the hand-off instructions at the bottom.
+After the Google Doc is created, share the link with the user. Then flag any `[TBD]` blockers:
 
-If the trigger message gave nothing but a client name, generate anyway with web research and `[TBD]` covering the rest. The user can edit before pasting into Docs.
+```
+Blockers — fill these before running downstream skills:
+- [field]: [TBD]
+```
+
+Critical for Apollo Campaign Builder: Target Titles, Employee Range, Locations, Keyword Passes.
+Critical for Screenplay: Status Markers (Tab 4.1), Day-in-life pain (Tab 4.3), Big Question (Tab 4.6).
+
+Then append next steps:
+
+```
+Next steps:
+- For Tab 8 (Screenplay): run the cold-calling-screenplay skill using Tabs 3 and 4 as input
+- For Tab 9 (Apollo Campaign Setup): run list-building first, then apollo-campaign-builder
+```
 
 ---
 
@@ -139,35 +163,6 @@ If the trigger message gave nothing but a client name, generate anyway with web 
 ## Tab Content Templates
 
 The full field-by-field templates for all 9 tabs are in `reference/tab-templates.md`. Load this file when generating tab content in Step 4.
-
-
-## Hand-off Instructions
-
-After generating all 9 tabs, do the following automatically - do not wait to be asked:
-
-### Step 1 - Tell the user what to do with the Google Doc
-
-```
-Next steps:
-1. Open Google Docs and create a new doc titled "[Client Name] Single Point of Truth"
-2. Enable tabs: Insert → Tabs (or right-click in the left sidebar)
-3. Create 9 tabs: Campaign Status / Campaign Brief / Company Overview / Problem Solution / ICP & Buyer Persona / Competitor Overview / Objection Handling / Screenplay / Apollo Campaign Setup
-4. Paste each content block into the matching tab
-5. For Tab 8 (Screenplay): run the cold-calling-screenplay skill using Tabs 3 and 4 as input
-6. For Tab 9 (Apollo Campaign Setup): run list-building first (builds the contact list), then apollo-campaign-builder (sets up 7 sequences and 4 workflow plays)
-```
-
-### Step 2 - Flag any [TBD] blockers
-
-Scan all generated tabs for `[TBD]` values. Flag any that block the downstream skills from running:
-
-```
-Blockers — fill these before running downstream skills:
-- [field]: [TBD]
-```
-
-Critical for Apollo Campaign Builder: Target Titles, Employee Range, Locations, Keyword Passes.
-Critical for Screenplay: Status Markers (Tab 4.1), Day-in-life pain (Tab 4.3), Big Question (Tab 4.6).
 
 ---
 
