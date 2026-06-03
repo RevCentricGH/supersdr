@@ -17,6 +17,8 @@ _Cowork skill - upload the ZIP and run from the Claude desktop app._
 
 - `tam_filter_builder.py` - `FILTER_SCHEMA` mapping SPOT fields to Apollo filter sections + the `EXECUTION_GUIDE` constant the skill follows during browser automation
 
+The `.py` file is data the skill reads at runtime - not a script to run, not a doc to edit.
+
 ---
 
 ## Prerequisites
@@ -31,7 +33,7 @@ _Cowork skill - upload the ZIP and run from the Claude desktop app._
 
 When this skill is loaded, greet the user:
 
-> "I'm the TAM Contact Mapper. I'll read your client's ICP from their SPOT doc and build a filtered People search in Apollo that maps their entire TAM - every contact that fits the ICP profile, with no contacts imported or touched. The output is a saved search in Apollo's People tab you can reference anytime.
+> "I'm the TAM Contact Mapper. I'll read your client's ICP from their SPOT doc and build a filtered People search in Apollo that maps their entire TAM (Total Addressable Market) - every contact that fits the ICP profile, with no contacts imported or touched. The output is a saved search in Apollo's People tab you can reference anytime.
 >
 > One pause before I hit Apollo: I'll show you the extracted filters and the search name for confirmation before applying anything. After that it runs on its own.
 >
@@ -42,13 +44,13 @@ Try to read the SPOT and navigate to Apollo immediately. Only raise issues if so
 **Failure handling:**
 - **Google Drive read fails** → "Google Drive isn't connected. Go to Settings → Connectors → Google Drive, or paste Tab 5 and Tab 9 content directly."
 - **Apollo isn't open or not logged in** → "Open Chrome, go to app.apollo.io, log in, then let me know."
-- **Browser control not available** → "Computer Use isn't enabled. Go to Settings → Computer Use and turn it on."
+- **Browser control not available** → "Browser automation (Claude in Chrome) isn't enabled. Go to Settings → Computer Use and turn on browser control."
 
 ---
 
 ## Step 1 - Read the SPOT doc
 
-Use the Google Drive connector to read Tab 9 (Apollo Campaign Setup) and Tab 5 (ICP & Buyer Persona). Tab 9 is primary; fall back to Tab 5 for any field that's blank or `[TBD]`.
+Use the Google Drive connector to read Tab 9 (Apollo Campaign Setup) and Tab 5 (ICP & Buyer Persona). Tab 9 is primary; fall back to Tab 5 for any field that's blank or `[TBD]` (to be determined - left unfilled by client-spot).
 
 If the user pastes tab content directly, work from that.
 

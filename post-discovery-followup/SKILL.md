@@ -88,8 +88,9 @@ draft of any kind and make no write to Apollo. Example:
 
 **Draft branch - hand off to `client-proposal-doc-builder`.** For an outcome the taxonomy
 marks draft-and-Apollo-write (`proposal` and `needs_followup`), hand off to the
-`client-proposal-doc-builder` skill and let it produce the draft. Do not build the proposal or
-write the email here. This skill owns triage and routing; `client-proposal-doc-builder` owns
+`client-proposal-doc-builder` skill and let it produce the draft. That is a separate skill the
+operator must have installed; if it is not available, say so and stop the draft branch here.
+Do not build the proposal or write the email here. This skill owns triage and routing; `client-proposal-doc-builder` owns
 the proposal document, the follow-up email, the email-route selection, and the rule against
 fabricating prior-campaign references or proof points. Reproduce none of that in this file.
 
@@ -146,7 +147,9 @@ email step (Step 5). The other five outcomes never reach it; they stop and repor
 
 Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. Look up the target stage for
 the confirmed outcome in `reference/outcome-taxonomy.md` (the outcome-to-Apollo-stage map); the
-EXECUTION_GUIDE does not restate the map. Then, through Claude-in-Chrome browser automation on
+EXECUTION_GUIDE does not restate the map. The target stage is a logical label - the operator's
+Apollo pipeline may name it differently or not have it - so the real column is confirmed with
+the operator before any write. Then, through Claude-in-Chrome browser automation on
 a logged-in Apollo:
 
 - Search Apollo opportunities for the company name (the same name passed to
@@ -205,4 +208,5 @@ the completion summary) follow these voice rules:
   triage and Apollo routing. Read it when you classify and when you branch.
 - `apollo_stage_update.py` - the browser EXECUTION_GUIDE for the Apollo deal-stage update
   (search, confirm, flip, verify). Read it in Step 6. The outcome-to-stage map it uses lives in
-  `reference/outcome-taxonomy.md`, not in the .py.
+  `reference/outcome-taxonomy.md`, not in the .py. The `.py` file is data the skill reads at
+  runtime - not a script to run, not a doc to edit.

@@ -11,12 +11,14 @@ description: Set up a new client's full Apollo campaign - automatically create a
 
 Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 4 workflow plays directly in the Apollo UI - no manual clicking.
 
-Run this skill after the SPOT doc is complete. The lead list is built separately; this skill starts from the point where Apollo is open and the client name is confirmed.
+Run this skill after the SPOT doc is complete. The lead list is built separately by `list-builder`; this skill starts from Apollo open in Chrome and confirms the client name in Step 1.
 
 ## Files
 
 - `sequence_builder.py` - step definitions for all 7 sequences + browser execution guide
 - `workflow_builder.py` - definitions for all 4 workflow plays + browser execution guide
+
+Both `.py` files are data the skill reads at runtime - not scripts to run, not docs to edit.
 
 ---
 
@@ -24,6 +26,7 @@ Run this skill after the SPOT doc is complete. The lead list is built separately
 
 - Client name confirmed - all sequences/workflows will be prefixed with it
 - Apollo open and logged in at app.apollo.io in Chrome
+- `apollo-account-setup` run once on this Apollo account - the workflow plays reference contact stages it creates, and they will not save without them
 
 ---
 
@@ -38,7 +41,7 @@ Assume Apollo is open in Chrome and browser automation is enabled in Cowork. Try
 **Only if something fails**, walk the user through the fix one issue at a time:
 
 - **Page redirects to login or doesn't load** → "Apollo isn't open or you're not logged in. Open Chrome, go to app.apollo.io, log in, then tell me you're ready."
-- **Browser navigation fails entirely / Computer Use not available** → "Browser control isn't enabled in Cowork. Go to Settings → Computer Use and turn it on, then come back."
+- **Browser navigation fails entirely / browser automation not available** → "Browser automation (Claude in Chrome) isn't enabled. Go to Settings → Computer Use, turn on browser control, then come back."
 
 ---
 
@@ -103,6 +106,8 @@ If a step modal behaves unexpectedly - screenshot and report before retrying. Do
 Read `workflow_builder.py` - it contains the full workflow definitions and execution guide in `EXECUTION_GUIDE`.
 
 **Navigate** to `https://app.apollo.io/#/workflows`
+
+**The #1 setup error is pointing a workflow at another client's sequence.** Before saving any workflow, verify every selected sequence name contains this client's name.
 
 **For each workflow 1–4 in `workflow_builder.WORKFLOWS`:**
 

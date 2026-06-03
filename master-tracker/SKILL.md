@@ -1,6 +1,6 @@
 ---
 name: master-tracker
-description: Pull one or more reps' Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to run on a schedule. Trigger when the user wants to sync Apollo calls into a tracking sheet, build a per-rep outbound activity tracker, or says things like "pull my Apollo calls into the sheet", "update the call tracker", "run master-tracker", or "sync the dialer calls". This is a Claude Code skill that runs in a terminal with real Python and local credentials, not a Cowork skill. It pulls each configured rep's calls with paged, 429-aware Apollo search, keeps only the configured dispositions, writes rows deduped by date and prospect, never overwrites manual columns, and marks a call ingested only after its row is written so a call tagged after the dialer logged it is still picked up on a later run.
+description: Claude Code skill - runs in a terminal with real Python and local credentials, not in Cowork. Pull one or more reps' Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to run on a schedule. Trigger when the user wants to sync Apollo calls into a tracking sheet, build a per-rep outbound activity tracker, or says things like "pull my Apollo calls into the sheet", "update the call tracker", "run master-tracker", or "sync the dialer calls". It pulls each configured rep's calls with paged, 429-aware Apollo search, keeps only the configured dispositions, writes rows deduped by date and prospect, never overwrites manual columns, and marks a call ingested only after its row is written so a call tagged after the dialer logged it is still picked up on a later run.
 ---
 
 # master-tracker
@@ -40,7 +40,8 @@ For every rep in your config:
 
 After the pull, master-tracker rebuilds one summary tab (default name "Overall Statistics")
 straight from the rows in the live rep tabs. It owns that tab and rewrites it wholesale, so it
-never duplicates and never goes stale:
+never duplicates and never goes stale. Do not add manual columns or notes to the summary tab -
+the rebuild wipes them. Manual columns belong on the rep tabs. The summary holds:
 
 - **ICP breakdown** - counts the rows in each rep tab by the value in your ICP column, totaled
   across all reps. Fill in the `ICP` column (a manual column) per row to categorize a prospect.
@@ -83,7 +84,8 @@ This is a one-time setup per operator. Everything runs on your own accounts.
 
    Fields:
    - `apollo_api_key` - your Apollo API key (Settings -> Integrations -> API in Apollo).
-   - `google_sheet_id` - the ID from the sheet URL (`.../spreadsheets/d/<THIS>/edit`).
+   - `google_sheet_id` - the ID from the sheet URL (`.../spreadsheets/d/<THIS>/edit`). Create a
+     blank Google Sheet first if you don't have one and copy the ID from its URL.
    - `reps` - a map of `"Rep display name": { "apollo_user_id": "<id>" }`. The display name is
      the tab name. Find a rep's Apollo user id in their Apollo profile URL or via the API. One
      rep is fine; the map just has one entry.
@@ -97,7 +99,7 @@ This is a one-time setup per operator. Everything runs on your own accounts.
      leave the column blank. The recording source is the sole authority for that column, so a
      call's recording link only shows up once a source is configured and resolves one.
      - `apollo` - use the recording URL Apollo's API attaches to each call. This is the default;
-       students dial in Apollo.
+       most teams dial in Apollo.
      - `trellus` - parse the Trellus session id (a `sess_` token) out of the call note and build
        the recording link. Optional `base_url` overrides the Trellus recording-URL base.
      - `manual-url` - use a recording URL you attach per call by hand. Optional `field` overrides

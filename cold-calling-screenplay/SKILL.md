@@ -77,7 +77,7 @@ If a SPOT doc was provided, skip this step - Tab 3 and Tab 4 cover it. Otherwise
 
 Run all in a single message with multiple Agent tool calls. Synthesize results when they return. This cuts research time significantly and keeps the screenplay grounded in real evidence rather than generic language.
 
-For the single-threaded path, search the web for:
+If the Agent tool isn't available in this runtime, take the single-threaded path - search the web for:
 - What the product actually does (the "plain vanilla")
 - What makes it different (the "twist")
 - Real pain points the target persona faces today

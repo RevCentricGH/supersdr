@@ -22,6 +22,8 @@ Four things to know:
 - **Two motions.** The skills split into **Win a client** and **Run outbound**. Pick the motion you are in and work down the list.
 - **One doc ties outbound together: the client SPOT.** A client SPOT is a client's Single Point of Truth, a multi-tab Google Doc with their positioning, ICP, and pain. You build it once per client with `client-spot`, and every other outbound skill reads from it.
 
+Any jargon you hit along the way (ICP, TAM, disposition, sequence) is defined in the [Glossary](#glossary) at the bottom.
+
 Here is how the outbound skills connect once the SPOT exists:
 
 ```
@@ -30,6 +32,7 @@ apollo-account-setup   (run once per Apollo account, before any campaigns)
 client-spot  ->  the SPOT doc
   |
   |-- Tab 3 + Tab 4  ->  cold-calling-screenplay
+  |-- Tab 7          ->  objection-drill   (optional rep training, anytime)
   |-- Tab 9          ->  tam-contact-mapper  ->  list-builder  ->  apollo-campaign-builder
   |-- activated leads ->  custom-decks
   |-- dialer calls    ->  master-tracker
@@ -55,7 +58,13 @@ Skills are grouped by the job you are doing. Each row shows the skill, what it d
 
 ### Win a client
 
-The acquisition motion: book the call, work the call, make the offer.
+The acquisition motion: book the call, work the call, make the offer. The three skills run in call order, and `post-discovery-followup` hands off to `client-proposal-doc-builder` when the call ends in a proposal:
+
+```
+pre-brief  ->  discovery call  ->  post-discovery-followup
+                                     |
+                                     |-- proposal or follow-up outcome  ->  client-proposal-doc-builder
+```
 
 **Stage 1 - Prep for the call**
 
@@ -67,7 +76,7 @@ The acquisition motion: book the call, work the call, make the offer.
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [post-discovery-followup](post-discovery-followup/) | Read a discovery-call transcript, decide the outcome, and take the next step. On a proposal or follow-up outcome it drafts the email, sends it through Gmail, and updates the deal stage in Apollo. You approve every action. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
+| [post-discovery-followup](post-discovery-followup/) | Read a discovery-call transcript, decide the outcome, and take the next step. On a proposal or follow-up outcome it hands off to `client-proposal-doc-builder` for the draft, sends the approved email through Gmail, and updates the deal stage in Apollo. You approve every action. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
 
 **Stage 3 - Make the offer**
 
@@ -102,7 +111,7 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [tam-contact-mapper](tam-contact-mapper/) | Apply the client's ICP filters in Apollo's People tab and save the search as a named TAM view. Maps the full contact universe with no enrichment; nothing is imported. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
+| [tam-contact-mapper](tam-contact-mapper/) | Apply the client's ICP filters in Apollo's People tab and save the search as a named TAM view. Maps the full contact universe with no enrichment; nothing is imported. Run it before `list-builder`. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
 | [list-builder](list-builder/) | Build an enriched, dial-ready contact list from the SPOT using Apollo. Scores fit and intent, routes each contact by temperature (Red Hot to Cold), and outputs a Google Sheet ready to dial. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
 
 **Stage 5 - Launch the campaigns**
@@ -115,13 +124,13 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [custom-decks](custom-decks/) | Build a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides and PDF with a View link. Runs in a terminal, not Cowork; see [Claude Code path](#advanced-claude-code-path) below. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
+| [custom-decks](custom-decks/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides and PDF with a View link. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
 
 **Stage 7 - Track and measure**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [master-tracker](master-tracker/) | Pull each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. Runs in a terminal, not Cowork; see [Claude Code path](#advanced-claude-code-path) below. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
+| [master-tracker](master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
 
 ## Getting started
 
@@ -271,7 +280,7 @@ Outbound calling is regulated. You are responsible for running it legally. A few
 
 ## Stay updated, contributing, and license
 
-**Stay updated.** Skills improve over time. Watch this repo: click **Watch**, then **Custom**, then **Releases only** at the top of this page. GitHub emails you whenever a new version ships. When a release lands, re-download and re-upload the affected skill's ZIP.
+**Stay updated.** Skills improve over time. Watch this repo: click **Watch**, then **Custom**, then **Releases only** at the top of this page. GitHub emails you whenever a new version ships. When a release lands, re-download and re-upload the affected skill's ZIP. All releases live at https://github.com/RevCentricGH/supersdr/releases.
 
 **Contributing.** Found a bug or have an improvement? Open a GitHub issue, or send a pull request. Note that everything in this repo ships publicly as per-skill ZIPs, so do not commit anything private.
 

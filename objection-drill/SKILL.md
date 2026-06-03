@@ -17,6 +17,8 @@ _Cowork skill - upload the ZIP and run from the Claude desktop app._
 
 No setup required. Works for any client out of the box. Optionally provide SPOT Tab 7 for client-specific objection sets - without it, the skill uses the default playbook in `reference/objection-library.md`.
 
+SPOT Tab 7 is the Objection Handling tab of a client's SPOT doc (the Single Point of Truth built by the `client-spot` skill). Paste the tab content or share the doc link. You don't need it to start drilling.
+
 ---
 
 ## Getting started

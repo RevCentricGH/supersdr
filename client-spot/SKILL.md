@@ -22,7 +22,7 @@ The SPOT is incomplete if either of these skills can't run cleanly off it:
 | Skill | Tabs it reads | What it needs |
 |---|---|---|
 | `list-builder` + `apollo-campaign-builder` | Tab 5, Tab 9 | ICP filters, keyword passes, tech signals, exclusion lists, target titles |
-| `cold-calling-screenplay` | Tab 3, Tab 4 | Status markers, insider pain in symptomese, structural differentiator, persona context |
+| `cold-calling-screenplay` | Tab 3, Tab 4 | Status markers, insider pain in symptomese (high-sensory insider language, not generic pain), structural differentiator, persona context |
 
 Treat both as the readers when generating. Don't write generic copy - make every field actionable.
 
@@ -40,7 +40,7 @@ When this skill is loaded, greet the user:
 
 **If the user provides meeting notes or a transcript** → proceed with the standard Workflow (Step 1 onward), using the notes as the highest-priority input.
 
-**If the user provides only a name and/or website (no first-party material)** → switch to deep research mode. Spawn multiple Explore subagents in parallel to research the company from different angles - product/positioning, customers/case studies, competitors, funding, market context, target buyer pain. Synthesize results into the SPOT.
+**If the user provides only a name and/or website (no first-party material)** → switch to deep research mode. Spawn multiple Explore subagents in parallel to research the company from different angles - product/positioning, customers/case studies, competitors, funding, market context, target buyer pain. If subagents aren't available in this runtime, run the same angles as sequential web searches. Synthesize results into the SPOT.
 
 ---
 
@@ -91,7 +91,7 @@ Pull anything you typed: client name, website, campaign type, anything else not 
 - Agent 3: Competitors and market positioning (direct, indirect, build-in-house)
 - Agent 4: Target buyer pain in symptomese (what does the buyer's Tuesday afternoon actually look like - search forums, podcasts, LinkedIn, review sites)
 
-Synthesize agent reports into the SPOT. No search cap in deep research mode - it's the substitute for first-party material.
+Synthesize agent reports into the SPOT. If subagents aren't available in this runtime, run the four angles as sequential web searches instead. No search cap in deep research mode - it's the substitute for first-party material.
 
 ### Step 4 - Generate Tab 4 and Tab 5, then checkpoint
 

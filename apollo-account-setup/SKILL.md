@@ -21,6 +21,8 @@ _Cowork skill - upload the ZIP and run from the Claude desktop app._
 - `stages_builder.py` — the 11 contact stages (`STAGES` list) + browser execution guide
 - `triggers_builder.py` — the 19 disposition→stage triggers (`TRIGGERS` list) + browser execution guide
 
+All three `.py` files are data the skill reads at runtime - not scripts to run, not docs to edit.
+
 ---
 
 ## Load Data Files First
@@ -95,6 +97,8 @@ Issue this warning before doing anything else:
 
 Wait for the user to type 'yes'. Do not proceed on any other response. Do not interpret "sure", "ok", or "yeah" as confirmation — require 'yes' exactly.
 
+If the account is not fresh and has calls logged on existing dispositions, Apollo will ask to reassign those calls before deleting. Warn the user, and suggest exporting call history first if they want a backup.
+
 Once confirmed: execute the setup using `DISPOSITIONS` and `EXECUTION_GUIDE` from `dispositions_builder.py`. Delete all existing dispositions first, then add all 19 in order.
 
 After completion, report:
@@ -113,6 +117,8 @@ If the count is not 19, stop and flag it before moving on.
 ## Step 4 — Contact Stages Setup (Browser Automation)
 
 Execute using `STAGES` and `EXECUTION_GUIDE` from `stages_builder.py`. Add all 11 stages in order, Approaching first through Social/Email Only last.
+
+Four of these stages (Meeting Pending, Activated Lead, Approaching, Nurture) are required by the `apollo-campaign-builder` workflow plays. If any are missing, workflows fail to configure later.
 
 After completion, report:
 

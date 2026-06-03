@@ -35,7 +35,7 @@ Optional MCPs - each adds a stage to the pipeline if connected, otherwise that s
 | **Google Drive / Sheets** | SPOT doc reading + Google Sheet output |
 | **ZeroBounce** | Email validation (replaces "trust Apollo's verified status" with a real deliverability check) |
 | **Twilio** | Phone line-type detection (mobile / landline / VoIP) via Twilio Lookup |
-| **Perplexity** | Richer signal research in Layer 4 |
+| **Perplexity** | Richer signal research in Layer 4 (the deep per-company signal research stage - see Stage 7) |
 | **Clay** | Additional enrichment passes if Apollo's hit rate is low |
 | **Common Room** | Intent signals (website visitors, community engagement) for Layer 4 |
 | **Smartlead** / **Instantly** | Push the final list to a cold email campaign in one step |
@@ -205,6 +205,7 @@ For each Tier 1 contact, do signal research and apply compound intent scoring. T
 - Each sub-agent's prompt: list of companies + the signal taxonomy below + instructions to return structured findings per contact
 - Run all sub-agents in parallel (single message, multiple Agent tool calls)
 - Synthesize results when they return
+- If sub-agents aren't available in this runtime, run the batches as sequential web searches - slower, same output
 
 This typically cuts Layer 4 wall time by 5-10× and keeps your main context clean.
 
