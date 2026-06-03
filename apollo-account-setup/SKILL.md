@@ -13,6 +13,8 @@ This runs once per Apollo account, not per client. Dispositions and contact stag
 
 Run this skill first. Run the Apollo Campaign Builder after.
 
+_Cowork skill - upload the ZIP and run from the Claude desktop app._
+
 ## Files
 
 - `dispositions_builder.py` — the 19 custom dispositions (`DISPOSITIONS` list) + browser execution guide
@@ -25,9 +27,9 @@ Run this skill first. Run the Apollo Campaign Builder after.
 
 Before executing Steps 3, 4, and 5, read all three files into context:
 
-- `/Users/kevintran/supersdr/apollo-account-setup/dispositions_builder.py`
-- `/Users/kevintran/supersdr/apollo-account-setup/stages_builder.py`
-- `/Users/kevintran/supersdr/apollo-account-setup/triggers_builder.py`
+- `dispositions_builder.py`
+- `stages_builder.py`
+- `triggers_builder.py`
 
 These are the source of truth for all disposition, stage, and trigger data. Do not proceed until all three are loaded.
 
