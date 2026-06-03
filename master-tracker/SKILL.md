@@ -32,9 +32,9 @@ For every rep in your config:
    next run. If a rep tags a call with a kept disposition after the dialer first logged it, the
    next run picks it up.
 6. Rebuilds the summary tab from the live rep tabs: an ICP breakdown (counts per ICP category),
-   meeting trends (booked meetings bucketed by week), and a rep leaderboard (reps ranked by
-   activity). The summary tab is cleared and rewritten each run, so it is always current and
-   safe to re-run.
+   meeting trends (booked meetings bucketed by week), conversion rates (meeting rate and
+   conversation-to-meeting rate, per rep and overall), and a rep leaderboard ranked by rate.
+   The summary tab is cleared and rewritten each run, so it is always current and safe to re-run.
 
 ## The summary tab
 
@@ -46,8 +46,19 @@ never duplicates and never goes stale:
   across all reps. Fill in the `ICP` column (a manual column) per row to categorize a prospect.
 - **Meeting trends** - rows whose disposition is in `stats.meeting_dispositions`, bucketed by
   ISO week, so you can see booked meetings rising or falling week over week.
-- **Rep leaderboard** - reps ranked by `stats.leaderboard_metric`: `calls` (all tracked rows)
-  or `meetings` (meeting-disposition rows).
+- **Conversion rates** - per rep and overall, computed straight from the dispositions already in
+  the rep tabs:
+  - *Conversations* - rows with any disposition (a connected call).
+  - *Qualified conversations* - rows whose disposition is in `stats.qualified_dispositions`.
+  - *Meeting rate* - meetings divided by conversations.
+  - *Conversation-to-meeting conversion rate* - meetings divided by qualified conversations.
+  Rates show as percentages; a rep with no conversations reads `0.0%` rather than erroring. The
+  overall row is summed meetings over summed conversations, not the average of the per-rep rates,
+  so a low-volume rep cannot skew it. Leave `qualified_dispositions` unset and every conversation
+  counts as qualified, so the conversion rate equals the meeting rate.
+- **Rep leaderboard** - reps ranked by `stats.leaderboard_metric`: `rate` (conversion rate, so
+  efficiency beats volume; ties break on meeting count), `meetings` (meeting-disposition rows),
+  or `calls` (all tracked rows).
 
 Tab names, the ICP column, the meeting dispositions, the metric, and every label are config
 (`stats` block), so nothing about the summary is hardcoded to one team. Rebuild it without
@@ -95,7 +106,9 @@ This is a one-time setup per operator. Everything runs on your own accounts.
      given call leaves that row's column blank without stopping the run.
    - `stats` - the summary tab. `summary_tab` is its tab name; `icp_column` is which manual
      column holds the ICP category; `meeting_dispositions` are the dispositions counted as a
-     booked meeting; `leaderboard_metric` is `calls` or `meetings`; `labels` are every section
+     booked meeting; `qualified_dispositions` are the dispositions counted as a qualified
+     conversation (the denominator of the conversion rate; unset means every conversation
+     counts); `leaderboard_metric` is `rate`, `meetings`, or `calls`; `labels` are every section
      and column header in the summary. Change any of these without touching code.
    - `google_oauth.credentials_file` / `google_oauth.token_file` - paths to your Google OAuth
      client secret and the token file the skill writes after the first authorization.
@@ -130,7 +143,8 @@ The logic lives in the `mastertracker` package and is unit-tested:
   and `manual-url` adapters selected by config; the single authority for the Recording URL column.
 - `pipeline.py` - wires the above and routes each rep's calls to its tab.
 - `stats_builder.py` - `StatsBuilder`: pure aggregation of the live rep tabs into the summary
-  tab (ICP breakdown, meeting trends, leaderboard); `rebuild_summary` reads, clears, and writes.
+  tab (ICP breakdown, meeting trends, conversion rates, rate-ranked leaderboard); `rebuild_summary`
+  reads, clears, and writes.
 
 The side-effecting wrappers are kept thin and validated by the manual end-to-end run:
 

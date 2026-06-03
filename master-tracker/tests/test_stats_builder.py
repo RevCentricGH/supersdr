@@ -5,6 +5,12 @@ Covers the validation contract for issue #8:
   - reads from live rep tabs (7, 8, 9)
   - clears stale content / idempotent (10, 11)
   - config-driven tab names (12, 13, 14) and labels (15, 16)
+
+and issue #62 (Bucket A conversion/meeting rate stats):
+  - meeting rate (meetings / conversations) and conversion rate (meetings / qualified
+    conversations), per rep + overall
+  - qualified conversations from the disposition list; leaderboard ranked by rate
+  - edge cases: zero conversations, zero qualified conversations, empty rep tab
 """
 import pytest
 
@@ -301,3 +307,208 @@ def test_rebuild_summary_errors_clearly_when_stats_block_is_missing():
     sheet = FakeSheet()
     with pytest.raises(ValueError):
         rebuild_summary({"reps": {"Rep A": {}}}, sheet=sheet)
+
+
+# --- issue #62: conversion / meeting rate stats (Bucket A) ---
+
+# meetings (Meeting Booked) are a subset of the qualified set; "Gatekeeper" is a conversation
+# that is not qualified, so qualified < conversations for a rep who hits gatekeepers.
+QUALIFIED = ["Meeting Booked", "Interested", "Not Interested"]
+
+
+def _rates_builder(**overrides):
+    return _builder(meeting_dispositions=["Meeting Booked"],
+                    qualified_dispositions=QUALIFIED, **overrides)
+
+
+def test_conversion_rates_per_rep_uses_both_denominators_and_ranks_by_rate():
+    # AC1/AC2: meeting rate = meetings / conversations; conversion rate = meetings / qualified
+    rep_rows = {
+        "Rep A": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Meeting Booked", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+            ("Not Interested", "SaaS", "2026-05-23"),
+        ),  # conversations 4, qualified 4, meetings 2
+        "Rep B": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Interested", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+            ("Gatekeeper", "SaaS", "2026-05-23"),
+        ),  # conversations 4, qualified 3, meetings 1
+    }
+    rates = _rates_builder().conversion_rates(rep_rows)
+    # ranked by conversion rate descending: A (2/4 = 0.5) before B (1/3 ~ 0.333)
+    assert [r.rep for r in rates] == ["Rep A", "Rep B"]
+    a, b = rates
+    assert (a.conversations, a.qualified_conversations, a.meetings) == (4, 4, 2)
+    assert a.meeting_rate == 0.5 and a.conversion_rate == 0.5
+    assert (b.conversations, b.qualified_conversations, b.meetings) == (4, 3, 1)
+    assert b.meeting_rate == 0.25
+    assert b.conversion_rate == pytest.approx(1 / 3)
+
+
+def test_overall_rates_aggregate_totals_not_mean_of_per_rep_rates():
+    # overall conversion rate is summed-meetings / summed-qualified, not the average of rep rates
+    rep_rows = {
+        "Rep A": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Meeting Booked", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+            ("Not Interested", "SaaS", "2026-05-23"),
+        ),  # qualified 4, meetings 2
+        "Rep B": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Interested", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+        ),  # qualified 3, meetings 1
+    }
+    overall = _rates_builder().overall_rates(rep_rows)
+    assert overall.rep == "Overall"
+    assert (overall.conversations, overall.qualified_conversations, overall.meetings) == (7, 7, 3)
+    # 3 meetings / 7 conversations and 3 / 7 qualified
+    assert overall.meeting_rate == pytest.approx(3 / 7)
+    assert overall.conversion_rate == pytest.approx(3 / 7)
+    # the mean of the per-rep conversion rates would be (0.5 + 1/3)/2 ~ 0.4167, not 3/7 ~ 0.4286
+    assert overall.conversion_rate != pytest.approx((0.5 + 1 / 3) / 2)
+
+
+def test_rate_zero_when_no_qualified_conversations():
+    # AC3 edge case: a rep with conversations but zero qualified ones -> 0.0, no ZeroDivisionError
+    rep_rows = {
+        "Rep A": _rows(
+            ("Gatekeeper", "SaaS", "2026-05-20"),
+            ("Gatekeeper", "SaaS", "2026-05-21"),
+        )
+    }
+    (rep,) = _rates_builder().conversion_rates(rep_rows)
+    assert rep.conversations == 2 and rep.qualified_conversations == 0 and rep.meetings == 0
+    assert rep.conversion_rate == 0.0 and rep.meeting_rate == 0.0
+
+
+def test_rate_zero_when_meetings_exceed_qualified_set_does_not_divide_by_zero():
+    # inconsistent config (meeting disposition not in qualified set): conversion rate guards to 0.0
+    builder = _builder(meeting_dispositions=["Meeting Booked"], qualified_dispositions=["Interested"])
+    rep_rows = {"Rep A": _rows(("Meeting Booked", "SaaS", "2026-05-20"))}
+    (rep,) = builder.conversion_rates(rep_rows)
+    assert rep.meetings == 1 and rep.qualified_conversations == 0
+    assert rep.conversion_rate == 0.0  # no crash even though meetings > qualified
+    assert rep.meeting_rate == 1.0     # meeting rate still uses total conversations
+
+
+def test_empty_rep_tab_yields_zero_rates_and_appears_in_results():
+    # AC3 edge case: empty rep tab -> conversations 0, rates 0.0, rep still listed
+    rep_rows = {"Rep A": [], "Rep B": _rows(("Meeting Booked", "SaaS", "2026-05-20"))}
+    rates = {r.rep: r for r in _rates_builder().conversion_rates(rep_rows)}
+    assert set(rates) == {"Rep A", "Rep B"}
+    assert rates["Rep A"].conversations == 0
+    assert rates["Rep A"].conversion_rate == 0.0 and rates["Rep A"].meeting_rate == 0.0
+
+
+def test_no_reps_yields_empty_rates_and_zero_overall():
+    builder = _rates_builder()
+    assert builder.conversion_rates({}) == []
+    assert builder.leaderboard({}) == []
+    overall = builder.overall_rates({})
+    assert (overall.conversations, overall.meetings) == (0, 0)
+    assert overall.conversion_rate == 0.0 and overall.meeting_rate == 0.0
+
+
+def test_qualified_dispositions_unset_treats_every_conversation_as_qualified():
+    # backward compatible default: no qualified set -> conversion rate equals meeting rate
+    builder = _builder(meeting_dispositions=["Meeting Booked"])  # no qualified_dispositions
+    rep_rows = {
+        "Rep A": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Gatekeeper", "SaaS", "2026-05-21"),
+        )
+    }
+    (rep,) = builder.conversion_rates(rep_rows)
+    assert rep.conversations == 2 and rep.qualified_conversations == 2
+    assert rep.conversion_rate == rep.meeting_rate == 0.5
+
+
+def test_leaderboard_by_rate_ranks_efficiency_over_raw_volume():
+    # AC2: a high-rate low-volume rep outranks a high-volume low-rate rep
+    rep_rows = {
+        "Big Volume": _rows(*([("Meeting Booked", "SaaS", "2026-05-20")] * 10
+                              + [("Interested", "SaaS", "2026-05-20")] * 90)),  # 10/100 = 0.1
+        "High Rate": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Meeting Booked", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+            ("Interested", "SaaS", "2026-05-23"),
+        ),  # 2/4 = 0.5
+    }
+    board = _rates_builder(leaderboard_metric="rate").leaderboard(rep_rows)
+    assert [rep for rep, _ in board] == ["High Rate", "Big Volume"]
+    assert board[0][1] == 0.5
+    assert board[1][1] == pytest.approx(0.1)
+
+
+def test_leaderboard_by_rate_breaks_ties_on_meeting_count():
+    # equal conversion rate -> the rep with more meetings ranks first
+    rep_rows = {
+        "Fewer": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Interested", "SaaS", "2026-05-21"),
+        ),  # 1/2 = 0.5
+        "More": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Meeting Booked", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+            ("Interested", "SaaS", "2026-05-23"),
+        ),  # 2/4 = 0.5
+    }
+    board = _rates_builder(leaderboard_metric="rate").leaderboard(rep_rows)
+    assert [rep for rep, _ in board] == ["More", "Fewer"]
+
+
+def test_rate_is_a_valid_leaderboard_metric():
+    # "rate" no longer raises; "meetings"/"calls" still rank by raw count (no regression)
+    _rates_builder(leaderboard_metric="rate")  # does not raise
+    rep_rows = {
+        "Rep A": _rows(("Meeting Booked", "SaaS", "2026-05-20")),
+        "Rep B": _rows(
+            ("Interested", "SaaS", "2026-05-20"),
+            ("Interested", "SaaS", "2026-05-21"),
+        ),
+    }
+    assert _rates_builder(leaderboard_metric="meetings").leaderboard(rep_rows) == [("Rep A", 1), ("Rep B", 0)]
+
+
+def test_build_grid_renders_conversion_rates_section_before_leaderboard():
+    # AC1: the summary grid carries the rates section with per-rep + overall rows, as % strings
+    rep_rows = {
+        "Rep A": _rows(
+            ("Meeting Booked", "SaaS", "2026-05-20"),
+            ("Meeting Booked", "SaaS", "2026-05-21"),
+            ("Interested", "SaaS", "2026-05-22"),
+            ("Not Interested", "SaaS", "2026-05-23"),
+        ),
+    }
+    grid = _rates_builder(leaderboard_metric="rate").build_grid(rep_rows)
+    flat = [cell for row in grid for cell in row]
+    assert "Conversion Rates" in flat
+    assert flat.index("Meeting Trends") < flat.index("Conversion Rates") < flat.index("Rep Leaderboard")
+    # per-rep row: rep, conversations, qualified, meetings, meeting rate %, conversion rate %
+    assert ["Rep A", 4, 4, 2, "50.0%", "50.0%"] in grid
+    # overall aggregate row present
+    assert ["Overall", 4, 4, 2, "50.0%", "50.0%"] in grid
+    # leaderboard ranked by rate renders the rate as a percentage string
+    assert ["Rep A", "50.0%"] in grid
+
+
+def test_from_config_reads_qualified_dispositions_and_rate_metric():
+    config = {
+        "stats": {
+            "summary_tab": "Overall Statistics",
+            "icp_column": "ICP",
+            "meeting_dispositions": ["Meeting Booked"],
+            "qualified_dispositions": ["Meeting Booked", "Interested"],
+            "leaderboard_metric": "rate",
+        }
+    }
+    builder = StatsBuilder.from_config(config)
+    assert builder.qualified_dispositions == {"meeting booked", "interested"}
+    assert builder.leaderboard_metric == "rate"
