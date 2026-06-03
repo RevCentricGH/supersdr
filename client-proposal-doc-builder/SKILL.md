@@ -73,14 +73,14 @@ If a key fact is missing or ambiguous, plan to ask about it in Step 3 rather tha
 - Public positioning and ICP signals from their site
 - Headline statistics about their market or category
 
-**Deep research mode (thin or no transcript):** if the user only provided a company name + website with no call material, spawn parallel sub-agents using the Agent tool (`Explore` subagent type) — same pattern as `/client-spot` deep research mode. Recommended split:
+**Deep research mode (thin or no transcript):** if the user only provided a company name + website with no call material, spawn parallel sub-agents using the Agent tool (`Explore` subagent type). Recommended split:
 
 - Agent 1: Product, positioning, traction milestones, founding story (read their site + recent press)
 - Agent 2: Customers, case studies, named logos, segments served
 - Agent 3: Market context — competitors, category dynamics, the non-avoidable shift creating urgency now
 - Agent 4: Target buyer pain in symptomese — what does their Tuesday afternoon look like (forums, podcasts, LinkedIn, review sites)
 
-Run all in a single message with multiple Agent tool calls. Synthesize when they return.
+Run all in a single message with multiple Agent tool calls. Synthesize when they return. If the Agent tool isn't available in this runtime, run the four angles as sequential web searches instead.
 
 If the prospect has no meaningful web presence at all, skip this step and lean on the user's call material in Step 3.
 

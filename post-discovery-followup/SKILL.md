@@ -190,7 +190,7 @@ and why.
 ## Voice
 
 Claude's own messages in this skill (the greeting, the outcome proposal, the branch output,
-the completion summary) follow the repo voice rules in `CLAUDE.md`:
+the completion summary) follow these voice rules:
 
 - No AI-tell openers. Start with the substance, not a filler opener.
 - No hedging qualifiers. State the read plainly.

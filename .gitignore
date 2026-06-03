@@ -5,3 +5,5 @@ docs/adr/
 .ralph/
 .playwright-mcp/
 __pycache__/
+.DS_Store
+.claude/

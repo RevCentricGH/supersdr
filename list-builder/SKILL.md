@@ -52,7 +52,7 @@ Don't try to substitute - Apollo is the core dependency.
 
 ---
 
-## Getting started
+## Starting a run
 
 Parse the client name from the user's message. If missing, ask once: "Which client?"
 
