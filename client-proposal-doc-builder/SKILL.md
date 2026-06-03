@@ -5,6 +5,8 @@ description: Build a polished, send-ready outbound agency proposal (Done-For-You
 
 # Outbound Proposal Doc Builder
 
+> **Cowork skill - runs in the Claude desktop app, not a terminal.** No Python or local setup; upload the skill ZIP into Cowork and run it there.
+
 ## Purpose
 
 Given a discovery-call transcript or summary, produces a complete send-ready outbound agency proposal as a Google Doc and drafts the follow-up email. The proposal includes an executive summary, ICP + conversation math, pricing tier(s), 90-day delivery phases, investment table, T&Cs, signature block, and Appendix A (Completed Conversation Criteria). The boilerplate 70% comes from assets; the variable 30% is grounded in what this specific prospect said on this specific call.
@@ -14,7 +16,7 @@ Given a discovery-call transcript or summary, produces a complete send-ready out
 On first use, Claude will ask for two things and substitute them throughout the proposal automatically. You don't need to edit any files manually:
 
 1. **Your agency's legal entity name** — used in the T&Cs and signature block
-2. **Your real proof points** — past client results, conversation rates, show rates, named logos. The skill ships with placeholder examples (see `references/positioning_and_style.md` lines 66–86) that MUST be replaced with your numbers before sending a proposal to a real prospect
+2. **Your real proof points** — past client results, conversation rates, show rates, named logos. The skill ships with placeholder examples (see `references/positioning_and_style.md` lines 68–86) that MUST be replaced with your numbers before sending a proposal to a real prospect
 
 The skill reads these files from the folder you uploaded:
 
@@ -24,7 +26,7 @@ The skill reads these files from the folder you uploaded:
 
 **On every first run for a fresh upload of this skill**, ask the user for their proof points before generating the proposal:
 
-> "Quick one before I draft this — I have placeholder examples in the positioning guide (X% set rate, Y% show rate, etc.). What are your actual numbers? Give me 2–3 specific data points and any named client logos I can reference. I'll use these in the credibility paragraph."
+> "Quick one before I draft this. I have placeholder examples in the positioning guide (X% set rate, Y% show rate, etc.). What are your actual numbers? Give me 2–3 specific data points and any named client logos I can reference. I'll use these in the credibility paragraph."
 
 Cache the user's answers in the session and apply them. If the user says "use the defaults" or skips, fall back to generic language ("strong conversion rates", "high show rates") — never use the placeholder numbers as if they were real.
 
@@ -34,7 +36,7 @@ When this skill is loaded, greet the user:
 
 > "I'm the Proposal Builder. I'll draft a complete, ready-to-send proposal for your prospect plus a follow-up email to send with the link.
 >
-> Share what you have from the discovery call — paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works."
+> Share what you have from the discovery call: paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works."
 
 Assume Google Drive is connected with edit access. Proceed straight to the Workflow once the user provides call material.
 
@@ -222,7 +224,7 @@ Substitute `{Client}` with the prospect company name.
 
 ### Step 8 — Draft the follow-up email
 
-After the doc is delivered, immediately draft the follow-up email. Load `reference/follow-up-email.md` — it contains route selection logic, context variables, voice rules, both route structures with examples, and subject line patterns. Present `subject` and `body` as plain text the user can copy straight into Gmail.
+After the doc is delivered, immediately draft the follow-up email. Load `references/follow-up-email.md` — it contains route selection logic, context variables, voice rules, both route structures with examples, and subject line patterns. Present `subject` and `body` as plain text the user can copy straight into Gmail.
 
 ## Assets
 

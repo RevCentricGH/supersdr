@@ -104,7 +104,7 @@ Subject: {Company} x [Your Agency] Proposal + Friday Follow-Up
 
 Hey {First Name},
 
-Really great catching up today — love what you're building with {Company}.
+Really great catching up today - love what you're building with {Company}.
 
 As promised, I've put together a customized proposal for the 3-month cold email +
 cold calling engagement we discussed. Given the results from our {Prior Client} campaign,
