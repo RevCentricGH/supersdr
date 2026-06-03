@@ -194,16 +194,25 @@ Do this once before running skills that reach external systems.
 
 Skip this section if you only use the desktop app. It covers the two Tier 2 skills, `master-tracker` and `custom-decks`, which run in a terminal with real Python, local API keys, and a Google OAuth token file. **Do not upload them to Cowork.** They cannot run there.
 
-Each skill's `SKILL.md` opens with: "Claude Code skill - runs in a terminal, NOT Cowork. Run it from a terminal with `python3 run.py`."
+You drive these the same way you drive any skill, by asking Claude. The only difference is the home: instead of the desktop app, you run **Claude Code** in a terminal and tell it what you want in plain English ("set up master-tracker", "build a deck for this prospect"). Claude Code does the terminal work, so you should never have to type raw commands to run a skill.
 
-**Credentials.** Provision these once and add them to the skill's `config.json` (copy `config.template.json` to start).
+**Install your terminal and agent (one time).**
+
+- **Warp** - the terminal we recommend. It is an AI terminal, so on the rare command Claude Code cannot run itself (an interactive login, a bit of debugging) Warp can help you directly. Download the desktop app at https://www.warp.dev/download and sign in.
+- **Claude Code** - the agent that runs the skills. Open Warp, install it with `curl -fsSL https://claude.ai/install.sh | bash`, then type `claude` to launch it and sign in. (Docs: https://code.claude.com/docs/en/setup.)
+
+That install command is the only thing you type by hand. From here on you talk to Claude Code.
+
+**Credentials.** These come from web dashboards, so you grab them yourself, then paste them to Claude Code and it writes them into the skill's `config.json` for you.
 
 - **Apollo API key** - required by both skills for call data and contact lookup. Apollo, then Settings, then Integrations, then API.
 - **Google OAuth token** - required by both to read and write Google Sheets and Drive. Each skill walks you through the OAuth setup and needs its own `token.json`.
 - **Deepgram API key** - required by `custom-decks` for audio transcription. Sign up at deepgram.com.
 - **Groq API key** - required by `custom-decks` as a transcription fallback; fires only when Deepgram returns empty. Sign up at console.groq.com.
 
-**Install and run:**
+**Run it.** With Claude Code open in the skill's folder, ask it to "set up and run master-tracker" or "build a custom deck for this prospect". It installs the dependencies, fills in `config.json` from the credentials you pasted, and runs the skill.
+
+Prefer to run the commands yourself? Here is what Claude Code does under the hood:
 
 ```bash
 # master-tracker
@@ -222,7 +231,7 @@ python3 run.py
 
 ## Recommended path by situation
 
-- **Brand-new agency, no clients yet.** Start with **Win a client**: `pre-brief` to prep your sales calls, `post-discovery-followup` to work the call afterward, and `client-proposal-doc-builder` to send the offer. Land your first client before touching the outbound skills.
+- **Brand-new agency, no clients yet.** Run the **Run outbound** pipeline on yourself to book your first meetings, with your own agency as the client: `apollo-account-setup`, then `client-spot` for your own offer, then down the stages. Use **Win a client** to work the calls you book.
 - **Just signed a client.** Move to **Run outbound** and work the stages in order. Run `apollo-account-setup` once (only the first time on a new Apollo account), then `client-spot` to build the SPOT, then down the list: pitch, list, campaigns.
 - **Already running campaigns.** Install `master-tracker` (Tier 2) to pull call data into a sheet and read campaign health. Use `custom-decks` (Tier 2) to build decks for prospects who are warming up.
 - **Debugging a campaign that is not working.** Re-read the SPOT first; weak positioning shows up everywhere downstream. Re-run `list-builder` on a small sample to sanity-check the ICP before scaling. Check `master-tracker` for conversion rates by rep. If reps stall on calls, run `objection-drill`.
