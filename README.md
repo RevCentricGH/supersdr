@@ -1,77 +1,170 @@
 # SuperSDR Skills
 
-Claude Cowork skills for the SuperSDR community.
+A free, open toolkit of AI skills for running a cold-calling agency. Each skill teaches Claude to do one piece of the job: research a client, write a call script, build a dial-ready list, set up campaigns, follow up after a call, and track results.
 
-## Skills
+You do not need to code. Most skills run inside the Claude desktop app: you download a skill, upload it, and run it in a chat. A couple of the more advanced skills run in a terminal, and those are clearly marked and kept separate so they never get in your way.
 
-| Skill | What it does | Runtime | |
-|-------|-------------|---------|---|
-| [apollo-account-setup](apollo-account-setup/) | One-time Apollo account setup, run once before any campaigns — link workspace email, register your outbound number (FCR), and configure the 19 dispositions, 11 contact stages, and 19 disposition→stage triggers | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-account-setup.zip) |
-| [client-spot](client-spot/) | Generate a complete multi-tab Single Point of Truth (SPOT) Google Doc for a new client — campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-spot.zip) |
-| [cold-calling-screenplay](cold-calling-screenplay/) | Generate a verbatim cold call screenplay (Short or Full version) for any B2B company — pulls live case studies from the client's website automatically | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/cold-calling-screenplay.zip) |
-| [tam-contact-mapper](tam-contact-mapper/) | Apply a client's ICP filters in Apollo's People tab and save the search as a named TAM view — broad contact universe, no enrichment, stays in Apollo | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
-| [list-builder](list-builder/) | Build an enriched, intent-scored, dial-ready contact list from the client's SPOT doc — uses Apollo MCP for sourcing/enrichment, Claude inline for ICP qualification, Layer 4 signal research, and 7-bucket hook generation. Outputs a Google Sheet with channel routing per contact (Red Hot / Hot / Warm / Cool / Cold) | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
-| [apollo-campaign-builder](apollo-campaign-builder/) | Set up all 7 outreach sequences + 4 workflow plays for a new client in the Apollo UI using browser automation (run after list-builder) | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
-| [objection-drill](objection-drill/) | Cold call objection handling trainer — Quick Drill or Live Roleplay modes across the 5 core objection families | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
-| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal (DFY Calling, cold email, or combined outbound) as a Google Doc from a discovery-call transcript — includes pricing tiers, completed-conversations model, T&Cs, and signature block | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
-| [post-discovery-followup](post-discovery-followup/) | Triage a discovery-call transcript to one of seven outcomes, then on a proposal or follow-up outcome chain into client-proposal-doc-builder for the draft, send the approved email through Gmail, and update the Apollo deal stage. The operator confirms every external action | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
-| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page Google Doc meeting brief: 5 to 8 bullets covering concerns, objections, asks, and commitments, each anchored to the transcript timestamp it came from, returned as a View link | Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
-| [master-tracker](master-tracker/) | Pull each rep's Apollo dialer calls into per-rep tabs of a Google Sheet — filtered to configured dispositions, deduped, idempotent. **Runs in a terminal, NOT Cowork.** Do not upload to Cowork. See [Claude Code Setup](#claude-code-setup) below. | Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
-| [custom-decks](custom-decks/) | Build a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides + PDF with a View link. **Runs in a terminal, NOT Cowork.** Do not upload to Cowork. See [Claude Code Setup](#claude-code-setup) below. | Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
+This toolkit is calling-only. It does not do cold email.
 
-## Stay updated
+## What this is
 
-Skills improve over time. **Watch this repo** — click **Watch → Custom → Releases only** at the top of this page. GitHub will email you whenever a new version ships. Takes 10 seconds. When a release lands, re-download and re-upload the affected skill's ZIP.
+If you are a SuperSDR student, this repo is your toolkit. It covers the two jobs that make up the business:
 
----
+1. **Win a client.** Land an agency customer: prep for the call, follow up after discovery, and send the proposal.
+2. **Run outbound.** Do the calling work for that client: set up Apollo, build the client brief, write the pitch, build the list, launch campaigns, and track performance.
 
-## Cowork Setup
+Each skill is self-contained. You can run one on its own, or run several in sequence to cover a whole motion. Start with one skill and add more as you get comfortable.
 
-Complete this once before running any Cowork skills that require external connections.
+## How it works (the 60-second model)
 
-**Claude Desktop App Installation** — Required to use Cowork and Code https://claude.com/download
+Four things to know:
 
-**Project Instructions (recommended — one-time)** — enforces natural, non-AI-sounding output across all sessions
+- **A skill is a packaged job.** It is a folder of instructions (and sometimes helper files) that teaches Claude exactly how to do one task the SuperSDR way. You do not configure anything in code.
+- **You run skills inside Claude.** Most run in the Claude Cowork desktop app: download the skill's ZIP, upload the folder into a chat, and follow the prompts. Two skills run in a terminal instead (see the autonomy ladder below).
+- **Two motions.** The skills split into **Win a client** and **Run outbound**. Pick the motion you are in and work down the list.
+- **One doc ties outbound together: the SPOT.** A SPOT is a client's Single Point of Truth, a multi-tab Google Doc with their positioning, ICP, and pain. You build it once per client with `client-spot`, and every other outbound skill reads from it.
 
-Go to Claude → Settings → Project → Instructions in Cowork and paste this:
+Here is how the outbound skills connect once the SPOT exists:
 
 ```
-Voice rules — apply to all output:
-- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
-- No hedging: "I think", "it seems", "potentially", "it's worth noting"
-- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive", "cutting-edge"
-- No em-dashes. Hyphen or rewrite.
-- Short paragraphs. Write like a person, not a vendor.
+apollo-account-setup   (run once per Apollo account, before any campaigns)
+
+client-spot  ->  the SPOT doc
+  |
+  |-- Tab 3 + Tab 4  ->  cold-calling-screenplay
+  |-- Tab 9          ->  tam-contact-mapper  ->  list-builder  ->  apollo-campaign-builder
+  |-- activated leads ->  custom-decks
+  |-- dialer calls    ->  master-tracker
 ```
 
-Each skill also has these rules embedded — this just ensures they apply globally even outside any skill context.
+Run `apollo-account-setup` once per Apollo account. Then run `client-spot` first for each client. Everything else builds off the SPOT.
 
-**Google Drive connector** — required by `tam-contact-mapper`, `list-builder`, `client-proposal-doc-builder`, `post-discovery-followup`, and `pre-brief`
-Go to Settings → Connectors → Google Drive in Cowork. Connect your Google account and enable edit access (read-only is not enough for the proposal builder or list-builder).
+## The autonomy ladder
 
-**Apollo MCP** — required by `list-builder`
-Go to Settings → MCP Servers in Cowork and connect Apollo (`apollo-io`). One-time setup. The skill calls Apollo through the MCP — no API key needed in the skill itself.
+Every skill sits on one of three rungs. The rung tells you what setup it needs before you start. As your comfort with AI tools grows, you climb the ladder.
 
-**Browser automation** — required by `tam-contact-mapper`, `apollo-campaign-builder`, and `post-discovery-followup`
-Go to Settings → Computer Use in Cowork and enable browser control. Log into Apollo in Chrome and keep that tab open when running these skills.
+- **Tier 1 · Cowork.** You upload the skill into the Claude desktop app and run it in a chat. No terminal, no code, nothing to install beyond the app and a few connectors. This is where everyone starts, and most of the toolkit lives here.
+- **Tier 2 · Claude Code.** The skill runs in a terminal as real software, with Python and local credentials. This rung is for jobs that need a runtime: pulling call data on a schedule, or rendering files like slide decks. You install it once and run a command. Two skills live here: `master-tracker` and `custom-decks`.
+- **Tier 3 · n8n + Claude Code.** Fully automated pipelines where n8n triggers and orchestrates the work and Claude Code carries it out, with no human in the loop. This is the top rung and the direction the toolkit is heading. No skills live here yet.
 
-**Gmail connector** - required by `post-discovery-followup`
-Go to Settings → Connectors → Gmail in Cowork and connect your Google account with send access. The skill sends the approved follow-up email through this connector, and only after you approve the recipient, subject, and body. It never sends on its own.
+**Level up your stack.** Start at Tier 1 and get a feel for running skills in the desktop app. When you want unattended reporting or branded decks, install the two Tier 2 skills. Tier 3 (n8n + Claude Code) is the horizon: the same skills, wired to run on their own. If you want a middle step toward automation, you can also push events into a live Cowork session from your phone or a webhook; see [CHANNELS.md](CHANNELS.md).
 
-**Optional MCPs for `list-builder`** — each unlocks a stage of the pipeline if connected:
+The tier is shown as a badge on every skill in the tables below.
 
-| MCP | What it adds |
-|---|---|
-| Perplexity | Richer Layer 4 signal research (otherwise falls back to native web search) |
-| ZeroBounce | Real email validation (otherwise relies on Apollo's verified/unverified flag) |
-| Twilio | Phone line-type detection (mobile / landline / VoIP) |
-| Clay | Fallback contact enrichment when Apollo's hit rate is low |
-| Common Room | Intent signals (website visitors, community engagement) |
-| Smartlead / Instantly | Push the finished list directly to a cold email campaign |
-| HeyReach | Push the finished list to a LinkedIn outreach sequence |
-| HubSpot | Sync contacts into CRM as leads |
+## The skills
 
-All optional MCPs degrade gracefully — connect whichever ones you have access to.
+Skills are grouped by the job you are doing. Each row shows the skill, what it does, its tier badge, and a one-click download.
+
+### Win a client
+
+The acquisition motion: book the call, work the call, make the offer.
+
+**Stage 1 - Prep for the call**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page meeting brief so you walk in prepared. Pulls the concerns, objections, asks, and commitments, each anchored to the moment in the call, and returns a Google Doc. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
+
+**Stage 2 - After the call**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [post-discovery-followup](post-discovery-followup/) | Read a discovery-call transcript, decide the outcome, and take the next step. On a proposal or follow-up outcome it drafts the email, sends it through Gmail, and updates the deal stage in Apollo. You approve every action. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
+
+**Stage 3 - Make the offer**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal from your discovery call as a Google Doc, with pricing tiers, the completed-conversations model, and T&Cs, then draft the follow-up email that sends the link. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
+
+### Run outbound
+
+The fulfillment motion: the functional stages of running outbound for a signed client, in order.
+
+**Stage 1 - Set up Apollo (one time)**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [apollo-account-setup](apollo-account-setup/) | One-time Apollo setup before any campaigns: link your workspace email, register your outbound number with the Free Caller Registry, and configure the 19 dispositions, 11 contact stages, and 19 disposition-to-stage triggers. Run once per Apollo account. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-account-setup.zip) |
+
+**Stage 2 - Brief the client**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [client-spot](client-spot/) | Build the client's SPOT: a multi-tab Google Doc covering campaign status, company overview, problem and solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Every outbound skill reads from it. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-spot.zip) |
+
+**Stage 3 - Build the pitch**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [cold-calling-screenplay](cold-calling-screenplay/) | Write a word-for-word cold call script (Short or Full version) for any B2B company, built from the client's SPOT and live case studies pulled from their website. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/cold-calling-screenplay.zip) |
+| [objection-drill](objection-drill/) | Train reps on objections. Quick Drill gives three ready responses to a pasted objection; Live Roleplay plays the prospect, you respond, and it grades you. Covers the 5 core objection families. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
+
+**Stage 4 - Build the list**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [tam-contact-mapper](tam-contact-mapper/) | Apply the client's ICP filters in Apollo's People tab and save the search as a named TAM view. Maps the full contact universe with no enrichment; nothing is imported. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
+| [list-builder](list-builder/) | Build an enriched, dial-ready contact list from the SPOT using Apollo. Scores fit and intent, routes each contact by temperature (Red Hot to Cold), and outputs a Google Sheet ready to dial. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
+
+**Stage 5 - Launch the campaigns**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [apollo-campaign-builder](apollo-campaign-builder/) | Set up the client's full Apollo campaign: all 7 outreach sequences and 4 workflow plays, built in the Apollo UI for you. Run after `list-builder`. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
+
+**Stage 6 - Advance the deal**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [custom-decks](custom-decks/) | Build a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides and PDF with a View link. Runs in a terminal, not Cowork; see [Claude Code path](#advanced-claude-code-path) below. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
+
+**Stage 7 - Track and measure**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [master-tracker](master-tracker/) | Pull each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. Runs in a terminal, not Cowork; see [Claude Code path](#advanced-claude-code-path) below. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
+
+## Getting started
+
+Start with the Cowork path. It is the simplest and covers every Tier 1 skill, which is most of the toolkit. The Claude Code path is for the two Tier 2 skills and is kept separate below; skip it until you need it.
+
+### Cowork path (start here)
+
+**Run a skill, in four steps:**
+
+1. Pick a skill from the tables above and click its **Download ZIP**. You get a ZIP of just that skill folder.
+2. Extract the ZIP.
+3. Open the Claude desktop app, start a chat, and upload the entire extracted folder, not just `SKILL.md`. Some skills need their companion files.
+4. Follow the skill's prompts.
+
+Whole-repo alternative: click the green **Code** button at the top of this page, choose **Download ZIP**, extract it, and upload the folder for the skill you want.
+
+**One-time Cowork setup**
+
+Do this once before running skills that reach external systems.
+
+- **Install the Claude desktop app.** Required for Cowork. Download it at https://claude.com/download.
+- **Paste the voice rules into Project Instructions (recommended).** Go to Claude, then Settings, then Project, then Instructions, and paste this so output sounds like a person across every session:
+
+  ```
+  Voice rules - apply to all output:
+  - No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
+  - No hedging: "I think", "it seems", "potentially", "it's worth noting"
+  - No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive", "cutting-edge"
+  - No em-dashes. Hyphen or rewrite.
+  - Short paragraphs. Write like a person, not a vendor.
+  ```
+
+  Each skill embeds these rules too; this just applies them globally.
+
+- **Connect the connectors each skill needs.** A connector links Claude to an outside service.
+  - **Google Drive:** Settings, then Connectors, then Google Drive. Connect your account and enable edit access (read-only is not enough for the proposal builder or list-builder).
+  - **Gmail:** Settings, then Connectors, then Gmail, with send access. Used by `post-discovery-followup` to send the approved follow-up, and only after you approve the recipient, subject, and body.
+  - **Apollo MCP:** Settings, then MCP Servers, and connect Apollo (`apollo-io`). The skill calls Apollo through the connector, so no API key lives in the skill.
+  - **Browser automation (Claude in Chrome):** Settings, then Computer Use, and enable browser control. Log into Apollo in Chrome and keep that tab open while running these skills.
+
+**Which connectors each skill needs:**
 
 | Skill | Google Drive | Apollo MCP | Browser automation (Claude in Chrome) | Gmail | Other MCPs |
 |---|---|---|---|---|---|
@@ -79,92 +172,100 @@ All optional MCPs degrade gracefully — connect whichever ones you have access 
 | client-spot | | | | | |
 | cold-calling-screenplay | | | | | |
 | tam-contact-mapper | required | | required | | |
-| list-builder | required | required | | | many optional (see table above) |
+| list-builder | required | required | | | many optional (see below) |
 | apollo-campaign-builder | | | required | | |
 | objection-drill | | | | | |
 | client-proposal-doc-builder | required (write) | | | | |
 | post-discovery-followup | required | | required | required | |
 | pre-brief | required (write) | | | | |
 
-## Claude Code Setup
+**Optional MCPs for `list-builder`.** Each one unlocks a stage of the pipeline if connected, and the skill degrades gracefully without it. Connect whichever you have.
 
-`master-tracker` and `custom-decks` are Claude Code skills. They run in a terminal with real Python, local API keys, and OAuth token files. **Do not upload them to Cowork** — they cannot run there.
+| MCP | What it adds |
+|---|---|
+| Perplexity | Richer Layer 4 signal research (otherwise falls back to native web search) |
+| ZeroBounce | Real email validation (otherwise relies on Apollo's verified flag) |
+| Twilio | Phone line-type detection (mobile / landline / VoIP) |
+| Clay | Fallback contact enrichment when Apollo's hit rate is low |
+| Common Room | Intent signals (website visitors, community engagement) |
+| Smartlead / Instantly | Push the finished list to a cold email campaign |
+| HeyReach | Push the finished list to a LinkedIn outreach sequence |
+| HubSpot | Sync contacts into CRM as leads |
 
-Each skill's SKILL.md opens with: "Claude Code skill - runs in a terminal, NOT Cowork. Do not upload it into the Cowork desktop app. Run it from a terminal with `python3 run.py`."
+### Advanced: Claude Code path
 
-### Credentials
+Skip this section if you only use the desktop app. It covers the two Tier 2 skills, `master-tracker` and `custom-decks`, which run in a terminal with real Python, local API keys, and a Google OAuth token file. **Do not upload them to Cowork.** They cannot run there.
 
-Provision these once and add them to the skill's `config.json` (copy `config.template.json` to start).
+Each skill's `SKILL.md` opens with: "Claude Code skill - runs in a terminal, NOT Cowork. Run it from a terminal with `python3 run.py`."
 
-**Apollo API key** — required by `master-tracker` and `custom-decks` for call data and contact lookup.
-Go to Apollo → Settings → Integrations → API and copy your key.
+**Credentials.** Provision these once and add them to the skill's `config.json` (copy `config.template.json` to start).
 
-**Google OAuth token** — required by both skills to read and write Google Sheets and Drive.
-Each skill walks you through the OAuth app setup. Each one needs its own token file (`token.json`).
+- **Apollo API key** - required by both skills for call data and contact lookup. Apollo, then Settings, then Integrations, then API.
+- **Google OAuth token** - required by both to read and write Google Sheets and Drive. Each skill walks you through the OAuth setup and needs its own `token.json`.
+- **Deepgram API key** - required by `custom-decks` for audio transcription. Sign up at deepgram.com.
+- **Groq API key** - required by `custom-decks` as a transcription fallback; fires only when Deepgram returns empty. Sign up at console.groq.com.
 
-**Deepgram API key** — required by `custom-decks` for audio transcription.
-Sign up at deepgram.com and create an API key in your project dashboard.
-
-**Groq API key** — required by `custom-decks` as a transcription fallback. It fires only when Deepgram returns empty.
-Sign up at console.groq.com and create an API key.
-
-### Install
-
-**master-tracker:**
+**Install and run:**
 
 ```bash
+# master-tracker
 cd master-tracker
 pip install -r requirements.txt
 cp config.template.json config.json   # fill in your credentials
-```
+python3 run.py
 
-**custom-decks** (also requires Node and Marp for deck rendering):
-
-```bash
+# custom-decks (also needs Node and Marp for deck rendering)
 cd custom-decks
 pip install -r requirements.txt
 npm install -g @marp-team/marp-cli
 cp config.template.json config.json   # fill in your credentials
+python3 run.py
 ```
 
-### Run
+## Recommended path by situation
 
-```bash
-# master-tracker — pull calls and update the sheet
-cd master-tracker && python3 run.py
+- **Brand-new agency, no clients yet.** Start with **Win a client**: `pre-brief` to prep your sales calls, `post-discovery-followup` to work the call afterward, and `client-proposal-doc-builder` to send the offer. Land your first client before touching the outbound skills.
+- **Just signed a client.** Move to **Run outbound** and work the stages in order. Run `apollo-account-setup` once (only the first time on a new Apollo account), then `client-spot` to build the SPOT, then down the list: pitch, list, campaigns.
+- **Already running campaigns.** Install `master-tracker` (Tier 2) to pull call data into a sheet and read campaign health. Use `custom-decks` (Tier 2) to build decks for prospects who are warming up.
+- **Debugging a campaign that is not working.** Re-read the SPOT first; weak positioning shows up everywhere downstream. Re-run `list-builder` on a small sample to sanity-check the ICP before scaling. Check `master-tracker` for conversion rates by rep. If reps stall on calls, run `objection-drill`.
 
-# custom-decks — build a deck for one prospect
-cd custom-decks && python3 run.py
-```
+## Glossary
 
-## How to use
+Plain-language definitions of the jargon you will hit.
 
-**Recommended (1-click per skill):**
+- **Skill** - a packaged job for Claude: a folder with instructions and sometimes helper files. You run it; you do not edit it.
+- **Cowork vs Claude Code** - two ways to run a skill. **Cowork** is the Claude desktop app, where you upload a skill and run it in a chat (Tier 1). **Claude Code** is the terminal, where a skill runs as real software (Tier 2).
+- **SPOT** - a client's Single Point of Truth: the multi-tab Google Doc holding their positioning, ICP, and pain. Built once per client by `client-spot`; the outbound skills read from it.
+- **ICP** - Ideal Customer Profile: the type of company and person a client wants to reach (industry, size, title, signals). It drives who lands on the dial list.
+- **TAM** - Total Addressable Market: the full universe of contacts that fit the ICP. `tam-contact-mapper` saves this as an Apollo search before any enrichment.
+- **Dialer** - the software reps use to make calls. In this toolkit, reps dial in Apollo's dialer, which logs each call.
+- **Disposition** - the outcome you tag on a call (for example "Connected - Meeting Booked" or "No Answer"). `apollo-account-setup` configures the standard set, and `master-tracker` filters and counts by disposition.
+- **MCP connector** - a link that lets Claude talk to an outside service (Apollo, Google Drive, Gmail) without you handing it an API key inside a skill. You connect it once in settings.
+- **Browser automation (Claude in Chrome)** - Claude controlling a real Chrome tab to click through a web app, used for the Apollo UI work where there is no connector.
+- **Sequence and workflow play** - Apollo outreach building blocks. A sequence is a series of steps (calls, emails) a contact moves through; a workflow play automates an action when a condition is met. `apollo-campaign-builder` sets these up.
 
-1. Click the **Download ZIP** link next to the skill you want in the table above. You get a ZIP of just that skill folder.
-2. Extract the ZIP.
-3. In Claude Cowork, upload the entire extracted folder (not just SKILL.md — some skills need companion files).
-4. Follow the instructions in the skill.
+## Cost
 
-**Alternative (whole repo):** Click the green **Code** button at the top of this page → **Download ZIP** to grab everything, then extract and upload the folder for the skill you want.
+What you pay for, plain:
 
-> Some skills (`apollo-account-setup`, `apollo-campaign-builder`, `client-proposal-doc-builder`) include Python scripts and asset files that Claude needs alongside SKILL.md. Uploading the whole folder ensures nothing is missing.
->
-> `list-builder` is now a single SKILL.md file — it runs entirely through MCP tools and Claude's reasoning. No scripts, no API keys to manage.
+- **A paid Claude plan (required).** Cowork runs in the Claude desktop app, which needs a paid Claude subscription. The two Tier 2 skills also use your Claude access from the terminal. This is the one cost everyone has.
+- **An Apollo plan (required for outbound).** Apollo provides the dialer, contact data, and the MCP connector. A paid Apollo plan is what the outbound skills run on.
+- **Optional add-ons (only if you connect them).** The Tier 2 `custom-decks` skill uses Deepgram and Groq for transcription, both with free tiers and pay-as-you-go pricing. The `list-builder` optional MCPs (ZeroBounce, Twilio, Clay, Perplexity, and the rest) are each separate accounts you only pay for if you turn them on. Everything optional degrades gracefully when it is off, so you can start with none of them.
 
-## Optional — async notifications via Channels
+You do not pay this project anything. The skills are free and open. Your only costs are the third-party accounts above.
 
-If you want to interact with the skills from your phone (Telegram, Discord, iMessage) or trigger them via webhooks from services like Smartlead, see [CHANNELS.md](CHANNELS.md). Skip this entirely if you only use Cowork from your desktop.
+## Compliance
 
-## Data flow
+Outbound calling is regulated. You are responsible for running it legally. A few things to get right before you dial:
 
-```
-apollo-account-setup (run once per Apollo account, before any campaigns)
+- **Call-recording consent.** Some jurisdictions require every party on a call to consent before you record. Know the rules where you and the prospect are, and get consent when it is required.
+- **Do Not Call.** Honor Do Not Call lists and any opt-out a prospect gives you. `list-builder`'s dial-ready gate excludes do-not-call and already-pulled contacts, but the responsibility to scrub and honor DNC and suppression is yours.
+- **This is not legal advice.** Rules vary by country, state, and industry. When in doubt, check with counsel before launching a campaign.
 
-SPOT (client-spot)
-  ├── Tab 3 + Tab 4 → cold-calling-screenplay
-  ├── Tab 9         → tam-contact-mapper → list-builder → apollo-campaign-builder
-  └── discovery call transcript → client-proposal-doc-builder
-```
+## Stay updated, contributing, and license
 
-Run `apollo-account-setup` once per Apollo account. Then run `client-spot` first for each client — everything else builds off it.
+**Stay updated.** Skills improve over time. Watch this repo: click **Watch**, then **Custom**, then **Releases only** at the top of this page. GitHub emails you whenever a new version ships. When a release lands, re-download and re-upload the affected skill's ZIP.
+
+**Contributing.** Found a bug or have an improvement? Open a GitHub issue, or send a pull request. Note that everything in this repo ships publicly as per-skill ZIPs, so do not commit anything private.
+
+**License.** These skills are published openly for the SuperSDR community. Anything committed here is public. No formal license is attached yet; if you plan to reuse the skills outside the community, open an issue to ask.
