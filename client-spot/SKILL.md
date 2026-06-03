@@ -103,23 +103,13 @@ The full field-by-field templates for all 9 tabs are in `reference/tab-templates
 
 ### Step 5 - Create the Google Doc
 
-After generating all tab content, use the Google Docs or Google Drive MCP to create the document. Execute in this order:
+Use the Google Drive MCP to create and populate the document. Do not construct raw API calls - let the MCP handle formatting and insertion.
 
 1. Create a new Google Doc titled "[Client Name] Single Point of Truth"
 2. Add 9 tabs with these exact names (in order): Campaign Status, Campaign Brief, Company Overview, Problem Solution, ICP & Buyer Persona, Competitor Overview, Objection Handling, Screenplay, Apollo Campaign Setup
-3. For each tab, write the content using proper formatting - do NOT paste raw markdown
+3. Write each tab's generated content into the matching tab via the MCP
 
-**Formatting rules when writing to Google Docs:**
-- Strip all markdown syntax before inserting. Do not write `##`, `**`, `*`, backticks, or `|` table pipes into the doc.
-- Section titles (lines that were `##` or `###` headings in the generated content) → insert as plain text, then apply `HEADING_2` or `HEADING_3` paragraph style via `updateParagraphStyle`
-- Field labels (e.g. `Company Name:`, `4.1 Status Markers`) → insert as plain text with bold applied via `updateTextStyle`
-- Body text and list items → insert as `NORMAL_TEXT`
-- Tables → convert to plain text with a label on each row (e.g. `Competitor: X | Their angle: Y | Our edge: Z`), one row per line
-- After inserting text into a tab, re-read the tab to get fresh indices before applying paragraph styles
-
-Use `addDocumentTab` to create tabs (NOT `createTab`). Insert text with `insertText` using `{"location": {"index": 1, "tabId": tab_id}}`. Apply heading styles with `updateParagraphStyle` including `tabId` in the range.
-
-If the MCP does not support tab creation, create the doc as a single document with each section separated by a clear HEADING_1 title and notify the user that tabs must be added manually.
+If the MCP does not support tab creation, create the doc as a single document with each tab's content under a clear section heading and tell the user tabs must be added manually.
 
 **If Google Doc creation fails entirely:** output all 9 tab content blocks as labeled sections in the chat so the user can paste manually, and tell them what failed.
 
