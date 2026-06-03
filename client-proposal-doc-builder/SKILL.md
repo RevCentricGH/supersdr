@@ -96,6 +96,20 @@ Use the AskUserQuestion tool. Ask only the questions you don't already have clea
 
 Phrase options as concrete trade-offs and mark a recommendation if one option is obviously stronger for the situation.
 
+#### Checkpoint - confirm resolved parameters before drafting
+
+Once the questions are answered, echo the resolved parameters back in a few lines and wait for a go before drafting the full doc. Pricing and terms are where a wrong assumption wastes a whole generation, so lock them here.
+
+Surface, in plain text:
+
+- **Tier(s) and pricing** - each tier's name, conversation volume, and monthly investment.
+- **Channels** - calling only, email only, or combined.
+- **Exclusivity** - hard clause in T&Cs, soft mention in the body, or deferred to the next call.
+
+Then ask: "Here's what I'll build the proposal around. Good to draft, or change anything first?"
+
+If the user adjusts a parameter, update it and re-echo. Do not start the Step 4 draft until the user gives a go.
+
 ### Step 4 — Draft the markdown content
 
 Build the proposal content as markdown first, in this order:
