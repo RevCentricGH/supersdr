@@ -1,26 +1,28 @@
 ---
 name: apollo-campaign-builder
-description: Set up a new client's full Apollo campaign — automatically create all 7 outreach sequences and 4 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", or provides a SPOT doc and asks to set up outreach sequences.
+description: Set up a new client's full Apollo campaign - automatically create all 7 outreach sequences and 4 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", or provides a SPOT doc and asks to set up outreach sequences.
 ---
 
 # Apollo Campaign Builder
 
+**Runtime:** Claude Cowork
+
 ## Purpose
 
-Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 4 workflow plays directly in the Apollo UI — no manual clicking.
+Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 4 workflow plays directly in the Apollo UI - no manual clicking.
 
 Run this skill after the SPOT doc is complete. The lead list is built separately; this skill starts from the point where Apollo is open and the client name is confirmed.
 
 ## Files
 
-- `sequence_builder.py` — step definitions for all 7 sequences + browser execution guide
-- `workflow_builder.py` — definitions for all 4 workflow plays + browser execution guide
+- `sequence_builder.py` - step definitions for all 7 sequences + browser execution guide
+- `workflow_builder.py` - definitions for all 4 workflow plays + browser execution guide
 
 ---
 
 ## Prerequisites
 
-- Client name confirmed — all sequences/workflows will be prefixed with it
+- Client name confirmed - all sequences/workflows will be prefixed with it
 - Apollo open and logged in at app.apollo.io in Chrome
 
 ---
@@ -40,9 +42,9 @@ Assume Apollo is open in Chrome and browser automation is enabled in Cowork. Try
 
 ---
 
-## Step 1 — Confirm Client Name
+## Step 1 - Confirm Client Name
 
-Ask the user to confirm the client name. This prefixes every sequence and workflow name (e.g., "Acme Corp - Call Only"). If a SPOT doc is provided, pull the client name from Tab 1 or Tab 9 — otherwise ask directly.
+Ask the user to confirm the client name. This prefixes every sequence and workflow name (e.g., "Acme Corp - Call Only"). If a SPOT doc is provided, pull the client name from Tab 1 or Tab 9 - otherwise ask directly.
 
 ```
 Client name confirmed: {ClientName}
@@ -51,9 +53,9 @@ All sequences and workflows will be prefixed: "{ClientName} - ..."
 
 ---
 
-## Step 2 — Create All 7 Sequences (Browser Automation)
+## Step 2 - Create All 7 Sequences (Browser Automation)
 
-Read `sequence_builder.py` — it contains the full step definitions for all 7 sequences and the execution guide in `EXECUTION_GUIDE`.
+Read `sequence_builder.py` - it contains the full step definitions for all 7 sequences and the execution guide in `EXECUTION_GUIDE`.
 
 **Before starting:**
 - Confirm Chrome is open and logged in at app.apollo.io
@@ -65,19 +67,19 @@ Read `sequence_builder.py` — it contains the full step definitions for all 7 s
 1. Navigate to `https://app.apollo.io/#/sequences`
 2. Click "New Sequence" / "Create Sequence"
 3. Enter the name: `{client} - {sequence["name"]}` (e.g. "Acme Corp - Call Only")
-4. Confirm creation — wait for the steps editor to load
+4. Confirm creation - wait for the steps editor to load
 5. For each step in `sequence["steps"]`:
    - Click "Add a step"
    - Select the step type: Phone Call / Manual Email / Automatic Email / Action Item
-   - Set the timing (`delay` + `unit`) — "immediately" means 0 / leave blank
+   - Set the timing (`delay` + `unit`) - "immediately" means 0 / leave blank
    - Save the step and wait for it to appear in the list
-6. Verify step count matches `len(sequence["steps"])` — if wrong, stop and flag
+6. Verify step count matches `len(sequence["steps"])` - if wrong, stop and flag
 7. Activate the sequence
 8. Note the sequence ID from the URL for Step 3
 
 After each sequence confirm:
 ```
-✓ Sequence {n}: {name} — {step_count} steps, active
+✓ Sequence {n}: {name} - {step_count} steps, active
 ```
 
 After all 7:
@@ -92,13 +94,13 @@ All 7 sequences created:
   7. {client} - Referred To        (10 steps)
 ```
 
-If a step modal behaves unexpectedly — screenshot and report before retrying. Do not skip steps.
+If a step modal behaves unexpectedly - screenshot and report before retrying. Do not skip steps.
 
 ---
 
-## Step 3 — Create the 4 Workflow Plays (Browser Automation)
+## Step 3 - Create the 4 Workflow Plays (Browser Automation)
 
-Read `workflow_builder.py` — it contains the full workflow definitions and execution guide in `EXECUTION_GUIDE`.
+Read `workflow_builder.py` - it contains the full workflow definitions and execution guide in `EXECUTION_GUIDE`.
 
 **Navigate** to `https://app.apollo.io/#/workflows`
 
@@ -112,9 +114,12 @@ Read `workflow_builder.py` — it contains the full workflow definitions and exe
    - **Create Deal**: set the deal stage from `action["deal_stage"]`
    - **Associate Contact to Deal**: link contact to the deal above
    - **Add to List**: enter the list name from `action["list_name"]`
+   - **Update Contact Stage**: set the stage from `action["stage"]`
 5. **Before saving**: if the action is "Add to Sequence", confirm the selected sequence
-   name contains the client name — wrong sequence is the #1 setup error
+   name contains the client name - wrong sequence is the #1 setup error
 6. Save and activate
+
+**Trigger vocabulary:** Apollo's trigger event is "Contact updated", not "Disposition changed". The "Contact stage" field in the trigger holds the stage value the workflow definitions set. This naming is maintained by hand; the guard test only checks that every action type is documented above.
 
 After all 4:
 ```
@@ -127,30 +132,30 @@ All 4 workflows created:
 
 ---
 
-## Step 4 — Verification Checklist
+## Step 4 - Verification Checklist
 
 Confirm each item and report to the user:
 
 ```
 SEQUENCES
-[ ] Call Only          — 10 steps, active, prefixed with client name
-[ ] Activated Lead     — 7 steps, active
-[ ] Nurture            — 7 steps, active
-[ ] Cold Follow-Up     — 14 steps, active
-[ ] Pending Meeting    — 2 steps, active
-[ ] Reschedule         — 10 steps, active
-[ ] Referred To        — 10 steps, active
+[ ] Call Only          - 10 steps, active, prefixed with client name
+[ ] Activated Lead     - 7 steps, active
+[ ] Nurture            - 7 steps, active
+[ ] Cold Follow-Up     - 14 steps, active
+[ ] Pending Meeting    - 2 steps, active
+[ ] Reschedule         - 10 steps, active
+[ ] Referred To        - 10 steps, active
 
 WORKFLOWS
-[ ] Disposition: Meeting Scheduled  — active, sequence + list names show [client]
-[ ] Disposition: Activated Lead     — active, sequence name shows [client]
-[ ] Disposition: Connect Incomplete — active, sequence name shows [client]
-[ ] Disposition: Nurture            — active, sequence name shows [client]
+[ ] Disposition: Meeting Scheduled  - active, sequence + list names show [client]
+[ ] Disposition: Activated Lead     - active, sequence name shows [client]
+[ ] Disposition: Connect Incomplete - active, sequence name shows [client]
+[ ] Disposition: Nurture            - active, sequence name shows [client]
 ```
 
-## Step 5 — Visual campaign map
+## Step 5 - Visual campaign map
 
-After verification, output a Mermaid diagram showing how the 4 workflows route SDR dispositions into sequences. Cowork renders this natively — gives the user a single visual that maps the entire campaign logic.
+After verification, output a Mermaid diagram showing how the 4 workflows route SDR dispositions into sequences. Cowork renders this natively - gives the user a single visual that maps the entire campaign logic.
 
 ````
 ```mermaid
@@ -187,7 +192,7 @@ flowchart TD
 ```
 ````
 
-Substitute `{client}` with the actual client name. The dotted lines from "Other entry points" represent the 4 sequences that aren't workflow-triggered — SDRs add contacts to those manually.
+Substitute `{client}` with the actual client name. The dotted lines from "Other entry points" represent the 4 sequences that aren't workflow-triggered - SDRs add contacts to those manually.
 
 When all boxes are checked and the visual map is rendered, the client is fully set up in Apollo and ready to run.
 
@@ -195,7 +200,7 @@ When all boxes are checked and the visual map is rendered, the client is fully s
 
 ## Voice Rules
 
-Apply to all Claude-authored output — greetings, confirmations, step reports, error messages.
+Apply to all Claude-authored output - greetings, confirmations, step reports, error messages.
 
 - No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
 - No hedging: "I think", "it seems", "potentially", "it's worth noting"

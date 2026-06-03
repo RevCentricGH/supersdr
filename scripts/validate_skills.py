@@ -59,6 +59,13 @@ def main():
         for e in errors:
             print("  - " + e)
         sys.exit(1)
+
+    # apollo-campaign-builder doc-drift guard: every WORKFLOWS action type must
+    # be documented in the SKILL.md Step 3 list. Run in this same interpreter.
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    guard = os.path.join(repo_root, "tests", "test_campaign_builder_guard.py")
+    subprocess.run([sys.executable, guard], check=True)
+
     print("All skills valid.")
 
 
