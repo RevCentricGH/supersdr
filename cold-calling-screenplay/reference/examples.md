@@ -4,7 +4,7 @@ Study these before generating. Note the structure, tone, rhythm, and delivery an
 
 ---
 
-## Cybersecurity Attack Surface (Attaxion) — Full Version
+## Cybersecurity Attack Surface (Attaxion) - Full Version
 
 But quick thumbnail on us...so we're backed by our parent company(↓) that has helped close vulnerability gaps for over 100 thousand customers over the last 15 years(↑)..so think..um..like Google..Cisco..Raytheon…uh RSA(>)
 
@@ -18,7 +18,7 @@ But where we impact the *most* is by leveraging our parent company's 10+ years o
 
 ---
 
-## GRC Automation (ZenGRC) — Short Version
+## GRC Automation (ZenGRC) - Short Version
 
 But.. ZenGRC, we're… actually… the first ever GRC company to win ISACA's Global Innovation Award…
 
@@ -26,7 +26,7 @@ And so… really the reason I reached out to you is… we believe we've discover
 
 ---
 
-## SalesTech AI for Public Sector (Starbridge) — Full Version
+## SalesTech AI for Public Sector (Starbridge) - Full Version
 
 But.. (!)Starbridge.. we. are. a. Go-To-Market Intelligence platform(↑) built specifically for folks selling into the(drag) public sector(↓)…
 
@@ -40,7 +40,7 @@ And we do it in a way where YOU can double click and see line by line.. what you
 
 ---
 
-## 3PL / Logistics (Manifest) — Short Version
+## 3PL / Logistics (Manifest) - Short Version
 
 But quick thumbnail, Manifest, we've been providing smart logistics and fulfillment for brands like Whole Foods, Bala Bengals, and even Bill Murray's Apparel Company — like THE Bill Murray from Ghostbusters (chuckle)....
 
@@ -50,7 +50,7 @@ And so to cut to it, we are a Third Wave 3PL Partner that's baked a TON of tech 
 
 ---
 
-## AI Voice / Inbound Coverage (NetCarrier ConnectSmart) — Short Version
+## AI Voice / Inbound Coverage (NetCarrier ConnectSmart) - Short Version
 
 So quick thumbnail on NetCarrier….we help folks like… um… like RE/MAX, Habitat for Humanity……all the way down to your mom and pop shops… solve their .. uh.. inbound chaos… 24/7 coverage when your team isn't available.
 
