@@ -1,6 +1,6 @@
 # Output Schema
 
-The Google Sheet column contract. Every downstream channel tool reads this schema — don't change column names.
+The Google Sheet column contract. Every downstream channel tool reads this schema - don't change column names.
 
 | Column | Filled by | Notes |
 |---|---|---|
@@ -15,7 +15,7 @@ The Google Sheet column contract. Every downstream channel tool reads this schem
 | **Top Signals** | Claude inline | 3-5 strongest signals with recency, semicolon-separated |
 | **Hook** | Claude inline | 1-line opener using 7-bucket framework |
 | **Personalization Depth** | Claude inline | strong (Bucket 1-2) / lite (Bucket 3+) |
-| List Source Tier | SPOT doc | A / B / C (defaults to C — Apollo firmographic) |
+| List Source Tier | SPOT doc | A / B / C (defaults to C - Apollo firmographic) |
 | List Status | Derived | READY / EMAIL_ONLY / MOBILE_ONLY / etc. |
 
 ---
@@ -24,8 +24,8 @@ The Google Sheet column contract. Every downstream channel tool reads this schem
 
 | Score | Tier | SLA |
 |---|---|---|
-| 150+ | Red Hot | <1hr — escalate to AE |
-| 100-149 | Hot | <24hr — personalized sequence |
+| 150+ | Red Hot | <1hr - escalate to AE |
+| 100-149 | Hot | <24hr - personalized sequence |
 | 50-99 | Warm | Standard sequence |
 | 20-49 | Cool | Nurture |
 | <20 | Cold | Low-touch |
