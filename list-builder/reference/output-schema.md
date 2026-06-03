@@ -6,7 +6,8 @@ The Google Sheet column contract. Every downstream channel tool reads this schem
 |---|---|---|
 | First Name, Last Name, Title, Company, Company Domain | Apollo MCP | Identity |
 | Email, Email Status, **Email Ready** (bool) | Apollo + ZeroBounce if connected | Email Ready = ZeroBounce `valid` / `catch-all`, or Apollo `verified` as fallback |
-| Phone, Phone Type, **Phone Ready** (bool) | Apollo + Twilio if connected | Phone Ready = MOBILE or LANDLINE; Phone Type from Twilio Lookup |
+| Phone, Phone Type, **Phone Ready** (bool) | Apollo + Twilio if connected | Phone Ready = (MOBILE or LANDLINE) and DNC is false; Phone Type from Twilio Lookup |
+| **DNC** (bool) | Apollo MCP | Do-not-call / call-restricted flag from Apollo (contact-level or phone-level). true = never dial; forces Phone Ready = false and excludes the row from READY |
 | LinkedIn URL, **LinkedIn Ready** (bool) | Apollo MCP | LinkedIn Ready = URL present |
 | **Fit Score** (0-100) | Claude inline | Heuristic ICP score from Stage 2 |
 | Fit Tier (1-3) | Claude inline | Tier 1 = ≥75, Tier 2 = 50-74, Tier 3 = dropped |
@@ -16,7 +17,7 @@ The Google Sheet column contract. Every downstream channel tool reads this schem
 | **Hook** | Claude inline | 1-line opener using 7-bucket framework |
 | **Personalization Depth** | Claude inline | strong (Bucket 1-2) / lite (Bucket 3+) |
 | List Source Tier | SPOT doc | A / B / C (defaults to C - Apollo firmographic) |
-| List Status | Derived | READY / EMAIL_ONLY / MOBILE_ONLY / etc. |
+| List Status | Derived | READY / EMAIL_ONLY / MOBILE_ONLY / DNC / etc. READY requires Phone Ready = true, which a DNC contact can never have, so DNC / call-restricted contacts never read READY |
 
 ---
 
