@@ -91,6 +91,8 @@ Call Apollo MCP's people search tool with the extracted filters. Use the appropr
 
 Page until you hit the batch size.
 
+**Dedup at source.** Apply Apollo's `already_contacted` filter on the search itself, and exclude any prior-list label IDs the SPOT names, so contacts you've already reached or pulled before never enter the pipeline. Filter here, not later: every contact past this stage costs reveal credits and Layer 4 research, so a duplicate dropped at Stage 1 is the cheapest one to drop. If the operator names a prior list that Apollo can't filter on directly, pull that list's contact IDs first and drop matches before scoring.
+
 ### Stage 2 - Heuristic ICP scoring (inline)
 
 Score each contact 0-100. Baseline 50, then add/subtract:
@@ -172,9 +174,11 @@ Once locked, apply the locked criteria to the full Tier 1+2 list: re-run Stage 2
 
 For contacts with locked emails, call Apollo MCP's enrich/match tool to reveal email + phone. Apollo MCP returns its own email status (verified/unverified) - keep it as a first-pass signal, but the next stage does the real validation if the right MCPs are connected.
 
+Apollo also returns a do-not-call / call-restriction status on the contact and on each revealed phone number. Carry it onto the row as the **DNC** flag (true = do-not-call or call-restricted). The next stage gates on it: a flagged contact is never dial-ready, no matter how strong the fit.
+
 ### Stage 6 - Validate emails + phones (optional MCPs)
 
-This stage runs only if the relevant MCPs are connected. If neither is, mark everything as "Not validated - dial and see" and continue.
+This stage runs only if the relevant MCPs are connected. If neither is, mark everything as "Not validated - dial and see" and continue. The DNC gate below is the exception: it runs from Apollo's own flags, needs no extra MCP, and applies on every run.
 
 **Email validation (ZeroBounce MCP):**
 - For every contact with an email, call ZeroBounce's `validate_email` (single) or `validate_email_batch` (bulk) tool
@@ -184,7 +188,8 @@ This stage runs only if the relevant MCPs are connected. If neither is, mark eve
 **Phone line-type (Twilio MCP):**
 - For every contact with a phone, call Twilio Lookup's phone number lookup tool with `line_type_intelligence` enabled
 - Map: `mobile` → MOBILE; `landline` → LANDLINE; `voip` / `nonFixedVoip` → VOIP; 404 → INVALID
-- Phone Ready = MOBILE or LANDLINE (VoIP usually has low connect rate - flag but don't drop)
+- **DNC gate (runs with or without Twilio):** if the DNC flag from Stage 5 is true, set Phone Ready = false and keep the contact out of READY / Ready to Dial. Do-not-call and call-restricted contacts are excluded no matter the line type or fit score
+- Phone Ready = (MOBILE or LANDLINE) and DNC is false (VoIP usually has low connect rate - flag but don't drop)
 
 If a user has Clay MCP connected and Apollo's enrichment hit rate was low (<40%), offer to run a Clay enrichment pass on the unrevealed contacts before validating.
 
@@ -271,6 +276,7 @@ Channel readiness:
   Email valid:    [X] ([pct]%)
   Phones found:   [X] ([pct]%)
   LinkedIn URLs:  [X] ([pct]%)
+  DNC excluded:   [X] (do-not-call / call-restricted, kept out of Ready to Dial)
 
 Layer 4 enrichment (Tier 1, [N] contacts):
   Red Hot:   [X] (<1hr SLA - escalate to AE)
@@ -297,7 +303,8 @@ Fill the diagram's `{placeholder}` values from the actual stage counts. If a sta
 
 ## Gotchas
 
-- **Persistent dedup across runs**: no local cache. Use Apollo's contact tagging or `already_contacted` filters to suppress prior outreach. Tag contacts from previous lists so they're excluded on the next pull.
+- **Persistent dedup across runs**: no local cache, so the dedup happens at source (Stage 1) via Apollo's `already_contacted` filter and prior-list exclusion. Tag contacts from each list you build so the next pull's `already_contacted` filter catches them.
+- **DNC is non-negotiable**: the DNC gate runs from Apollo's own flags with no extra MCP. Never override it to hit a contact count - a do-not-call or call-restricted contact stays out of Ready to Dial even when every other signal is strong.
 - **Apollo MCP hit rate low (<40%)**: offer a Clay enrichment pass on unrevealed contacts before proceeding to validation.
 - **Layer 4 wall time**: always spawn parallel sub-agents for Tier 1 enrichment - sequential web search across 30+ companies is too slow and burns context.
 
