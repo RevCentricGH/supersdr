@@ -110,7 +110,7 @@ Funding & Backers
 
 ### TAB 4 — Problem / Solution Overview
 
-This tab is critical for the screenplay generator. Write pain in **symptomese** — high-sensory, visceral language ("resource black hole," "death cycle," "firefighting"). NOT generic Google-able pain ("cyber threats are rising," "AI is changing everything"). Insider observations only.
+This tab is critical for the screenplay generator. Write pain in **symptomese** - high-sensory, visceral language ("resource black hole," "death cycle," "firefighting"). NOT generic Google-able pain ("cyber threats are rising," "AI is changing everything"). Insider observations only.
 
 ```
 PROBLEM / SOLUTION OVERVIEW
@@ -139,21 +139,21 @@ PROBLEM / SOLUTION OVERVIEW
 
 CORE USE CASES
 
-7.1 Core Use Cases
+4.7 Core Use Cases
 1. [Use case — specific, measurable]
 2. [Use case]
 3. [Use case]
 
-7.2 Implementation / Support Model
+4.8 Implementation / Support Model
 [How fast can a customer go live? What does onboarding look like? Self-serve, white-glove, or hybrid?]
 
-7.3 Time-to-Value
+4.9 Time-to-Value
 [How fast do they see ROI? Specific timeframe and metric. "30 days to first qualified meeting" beats "fast time to value"]
 
-7.4 Measurable Impact (for screenplay UVP)
+4.10 Measurable Impact (for screenplay UVP)
 [Specific numbers customers see. "Finding 80, 90, sometimes 97% more public-facing assets" beats "improves visibility"]
 
-7.5 Low-Friction Hook (for screenplay UVP)
+4.11 Low-Friction Hook (for screenplay UVP)
 [The "doesn't replace, bolts on" line. "No new logins. No change management." This disarms switching cost objections]
 ```
 
@@ -166,53 +166,53 @@ This tab feeds the Apollo Campaign Builder skill directly. Apollo keyword passes
 ```
 ICP & BUYER PERSONA OVERVIEW
 
-3.1 Geography
+5.1 Geography
 - Include: [Countries, regions]
 - Exclude: [Sanctioned countries, geos client doesn't sell to]
 
-3.2 Industry / Segment
+5.2 Industry / Segment
 - Industries: [list — match Apollo industry tags where possible]
 - Vertical focus: [if narrower than industry]
 - Segment definition: [SMB / Mid-market / Enterprise — define by employee count]
 
-3.3 Firmographics (Hard Filters — for Apollo)
+5.3 Firmographics (Hard Filters — for Apollo)
 - Revenue range: [min] – [max]
 - Employee range: [min] – [max]  (e.g., 11–50, 51–200, 201–500)
 - Funding stage: [Seed, Series A, Series B, etc.]
 - Years in business: [min]
 
-3.4 Apollo Keyword Passes (for list building)
+5.4 Apollo Keyword Passes (for list building)
 [Comma-separated keyword tags Apollo can match against. Multiple passes = broader pool. Example: "AI voice agent", "conversational AI", "voice AI", "chat agent", "AI customer support"]
 
-3.5 Tech Stack Signals (positive — for ICP scoring)
+5.5 Tech Stack Signals (positive — for ICP scoring)
 - Confirmed users of: [Stack signal that indicates strong fit]
 - Probable users of: [Adjacent stack signals]
 - Hiring for / job posting signals: [Roles that signal product adoption]
 
-3.6 Tech Stack Signals (negative — disqualifiers)
+5.6 Tech Stack Signals (negative — disqualifiers)
 - Already using competitor: [list]
 - Wrong stack indicators: [Signals that indicate they won't buy]
 
-3.7 Target Titles (Primary — decision makers)
+5.7 Target Titles (Primary — decision makers)
 - [Title 1]
 - [Title 2]
 - [Title 3]
 
-3.8 Target Titles (Secondary — influencers)
+5.8 Target Titles (Secondary — influencers)
 - [Title]
 - [Title]
 
-3.9 Do-Not-Target (functions, titles, role keywords)
+5.9 Do-Not-Target (functions, titles, role keywords)
 - Functions: [HR, Legal, Finance, etc. if not buyer]
 - Title keywords to drop: [COO, CFO, recruiter, intern, sales engineer, etc.]
 - Seniority floor: [drop everyone below this level]
 
-3.10 Exclusion Lists (companies)
+5.10 Exclusion Lists (companies)
 - Competitor employees: [Competitor 1, Competitor 2]
 - Red-flag companies: [universities, VCs, government, non-profits]
 - Already-customer list: [if client has shared one]
 
-3.11 Persona Priority Order
+5.11 Persona Priority Order
 1. [Top persona — name, title, why they're priority]
 2. [Second persona]
 3. [Third persona]
@@ -236,17 +236,17 @@ PERSONA PROFILES
 ```
 COMPETITIVE LANDSCAPE
 
-9.1 General / Adjacent (not direct competitors)
+6.1 General / Adjacent (not direct competitors)
 [Tools that solve a related problem but not the same problem. SDR may hear these names — be ready]
 
-9.2 Direct Competitors
+6.2 Direct Competitors
 
 | Competitor | Their angle | Our edge |
 |------------|-------------|----------|
 | [Name] | [How they position] | [Why we win] |
 | [Name] | [How they position] | [Why we win] |
 
-9.3 Build-in-House Risk
+6.3 Build-in-House Risk
 [Companies that might build their own version internally instead of buying. How to disarm this]
 
 BATTLECARDS
@@ -326,7 +326,7 @@ Annotations: All inflection markers (↓)(↑)(>) and pause cues should remain i
 
 ### TAB 9 — Apollo Campaign Setup
 
-This tab is the campaign launch brief. Once the SPOT is complete, use this tab as input for two downstream skills: **list-building** (builds the Apollo contact list from the ICP filters) and **apollo-campaign-builder** (creates all 7 sequences and 3 workflow plays).
+This tab is the campaign launch brief. Once the SPOT is complete, use this tab as input for two downstream skills: **list-building** (builds the Apollo contact list from the ICP filters) and **apollo-campaign-builder** (creates all 7 sequences and 4 workflow plays).
 
 Pull all values from Tabs 3, 4, 5, 6, and 7. Don't fill in anything not supported by the rest of the SPOT.
 
