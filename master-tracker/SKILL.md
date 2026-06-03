@@ -156,3 +156,19 @@ Run the tests from the repo root:
 ```
 python3 -m pytest master-tracker
 ```
+
+## Troubleshooting
+
+| Symptom | Likely cause and fix |
+| --- | --- |
+| Run finishes but no new rows appear | The calls were filtered out or never matched a rep. Check three things: `keep_dispositions` / `keep_prefixes` actually match the disposition labels on the calls (they are case-insensitive but must otherwise match); `backfill_days` reaches back far enough to cover the calls; and each rep's `apollo_user_id` is correct (a wrong id silently returns zero calls). |
+| Auth fails or asks to re-authorize every run | The OAuth token expired or was revoked. Delete the `token_file` (`token.json` by default) and run again. The first run reopens the browser and writes a fresh token. |
+| Run reports rows written but the sheet looks unchanged | You are pointed at the wrong sheet, or the authorized account cannot see it. Confirm `google_sheet_id` is the id from the sheet URL (`.../spreadsheets/d/<THIS>/edit`), and confirm the sheet is shared with the Google account you authorized. |
+| Recording URL column is blank | The recording source is unset or cannot resolve a link for those calls. Confirm the `recording_source` block is present and `type` is one of `apollo`, `trellus`, or `manual-url`. The source is the sole authority for that column, so with no source configured (or `type` left `""`) the column stays blank by design. A configured source still leaves a given row blank if it cannot resolve that one call. |
+
+**The share-vs-auth same-account trap.** The Google account you complete OAuth with (the one the
+browser prompts you to pick on first run) and the account the sheet is shared with must be the
+**same account**. Authorizing as account A but sharing the sheet only with account B is the most
+common silent failure: the run looks like it succeeds but writes nothing you can see, or fails
+with a permission error. When in doubt, open the sheet while signed in as the account you
+authorized and confirm you have edit access.

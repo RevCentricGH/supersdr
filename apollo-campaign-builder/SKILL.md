@@ -198,6 +198,18 @@ When all boxes are checked and the visual map is rendered, the client is fully s
 
 ---
 
+## Troubleshooting
+
+One issue at a time. Walk the user through the fix, then retry the step.
+
+| Symptom | Likely cause and fix |
+| --- | --- |
+| A sequence will not save | A step is half-finished. Apollo blocks "Save changes" until every step has a type and timing set. Finish or delete the incomplete step, then click "Save changes" (top-right) again. |
+| "Add to Sequence" picker shows no match | The sequence does not exist yet, or the typed name is off. Build all 7 sequences in Step 2 first, then build the workflows. In the picker, search the exact prefixed name ("{client} - ..."); the picker matches the saved sequence name. |
+| Workflow stays in "Draft" after clicking Launch | A block is incomplete, so Apollo refuses to activate it. The usual culprits: the trigger has no Contact stage selected, or an action block (sequence, deal, list, or contact stage) has no value set. Open the workflow, fix the flagged block, then click "Launch workflow" again; the status flips from Draft to Active. |
+
+---
+
 ## Voice Rules
 
 Apply to all Claude-authored output - greetings, confirmations, step reports, error messages.

@@ -148,3 +148,13 @@ Run the tests from the repo root:
 ```
 python3 -m pytest custom-decks
 ```
+
+## Troubleshooting
+
+| Symptom | Likely cause and fix |
+| --- | --- |
+| `marp: command not found` or `npx: command not found` | Node is missing. Marp runs via `npx`, which ships with Node 18+. Install Node, then re-run. No global Marp install is needed; `npx` fetches it. |
+| OAuth fails with `redirect_uri_mismatch`, or no token file is written | The OAuth client is the wrong type. Create the client as an **OAuth client ID, Desktop app** in Google Cloud Console (not Web application), download the client secret JSON, and point `credentials_file` at it. Then delete any stale token file and re-run to re-authorize. |
+| Upload fails with an API-not-enabled error | The Google APIs are off for your project. In Google Cloud Console, enable **both** the Google Drive API and the Google Slides API on the same project the OAuth client belongs to, then re-run. |
+| Deck renders but links are not clickable / text is not selectable | LibreOffice (`soffice`) is missing, so the fallback image-PPTX path is used instead of the editable path. Install LibreOffice so the editable-PPTX path runs and the CTA stays a live hyperlink. |
+| Run stops with an empty-transcription error | Both Deepgram and Groq returned nothing for the audio. Confirm the `--audio-url` is reachable and points at real audio, or skip transcription entirely by passing `--transcript` with the text you already have. |
