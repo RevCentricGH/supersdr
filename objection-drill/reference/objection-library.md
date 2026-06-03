@@ -25,7 +25,7 @@ Use these as the default playbook. If the user provides a client's SPOT Tab 7, o
 
 ## "Not a priority right now"
 
-- **Family:** Priority — split bandwidth vs importance
+- **Family:** Priority - split bandwidth vs importance
 - **Probe:** "Totally fair — out of curiosity, is it more that the problem isn't pressing right now, or that you just don't have the bandwidth to look at it?"
 - **If bandwidth:** "That's actually exactly why folks bring us in — we do the heavy lifting so your team doesn't have to."
 - **If importance:** "Got it — what would have to be true for it to move up?"
@@ -34,7 +34,7 @@ Use these as the default playbook. If the user provides a client's SPOT Tab 7, o
 
 ## "Call me back in 3-6 months"
 
-- **Family:** Timing — but often a soft no in disguise
+- **Family:** Timing - but often a soft no in disguise
 - **Probe:** "Yeah I can do that — quick question, what's changing between now and then? Just want to make sure I time it right."
 - **If they have a real answer:** Confirm the timing, set a calendar reminder, ask for a referral now.
 - **If they don't:** "Sounds like maybe the timing isn't really the issue — what would make this a yes?"
@@ -60,7 +60,7 @@ Use these as the default playbook. If the user provides a client's SPOT Tab 7, o
 
 ## "How did you get my number?"
 
-- **Family:** Sales Resistance — they're testing
+- **Family:** Sales Resistance - they're testing
 - **Response:** "Honestly? I'd be a bad SDR if I didn't know how to find a [their title]. The real question is — now that you're on the line, is what we do worth 60 seconds?"
 
 ---

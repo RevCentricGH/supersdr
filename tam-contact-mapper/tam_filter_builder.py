@@ -17,7 +17,7 @@ Direct reference:
 """
 
 # ------------------------------------------------------------------
-# Filter schema — fields the SPOT extractor produces and how each
+# Filter schema - fields the SPOT extractor produces and how each
 # maps onto an Apollo People-search filter section.
 #
 # Section names below match Apollo's UI labels validated via live
@@ -26,11 +26,11 @@ Direct reference:
 
 FILTER_SCHEMA = {
     "target_titles":  {"apollo_section": "Job Titles",          "ui_type": "multi_token_autocomplete", "supports_exclude": True,  "exclude_via": "Show advanced inside Job Titles section"},
-    "seniority":      {"apollo_section": "Job Titles",          "ui_type": "checkbox_list",            "supports_exclude": False, "notes": "Management Levels is NESTED inside the Job Titles section — not a top-level filter"},
+    "seniority":      {"apollo_section": "Job Titles",          "ui_type": "checkbox_list",            "supports_exclude": False, "notes": "Management Levels is NESTED inside the Job Titles section - not a top-level filter"},
     "employee_range": {"apollo_section": "# Employees",         "ui_type": "preset_ranges_plus_custom","supports_exclude": False, "notes": "Presets + custom range + 'Unknown' option"},
     "locations":      {"apollo_section": "Location",            "ui_type": "multi_token_autocomplete", "supports_exclude": True,  "tab_toggle": "Contact / Account HQ", "exclude_via": "'Exclude locations' link inside Location section"},
-    "industries":     {"apollo_section": "Industry & Keywords", "ui_type": "multi_token_autocomplete", "supports_exclude": True,  "notes": "Combined section — Industry sub-field"},
-    "keywords":       {"apollo_section": "Industry & Keywords", "ui_type": "free_text",                "supports_exclude": False, "notes": "Combined section — Keywords sub-field"},
+    "industries":     {"apollo_section": "Industry & Keywords", "ui_type": "multi_token_autocomplete", "supports_exclude": True,  "notes": "Combined section - Industry sub-field"},
+    "keywords":       {"apollo_section": "Industry & Keywords", "ui_type": "free_text",                "supports_exclude": False, "notes": "Combined section - Keywords sub-field"},
     "tech_signals":   {"apollo_section": "Technologies",        "ui_type": "multi_token_autocomplete", "supports_exclude": False, "match_mode": "Set under 'Show advanced' inside Technologies section"},
     "funding_stages": {"apollo_section": "Funding",             "ui_type": "checkbox_list",            "supports_exclude": False, "notes": "Visible by default in sidebar (NOT behind More Filters)"},
     "exclusions":     {"apollo_section": "Company",             "ui_type": "domain_or_company_list",   "supports_exclude": True,  "exclude_via": "Inline 'Exclude' option inside Company section (per-section, not global)"},
@@ -45,7 +45,7 @@ REQUIRED_ANY_OF = ["keywords", "industries"]
 # ------------------------------------------------------------------
 
 EXECUTION_GUIDE = """
-APOLLO PEOPLE SEARCH — BROWSER EXECUTION STEPS
+APOLLO PEOPLE SEARCH - BROWSER EXECUTION STEPS
 ==================================================
 
 Live-confirmed sidebar sections (in default top-to-bottom order):
@@ -66,19 +66,19 @@ Live-confirmed sidebar sections (in default top-to-bottom order):
   Accounts, Stage, Custom Fields).
 
 Top of filter panel header controls (live-confirmed):
-  - "Hide Filters" — collapses the sidebar
-  - "Apply Filters" — applies pending filter changes
-  - "Clear all" — resets all filters
+  - "Hide Filters" - collapses the sidebar
+  - "Apply Filters" - applies pending filter changes
+  - "Clear all" - resets all filters
   - Result count (e.g. "243,106,472 records found")
 
 Above the results table (live-confirmed):
-  - "Save as new search" button — THIS is the save entry point, not
+  - "Save as new search" button - THIS is the save entry point, not
     a button inside the filter sidebar
-  - "Research with AI" / "Create workflow" — adjacent buttons; do not confuse
+  - "Research with AI" / "Create workflow" - adjacent buttons; do not confuse
   - The current view name (e.g. "Default view") with a "Search settings" link
 
 HOW TO VERIFY A FILTER TOOK (run after EVERY step B–I):
-  1. Click "Apply Filters" at the top of the sidebar — do this after every
+  1. Click "Apply Filters" at the top of the sidebar - do this after every
      filter, not just at the end. Apollo does not always auto-apply.
   2. Wait for the result count to update.
   3. Confirm the result count changed from the previous step's count.
@@ -86,37 +86,37 @@ HOW TO VERIFY A FILTER TOOK (run after EVERY step B–I):
   4. Confirm the active-filter pill for that section appears above the
      results table.
   If verification fails: retry the filter once. If it fails again,
-  screenshot and report before continuing — do not silently skip.
+  screenshot and report before continuing - do not silently skip.
 
 Before starting:
   1. Confirm Chrome is open and logged in at app.apollo.io
   2. Confirm extracted filters from SPOT Tab 9 (fall back to Tab 5)
   3. Confirm the search name with the user
-  4. Confirm Apollo plan supports the filters in use — some advanced filters
+  4. Confirm Apollo plan supports the filters in use - some advanced filters
      (Buying Intent, AI Filters, certain Technologies tiers) gate on plan
 
-STEP A — Navigate to the People search
+STEP A - Navigate to the People search
   - Go to: https://app.apollo.io/#/people
   - Wait for the left Filters sidebar AND the results table to load
   - Verify the header shows "Find people" + a result count + "Apply Filters"
   - Note the starting result count before any filters are applied
 
-STEP B — Job Titles (target_titles)
+STEP B - Job Titles (target_titles)
   - In the left sidebar, expand the "Job Titles" section
   - For each title in target_titles:
       - Type the title into the input
       - Wait for the autocomplete dropdown
-      - Click the matching suggestion (do not press Enter — Enter can
+      - Click the matching suggestion (do not press Enter - Enter can
         commit raw text instead of the canonical Apollo value, except
         for intentional Boolean operator strings like "VP OR Director")
       - If autocomplete returns no match: the value is not in Apollo's
-        controlled vocabulary — try a common variant (e.g. "VP of Sales"
+        controlled vocabulary - try a common variant (e.g. "VP of Sales"
         vs "Vice President of Sales"), then report to user if still no match
   - Verify: input chips show each selected title
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP C — Management Levels (seniority) [if provided]
-  - Management Levels is NESTED INSIDE the Job Titles section — it is
+STEP C - Management Levels (seniority) [if provided]
+  - Management Levels is NESTED INSIDE the Job Titles section - it is
     NOT a top-level sidebar filter. Look for the Management Levels
     checkbox list below the title input within the same Job Titles panel.
   - Check each level present in seniority (C-Suite, VP, Director, Head,
@@ -124,22 +124,22 @@ STEP C — Management Levels (seniority) [if provided]
   - If the panel is collapsed, click into Job Titles first to expand
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP D — # Employees (employee_range)
+STEP D - # Employees (employee_range)
   - Find the "# Employees" section in left sidebar
   - Three modes are available (live-confirmed):
-      (a) Preset checkboxes — ranges including 1-10, 11-20, 21-50,
+      (a) Preset checkboxes - ranges including 1-10, 11-20, 21-50,
           51-100, 101-200, 201-500, 501-1000, 1001-5000, 5001-10000, 10001+
-      (b) Custom range — enter min and max
-      (c) "Unknown" — companies whose headcount Apollo does not have
+      (b) Custom range - enter min and max
+      (c) "Unknown" - companies whose headcount Apollo does not have
   - For preset matches, check matching range(s). For custom needs, enter
     custom min/max.
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP E — Location (locations)
+STEP E - Location (locations)
   - Find the "Location" section in left sidebar
   - Two tabs (live-confirmed verbatim):
-      - "Contact" — person's own location (default tab)
-      - "Account HQ" — company's headquarters location
+      - "Contact" - person's own location (default tab)
+      - "Account HQ" - company's headquarters location
   - For a TAM that targets company-HQ geography (most B2B outbound),
     SWITCH TO "Account HQ" tab before entering values
   - For each location: type → click matching autocomplete suggestion
@@ -147,7 +147,7 @@ STEP E — Location (locations)
     confirmed live)
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP F — Industry & Keywords (industries, keywords)
+STEP F - Industry & Keywords (industries, keywords)
   - "Industry & Keywords" is ONE COMBINED section
   - Industry sub-field: type → click matching autocomplete suggestion
     (Apollo uses controlled vocabulary; try variants before reporting
@@ -156,7 +156,7 @@ STEP F — Industry & Keywords (industries, keywords)
     use quotes for phrase matches
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP G — Technologies (if tech_signals provided)
+STEP G - Technologies (if tech_signals provided)
   - Find the "Technologies" section in left sidebar (visible by default)
   - Default placeholder is "Include technologies..."
   - For each technology: type → click matching autocomplete suggestion
@@ -165,15 +165,15 @@ STEP G — Technologies (if tech_signals provided)
     the mode selector
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP H — Funding (if funding_stages provided)
+STEP H - Funding (if funding_stages provided)
   - "Funding" is VISIBLE BY DEFAULT in the sidebar (not behind
-    More Filters — earlier guidance was wrong; confirmed live)
+    More Filters - earlier guidance was wrong; confirmed live)
   - Check each matching stage (Seed, Series A, Series B, …)
   - Note: Funding filter may still gate on plan tier (locked sections
-    will show an upgrade prompt instead of inputs — skip and report)
+    will show an upgrade prompt instead of inputs - skip and report)
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP I — Exclusions (if provided)
+STEP I - Exclusions (if provided)
   - Apollo uses INLINE, PER-SECTION exclusion (NOT a global "Is not any
     of" tab). Each filter section that supports exclusion exposes its
     own exclude path. Live-confirmed examples:
@@ -187,7 +187,7 @@ STEP I — Exclusions (if provided)
   - Competitor company-name exclusions: same path
   - Apply and verify (see HOW TO VERIFY above)
 
-STEP J — Review final result count
+STEP J - Review final result count
   - All filters should already be applied and verified from steps B–I
   - Click "Apply Filters" one final time to ensure all changes are committed
   - Confirm the result count is stable (not loading)
@@ -195,19 +195,19 @@ STEP J — Review final result count
     # Employees → Location → Industry → Keywords
   - If results look reasonable, proceed to save
 
-STEP K — Save the search
+STEP K - Save the search
   NOTE: This step has not been run end-to-end inside Claude Cowork.
   Follow carefully and use fallbacks if the UI differs from what's described.
 
-  - Scroll to the top of the page — "Save as new search" sits ABOVE the
+  - Scroll to the top of the page - "Save as new search" sits ABOVE the
     results table, near the view-name dropdown and "Search settings" link.
     It is NOT inside the filter sidebar.
   - If "Save as new search" is not visible:
-      - Check the URL — if it contains /lists/ you are in a list view,
+      - Check the URL - if it contains /lists/ you are in a list view,
         not the People search. Navigate back to app.apollo.io/#/people
         and re-apply filters.
       - If the URL is correct but the button is missing, the user's plan
-        may not support saved searches — report this and stop.
+        may not support saved searches - report this and stop.
   - Click "Save as new search"
   - A save dialog should appear. The exact fields may vary by plan tier.
     At minimum you will see a Name input:
@@ -222,7 +222,7 @@ STEP K — Save the search
          the new search name (not "Default view")
       2. Navigate to the Saved Searches tab in the top-left nav and confirm
          the search name appears there (the tab shows "No saved searches yet"
-         when empty — confirmed live; if it still shows that, the save failed)
+         when empty - confirmed live; if it still shows that, the save failed)
   - If either check fails: do not report success. Screenshot, report the
     failure, and tell the user they can save manually via the same button.
 
@@ -233,12 +233,12 @@ KNOWN UI DETAILS (live-confirmed 2026-05-22):
   - "Apply Filters" sits at top of the filter sidebar
   - "Clear all" sits adjacent to Apply Filters
   - "Save as new search" is ABOVE the results table, NOT in the filter sidebar
-  - "Pinned Filters" exists as a concept — users can pin filters they
+  - "Pinned Filters" exists as a concept - users can pin filters they
     use often; do not rely on a section being at a stable position if the
     user has customized
   - Location filter uses "Contact" / "Account HQ" tabs verbatim
   - Management Levels is nested INSIDE Job Titles, not a top-level filter
-  - Funding is visible by default — not behind More Filters
+  - Funding is visible by default - not behind More Filters
   - Exclusion is INLINE per section (e.g., "Exclude locations"), NOT a
     global toggle; each section that supports exclusion exposes its own
     path, often under "Show advanced"
@@ -249,7 +249,7 @@ FALLBACKS:
   - Autocomplete returns no match → try common variants first; if still
     no match, report the value to the user and ask for a substitute
   - Result count not updating after a filter → click "Apply Filters";
-    if still unchanged after two attempts, the filter did not take — report
+    if still unchanged after two attempts, the filter did not take - report
   - "Save as new search" button missing → user may be in a list view
     (check URL) or on a plan without saved views
   - Save dialog looks different from description → screenshot, adapt,
