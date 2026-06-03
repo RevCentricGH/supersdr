@@ -1,14 +1,12 @@
 # SuperSDR Skills
 
-A free, open toolkit of AI skills for running a cold-calling agency. Each skill teaches Claude to do one piece of the job: research a client, write a call script, build a dial-ready list, set up campaigns, follow up after a call, and track results.
+The ultimate toolkit of AI skills for running your AI-native cold-calling agency. Specifically curated for the SuperSDR community and supported by RevCentric.
 
-You do not need to code. Most skills run inside the Claude desktop app: you download a skill, upload it, and run it in a chat. A couple of the more advanced skills run in a terminal, and those are clearly marked and kept separate so they never get in your way.
-
-This toolkit is calling-only. It does not do cold email.
+Each skill teaches Claude to do one piece of the job such as: research a client, write a call script, build a dial-ready list, set up campaigns, follow up after a call, and track results.
 
 ## What this is
 
-If you are a SuperSDR student, this repo is your toolkit. It covers the two jobs that make up the business:
+This toolkit covers the two jobs that make up the business:
 
 1. **Win a client.** Land an agency customer: prep for the call, follow up after discovery, and send the proposal.
 2. **Run outbound.** Do the calling work for that client: set up Apollo, build the client brief, write the pitch, build the list, launch campaigns, and track performance.
@@ -20,9 +18,9 @@ Each skill is self-contained. You can run one on its own, or run several in sequ
 Four things to know:
 
 - **A skill is a packaged job.** It is a folder of instructions (and sometimes helper files) that teaches Claude exactly how to do one task the SuperSDR way. You do not configure anything in code.
-- **You run skills inside Claude.** Most run in the Claude Cowork desktop app: download the skill's ZIP, upload the folder into a chat, and follow the prompts. Two skills run in a terminal instead (see the autonomy ladder below).
+- **You run skills inside Claude.** Most run in the Claude Cowork desktop app: download the skill's ZIP, upload the folder into a chat, and follow the prompts. 
 - **Two motions.** The skills split into **Win a client** and **Run outbound**. Pick the motion you are in and work down the list.
-- **One doc ties outbound together: the SPOT.** A SPOT is a client's Single Point of Truth, a multi-tab Google Doc with their positioning, ICP, and pain. You build it once per client with `client-spot`, and every other outbound skill reads from it.
+- **One doc ties outbound together: the client SPOT.** A client SPOT is a client's Single Point of Truth, a multi-tab Google Doc with their positioning, ICP, and pain. You build it once per client with `client-spot`, and every other outbound skill reads from it.
 
 Here is how the outbound skills connect once the SPOT exists:
 
@@ -43,11 +41,11 @@ Run `apollo-account-setup` once per Apollo account. Then run `client-spot` first
 
 Every skill sits on one of three rungs. The rung tells you what setup it needs before you start. As your comfort with AI tools grows, you climb the ladder.
 
-- **Tier 1 · Cowork.** You upload the skill into the Claude desktop app and run it in a chat. No terminal, no code, nothing to install beyond the app and a few connectors. This is where everyone starts, and most of the toolkit lives here.
-- **Tier 2 · Claude Code.** The skill runs in a terminal as real software, with Python and local credentials. This rung is for jobs that need a runtime: pulling call data on a schedule, or rendering files like slide decks. You install it once and run a command. Two skills live here: `master-tracker` and `custom-decks`.
-- **Tier 3 · n8n + Claude Code.** Fully automated pipelines where n8n triggers and orchestrates the work and Claude Code carries it out, with no human in the loop. This is the top rung and the direction the toolkit is heading. No skills live here yet.
+- **Tier 1 · Cowork.** You upload the skill into the Claude desktop app and run it in a Cowork chat or session. No terminal, no code, nothing to install beyond the app and a few connectors that are already available in Cowork. This is where everyone starts, and most of the toolkit lives here.
+- **Tier 2 · Claude Code.** The skill runs in a terminal as real software, with Python, local credentials, API connections. This rung is for jobs that need a runtime: pulling call data on a schedule, or rendering files like slide decks. You install it once and run a command. Two skills live here: `master-tracker` and `custom-decks`.
+- **Tier 3 · n8n + Claude Code.** Fully automated pipelines where n8n triggers and orchestrates the work and Claude Code carries it out, with no human in the loop. This is the top rung and the direction the toolkit is heading. Nothing here yet, we are currently shipping it for RevCentric stay tuned :)
 
-**Level up your stack.** Start at Tier 1 and get a feel for running skills in the desktop app. When you want unattended reporting or branded decks, install the two Tier 2 skills. Tier 3 (n8n + Claude Code) is the horizon: the same skills, wired to run on their own. If you want a middle step toward automation, you can also push events into a live Cowork session from your phone or a webhook; see [CHANNELS.md](CHANNELS.md).
+**Level up your stack.** Start at Tier 1 and get a feel for running skills in the Claude desktop app. When you want unattended reporting or branded decks, install the two Tier 2 skills. Tier 3 (n8n + Claude Code) is the horizon: the same skills, wired to run on their own. If you want a middle step toward automation, you can also push events into a live Cowork session from your phone or a webhook; see [CHANNELS.md](CHANNELS.md).
 
 The tier is shown as a badge on every skill in the tables below.
 
@@ -127,7 +125,7 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 
 ## Getting started
 
-Start with the Cowork path. It is the simplest and covers every Tier 1 skill, which is most of the toolkit. The Claude Code path is for the two Tier 2 skills and is kept separate below; skip it until you need it.
+Start with the Cowork path. It is the simplest and covers every Tier 1 skill, which is most of the toolkit. The Claude Code path is for the two Tier 2 skills and is kept separate below; skip it until you naturally find gaps with Cowork and you genuinely feel the need to advance. You'll know when it happens, don't overengineer for a solution or pain you don't even feel yet.
 
 ### Cowork path (start here)
 
@@ -248,8 +246,8 @@ Plain-language definitions of the jargon you will hit.
 
 What you pay for, plain:
 
-- **A paid Claude plan (required).** Cowork runs in the Claude desktop app, which needs a paid Claude subscription. The two Tier 2 skills also use your Claude access from the terminal. This is the one cost everyone has.
-- **An Apollo plan (required for outbound).** Apollo provides the dialer, contact data, and the MCP connector. A paid Apollo plan is what the outbound skills run on.
+- **A paid Claude plan (required).** Cowork runs in the Claude desktop app, which needs a paid Claude subscription. The two Tier 2 skills also use your Claude access from the terminal. This is the one cost everyone has. Start with the pro plan, if you start maxing out your usage quickly upgrade to Max.
+- **An Apollo plan (required for outbound).** Apollo provides the database, contact data, and the MCP connector. A paid Apollo plan is what the outbound skills run on.
 - **Optional add-ons (only if you connect them).** The Tier 2 `custom-decks` skill uses Deepgram and Groq for transcription, both with free tiers and pay-as-you-go pricing. The `list-builder` optional MCPs (ZeroBounce, Twilio, Clay, Perplexity, and the rest) are each separate accounts you only pay for if you turn them on. Everything optional degrades gracefully when it is off, so you can start with none of them.
 
 You do not pay this project anything. The skills are free and open. Your only costs are the third-party accounts above.
