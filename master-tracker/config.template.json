@@ -18,7 +18,8 @@
     "summary_tab": "Overall Statistics",
     "icp_column": "ICP",
     "meeting_dispositions": ["Meeting Booked"],
-    "leaderboard_metric": "calls",
+    "qualified_dispositions": ["Interested", "Meeting Booked", "Not Interested"],
+    "leaderboard_metric": "rate",
     "labels": {
       "icp_header": "ICP Breakdown",
       "icp_category_col": "ICP",
@@ -26,9 +27,17 @@
       "trends_header": "Meeting Trends",
       "trends_week_col": "Week",
       "trends_count_col": "Meetings",
+      "rates_header": "Conversion Rates",
+      "rates_rep_col": "Rep",
+      "rates_conversations_col": "Conversations",
+      "rates_qualified_col": "Qualified Conversations",
+      "rates_meetings_col": "Meetings",
+      "rates_meeting_rate_col": "Meeting Rate",
+      "rates_conversion_rate_col": "Conversion Rate",
+      "rates_overall_row": "Overall",
       "leaderboard_header": "Rep Leaderboard",
       "leaderboard_rep_col": "Rep",
-      "leaderboard_metric_col": "Activity"
+      "leaderboard_metric_col": "Conv. Rate"
     }
   },
 
