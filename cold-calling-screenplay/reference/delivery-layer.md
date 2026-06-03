@@ -7,7 +7,7 @@ The delivery layer is NOT optional. You are writing a performance script, not an
 ## Tone
 
 - **"Low and Slow."** Low, slow, slightly-above-monotone. Non-supplicative, confident without pushy.
-- **Status through calm control** — not excitement. No overt enthusiasm. No customer-service energy.
+- **Status through calm control** - not excitement. No overt enthusiasm. No customer-service energy.
 - Slow down and use deeper tones for the Change in the World.
 
 ---
@@ -16,8 +16,8 @@ The delivery layer is NOT optional. You are writing a performance script, not an
 
 | Annotation | Meaning |
 |---|---|
-| `(↓)` | Downward inflection — Unicode ↓, NEVER use (/) |
-| `(↑)` | Upward inflection — Unicode ↑, NEVER use (\) |
+| `(↓)` | Downward inflection - Unicode ↓, NEVER use (/) |
+| `(↑)` | Upward inflection - Unicode ↑, NEVER use (\) |
 | `(>)` | Neutral / middle inflection |
 | `(slow↓)` | Slow downward inflection |
 | `(uprising)` | Gradually inflecting upward |
@@ -26,11 +26,11 @@ The delivery layer is NOT optional. You are writing a performance script, not an
 | `..` | Short pause (two dots) |
 | *italics* | Heavy emphasis |
 | `(nonchalant)` | Not too exciting |
-| `(big question!)` | Emphasis, thought-provoking — Full Version only |
-| `(big mystery!)` | Emphasis, thought-provoking — Full Version only |
-| `(big idea!)` | Emphasis — Short Version only, NEVER in Full Version |
+| `(big question!)` | Emphasis, thought-provoking - Full Version only |
+| `(big mystery!)` | Emphasis, thought-provoking - Full Version only |
+| `(big idea!)` | Emphasis - Short Version only, NEVER in Full Version |
 | `(drag)` | Drag out the word, longer pronunciation |
-| `(soft chuckle)` | Soft exhale with half smile — not a full laugh |
+| `(soft chuckle)` | Soft exhale with half smile - not a full laugh |
 | `(pause)` | Deliberate pause |
 | `(slow down)` | Reduce speaking pace |
 | `(smile)` | Deliver with a slight smile in your voice |
@@ -52,11 +52,11 @@ Intentional disfluencies make the performance feel human and non-scripted.
 
 ## Placeholders
 
-- `[NAME]` — prospect name
-- `[XYZ]` — prospect feedback
-- `[DAY]` — day of the week
-- `[TITLE]` — prospect's job title
-- `[INDUSTRY]` — prospect's industry
+- `[NAME]` - prospect name
+- `[XYZ]` - prospect feedback
+- `[DAY]` - day of the week
+- `[TITLE]` - prospect's job title
+- `[INDUSTRY]` - prospect's industry
 
 ---
 
@@ -66,5 +66,5 @@ Single block of clean, human-readable text written exactly as it would be spoken
 
 - NO labels, tags, section headers, or metadata in the output
 - NO explanations or structural summaries
-- Reads like a performance script — word-for-word cold call screenplay
+- Reads like a performance script - word-for-word cold call screenplay
 - Include all verbal disfluencies, pauses, performance cues, and punctuation
