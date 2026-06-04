@@ -89,6 +89,12 @@ Do not proceed until confirmed.
 
 ---
 
+## Browser automation fallback (applies to Steps 3-5)
+
+If browser automation is unavailable, or a step fails against the Apollo UI (button missing or disabled, dialog not opening, page layout changed), stop the automation and output that step's full data - the dispositions, stages, or triggers list - as a labeled manual checklist in chat so the user can enter the entries by hand. Do not improvise around a changed UI.
+
+---
+
 ## Step 3 — Dispositions Setup (Browser Automation)
 
 Issue this warning before doing anything else:

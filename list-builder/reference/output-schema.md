@@ -1,6 +1,6 @@
 # Output Schema
 
-The Google Sheet column contract. Every downstream channel tool reads this schema - don't change column names.
+The Google Sheet column contract. Every downstream channel tool reads this schema - don't change column names. Bold in this table is emphasis for this doc only - sheet header cells are plain text (`Email Ready`, not `**Email Ready**`).
 
 | Column | Filled by | Notes |
 |---|---|---|
