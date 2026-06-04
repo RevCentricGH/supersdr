@@ -140,6 +140,7 @@ def publish_if_passing(deps, artifact, view_url):
 SCOPES = [
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/presentations.readonly",
+    "https://www.googleapis.com/auth/spreadsheets",
 ]
 
 
@@ -204,6 +205,8 @@ def _build_google_services(oauth_cfg):
     creds = None
     if os.path.exists(token_file):
         creds = Credentials.from_authorized_user_file(token_file, SCOPES)
+        if creds.scopes and not set(SCOPES).issubset(set(creds.scopes)):
+            creds = None  # token predates a scope addition; force re-consent
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())

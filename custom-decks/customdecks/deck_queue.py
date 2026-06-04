@@ -198,7 +198,7 @@ class GoogleSheet:
 def run_queue(config, config_path):
     """Build the real collaborators and run the queue under a file lock. Terminal only."""
     from customdecks.branding import load_branding
-    from customdecks.build_deck import _build_deps, build_deck
+    from customdecks.build_deck import SCOPES, _build_deps, build_deck
 
     queue_cfg = config["queue"]
     deps = _build_deps(config)
@@ -210,7 +210,7 @@ def run_queue(config, config_path):
     oauth = config.get("google_oauth", {})
     creds = Credentials.from_authorized_user_file(
         oauth.get("token_file", "token.json"),
-        ["https://www.googleapis.com/auth/spreadsheets"],
+        SCOPES,
     )
     sheets = gbuild("sheets", "v4", credentials=creds).spreadsheets()
     sheet = GoogleSheet(sheets, queue_cfg["google_sheet_id"])
