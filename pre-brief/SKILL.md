@@ -72,6 +72,8 @@ Create the brief with the Google Drive connector. The connector must have write 
 
 4. **Capture the Doc URL** once creation is confirmed.
 
+The templates above are content specs, not literal text. Apply bold through the connector's formatting, never literal `**` characters - the anchor labels read as bold "Point 3", not `**Point 3**` with asterisks in the Doc. If the connector cannot apply bold, write the label as plain text.
+
 Output is the structured Doc only. Do not build a styled-HTML one-pager or any other artifact.
 
 If the connector is not connected or lacks write permission, output the full brief as formatted text instead and tell the user:

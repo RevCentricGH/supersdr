@@ -28,7 +28,7 @@ The skill reads these files from the folder you uploaded:
 
 > "Quick one before I draft this. I have placeholder examples in the positioning guide (X% set rate, Y% show rate, etc.). What are your actual numbers? Give me 2–3 specific data points and any named client logos I can reference. I'll use these in the credibility paragraph."
 
-Cache the user's answers in the session and apply them. If the user says "use the defaults" or skips, fall back to generic language ("strong conversion rates", "high show rates") — never use the placeholder numbers as if they were real.
+Cache the user's answers in the session and apply them. If the user says "use the defaults" or skips, fall back to generic language ("strong conversion rates", "high show rates") in the credibility and proof-point copy — never present the placeholder numbers as past results. This gate covers claimed results only: the Conversation Math benchmarks in Step 4 (10–15% set rate, ~75% show rate) are illustrative projection inputs, not claimed results, and are always allowed.
 
 ## Getting started
 
@@ -86,7 +86,7 @@ If the prospect has no meaningful web presence at all, skip this step and lean o
 
 ### Step 3 — Ask clarifying questions
 
-Use the AskUserQuestion tool. Ask only the questions you don't already have clear answers to from the call and prior conversation. The default question set:
+Use the AskUserQuestion tool. If it isn't available in this runtime, ask the same questions inline as a numbered list. Ask only the questions you don't already have clear answers to from the call and prior conversation. The default question set:
 
 1. **Agency name** — What is your agency's name and legal entity name? (Used in the title block and T&Cs. Example: "YourAgency" / "YourAgency LLC")
 2. **Pricing structure** — Which tier(s) to present? Single tier or two side-by-side? Ask the user to confirm the conversation volumes and monthly investment for each tier they want to include.
@@ -141,7 +141,7 @@ Build the proposal content as markdown first, in this order:
    - *What [Prospect] Sells* (4–6 sentences) — product, market position, differentiation. Go deeper than the Exec Summary: mechanics, pricing model, customer types, any economics they shared on the call.
    - *Why [Pipeline / Distribution] Is the Bottleneck (Not the Offer)* (3–5 sentences) — name the underlying motion problem. Tie it to a specific dynamic from the call, not a generic market observation. Include any specific bad experiences they referenced (e.g., "the Branch problem", "chop-shop pattern") — use their words.
    - *Ideal Customer Profile* — 3–5 bullets (format: `- {Concrete ICP filter}`), covering company profile, revenue signals, decision-maker titles, and behavioral triggers. Follow with 1 paragraph (3–5 sentences) on how the list will be built — name specific data sources and signals (e.g., Shopify $1M+ revenue list, Meta ad library signals, Apollo intent filters, LinkedIn targeting). Only reference a prior client campaign by name if it was explicitly mentioned in the call — never fabricate campaign names or numbers.
-   - *Conversation Math* — small table mapping conversations/month → projected meetings (use 10–15% set rate, ~75% show rate as working benchmarks). Follow with a benchmark paragraph citing relevant proof points the user mentioned on the call.
+   - *Conversation Math* — small table mapping conversations/month → projected meetings (use 10–15% set rate, ~75% show rate as working benchmarks — these are illustrative projection inputs, allowed even when the user skipped the proof point prompt). Follow with a benchmark paragraph citing relevant proof points the user mentioned on the call; if the user skipped proof points, use generic credibility language here instead.
 4. **Proposed Engagement** — one block per pricing tier or per channel. For each tier/channel, use a 2-column label-value table (Duration, Investment, Projected Meetings, Activated Leads, What's Included).
 5. **Optional Add-Ons (for next-call discussion)** — exclusivity/non-compete framing, per-conversation + rev-share possibility, additional participants, anything else flagged for follow-up.
 6. **How We Operate** — four phases, each a sub-section with 3–4 bullets:
@@ -199,11 +199,15 @@ See `references/positioning_and_style.md` for objection-handling copy, channel v
 
 ### Step 5 — Create the Google Doc
 
-Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. The connector must have write permission enabled.
+Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. Let the connector handle creation, formatting, and insertion — do not construct raw Docs/Drive API calls. The connector must have write permission enabled.
 
 1. **Create a new Google Doc** titled `[Agency Name] Proposal — {Prospect}` using the connector.
-2. **Write the proposal content** from Step 4 into the doc section by section — title block first, then each named section in order. Use the connector's write/append capability for each section.
+2. **Write the proposal content** from Step 4 into the doc section by section — title block first, then each named section in order.
 3. **Capture the doc URL** once creation is confirmed.
+
+**Formatting:** the Step 4 markdown is a content spec, not literal text. Translate it when writing into the doc: section headings become Doc heading styles, `**bold**` becomes bold text, markdown tables become native Doc tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording — never literal `#`, `**`, or `|---|` characters in the doc.
+
+If a section write fails partway, output the remaining sections as labeled text blocks in chat and tell the user which sections made it into the doc.
 
 If the Google Drive connector is not connected or does not have write permission, output the full proposal as formatted markdown instead and tell the user:
 

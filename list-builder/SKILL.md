@@ -225,9 +225,16 @@ Load `reference/output-schema.md` for the INTENT_SCORE formula, urgency tier thr
 
 ### Stage 8 - Output
 
-**If Google Sheets MCP is connected:** Create a new sheet titled `{Client} List - {date}` and write all rows. Share the URL with the user.
+**If Google Sheets MCP is connected:** use it to create and populate the sheet - do not construct raw API calls.
 
-**Otherwise:** Output as a markdown table inline. Offer to write it to a CSV file using the local file tools if the user wants.
+1. Create a new sheet titled `{Client} List - {date}`
+2. Write the header row using the plain-text column names from `reference/output-schema.md` - markdown formatting does not carry into cells (`Email Ready`, not `**Email Ready**`)
+3. Write one contact per row, one column per field
+4. Share the URL with the user
+
+If the sheet write fails after the MCP is connected, fall back to the inline markdown table and tell the user what failed.
+
+**If Google Sheets MCP is not connected:** output as a markdown table inline.
 
 Either way, the column schema is the same. This is the contract downstream channel tools read.
 

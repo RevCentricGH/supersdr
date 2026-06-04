@@ -38,6 +38,8 @@ APOLLO CONTACT STAGES SETUP — BROWSER EXECUTION STEPS
 PERMISSION REQUIREMENT: Adding stages requires an admin/owner permission profile.
   On a restricted seat (e.g. "Call Assistant") the "+ Add Stage" button is disabled.
   Confirm you are on an admin seat before starting.
+  If the "+ Add Stage" button is disabled, stop and tell the user to switch to an
+  admin/owner seat or have an admin run this step. Do not attempt to work around it.
 
 STEP 1 — Navigate
   - Go to: https://app.apollo.io/#/settings/contacts/stages

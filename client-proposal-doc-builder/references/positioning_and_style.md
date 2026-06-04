@@ -65,7 +65,7 @@ Don't fight the build path — name it and price it. "An in-house SDR is $80–1
 
 ## Worked examples
 
-> ⚠️ **PLACEHOLDER PROOF POINTS BELOW.** The skill prompts the user for real numbers on first run and substitutes them. If you see specific percentages (14%, 75%, etc.) below being inserted verbatim into a real proposal, the skill skipped the proof point prompt — stop and ask the user for their actual data before continuing.
+> ⚠️ **PLACEHOLDER PROOF POINTS BELOW.** The skill prompts the user for real numbers on first run and substitutes them. If the percentages below (14%, etc.) are being presented as the agency's *past results* in a real proposal, the skill skipped the proof point prompt — stop and ask the user for their actual data before continuing. This guard covers claimed results only; the Conversation Math projection benchmarks (10–15% set rate, ~75% show rate) are illustrative inputs and always allowed.
 
 ### Example: DTC creative SaaS
 

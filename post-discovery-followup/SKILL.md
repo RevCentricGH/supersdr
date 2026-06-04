@@ -105,12 +105,15 @@ Pass three things to `client-proposal-doc-builder`:
 
 The confirmed outcome decides what comes back:
 
-- **`proposal`** - the builder runs its full workflow: a complete proposal Google Doc, then the
-  follow-up email on its proposal-link route, so the email carries the Google Doc link. You get
-  back a proposal Google Doc and a drafted follow-up email.
+- **`proposal`** - the builder runs its full workflow: it creates the proposal Google Doc and
+  gives you its URL, then drafts the follow-up email as plain-text subject and body on its
+  proposal-link route, so the email carries the Google Doc link.
 - **`needs_followup`** - the builder skips the proposal document and drafts only the follow-up
-  email on its needs-followup route (no document; `proposal_link` is null). You get back a
-  drafted follow-up email and no proposal document.
+  email as plain-text subject and body on its needs-followup route. No document, no link.
+
+The builder drafts only - it does not send anything and does not return structured fields. It
+hands back the doc URL (for `proposal`) and the drafted subject/body as text. This skill owns
+the send (Step 5).
 
 When the builder returns, present the draft to the operator for review: the proposal doc link
 plus the email for `proposal`, the email alone for `needs_followup`.
