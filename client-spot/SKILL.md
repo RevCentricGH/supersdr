@@ -103,22 +103,13 @@ The full field-by-field templates for all 9 tabs are in `reference/tab-templates
 
 ### Step 5 - Create the Google Doc
 
-After generating all tab content, use the Google Docs or Google Drive MCP to create the document. Execute in this order:
+Use the Google Drive MCP to create and populate the document. Do not construct raw API calls - let the MCP handle formatting and insertion.
 
 1. Create a new Google Doc titled "[Client Name] Single Point of Truth"
-2. Add 9 tabs to the document with these exact names (in order):
-   - Campaign Status
-   - Campaign Brief
-   - Company Overview
-   - Problem Solution
-   - ICP & Buyer Persona
-   - Competitor Overview
-   - Objection Handling
-   - Screenplay
-   - Apollo Campaign Setup
-3. For each tab, write the matching generated content block into the tab body
+2. Add 9 tabs with these exact names (in order): Campaign Status, Campaign Brief, Company Overview, Problem Solution, ICP & Buyer Persona, Competitor Overview, Objection Handling, Screenplay, Apollo Campaign Setup
+3. Write each tab's generated content into the matching tab via the MCP
 
-Use whatever tab-creation and content-writing tools the MCP exposes. Check which tools are available before calling - do not guess tool names. If the MCP does not support tab creation, create the doc as a single document with each tab's content separated by a clear heading and notify the user that tabs must be added manually.
+If the MCP does not support tab creation, create the doc as a single document with each tab's content under a clear section heading and tell the user tabs must be added manually.
 
 **If Google Doc creation fails entirely:** output all 9 tab content blocks as labeled sections in the chat so the user can paste manually, and tell them what failed.
 
