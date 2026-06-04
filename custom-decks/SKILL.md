@@ -93,9 +93,10 @@ One-time per operator. Everything runs on your own accounts.
      - your proof. Each is a list; leave any of them empty and that section is omitted from the
      deck. `client_logos` are paths under your assets folder.
 
-3. **Set up Google OAuth.** In Google Cloud Console, enable the Google Drive API and the Google
-   Slides API, create an OAuth client (Desktop app), download the client secret JSON, and point
-   `credentials_file` at it. The first run opens a browser to authorize and writes `token_file`.
+3. **Set up Google OAuth.** In Google Cloud Console, enable the Google Drive API, the Google
+   Slides API, and the Google Sheets API (queue mode reads the rep tabs through it), create an
+   OAuth client (Desktop app), download the client secret JSON, and point `credentials_file` at
+   it. The first run opens a browser to authorize and writes `token_file`.
 
 ## Run
 
@@ -155,6 +156,7 @@ python3 -m pytest custom-decks
 | --- | --- |
 | `marp: command not found` or `npx: command not found` | Node is missing. Marp runs via `npx`, which ships with Node 18+. Install Node, then re-run. No global Marp install is needed; `npx` fetches it. |
 | OAuth fails with `redirect_uri_mismatch`, or no token file is written | The OAuth client is the wrong type. Create the client as an **OAuth client ID, Desktop app** in Google Cloud Console (not Web application), download the client secret JSON, and point `credentials_file` at it. Then delete any stale token file and re-run to re-authorize. |
-| Upload fails with an API-not-enabled error | The Google APIs are off for your project. In Google Cloud Console, enable **both** the Google Drive API and the Google Slides API on the same project the OAuth client belongs to, then re-run. |
+| Upload fails with an API-not-enabled error | The Google APIs are off for your project. In Google Cloud Console, enable the Google Drive API, the Google Slides API, and the Google Sheets API (queue mode) on the same project the OAuth client belongs to, then re-run. |
+| Queue mode fails with 403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT` | The token file predates the Sheets scope. Delete `token_file` and re-run to re-authorize with all three scopes. |
 | Deck renders but links are not clickable / text is not selectable | LibreOffice (`soffice`) is missing, so the fallback image-PPTX path is used instead of the editable path. Install LibreOffice so the editable-PPTX path runs and the CTA stays a live hyperlink. |
 | Run stops with an empty-transcription error | Both Deepgram and Groq returned nothing for the audio. Confirm the `--audio-url` is reachable and points at real audio, or skip transcription entirely by passing `--transcript` with the text you already have. |
