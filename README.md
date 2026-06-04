@@ -138,7 +138,7 @@ Cross-cutting utilities that improve every other skill and task.
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [grill-me](grill-me/) | A question loop for planning anything. Interviews you one question at a time until Claude fully understands the goal, inputs, outputs, and tools - then hands you a one-page brief to run in a fresh session. A sharp brief beats a smart model. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/grill-me.zip) |
+| [grill-me](grill-me/) | A question loop for planning anything. Run it at the start of a session: it interviews you one question at a time until Claude fully understands the goal, inputs, outputs, and tools - then the work proceeds in the same session, fully briefed. A sharp plan beats a smart model. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/grill-me.zip) |
 
 ## Getting started
 
