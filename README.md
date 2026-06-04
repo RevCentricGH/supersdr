@@ -132,6 +132,14 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 |-------|-------------|------|---|
 | [master-tracker](master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
 
+### Work smarter
+
+Cross-cutting utilities that improve every other skill and task.
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [grill-me](grill-me/) | A question loop for planning anything. Interviews you one question at a time until Claude fully understands the goal, inputs, outputs, and tools - then hands you a one-page brief to run in a fresh session. A sharp brief beats a smart model. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/grill-me.zip) |
+
 ## Getting started
 
 Start with the Cowork path. It is the simplest and covers every Tier 1 skill, which is most of the toolkit. The Claude Code path is for the two Tier 2 skills and is kept separate below; skip it until you naturally find gaps with Cowork and you genuinely feel the need to advance. You'll know when it happens, don't overengineer for a solution or pain you don't even feel yet.
