@@ -129,6 +129,10 @@ Prerequisites:
   - The following contact stages must exist in the Apollo account:
       "Meeting Pending", "Activated Lead", "Approaching", "Nurture"
     (These are set up during apollo-account-setup — confirm before building workflows)
+  - The deal pipeline must have an "Activated Lead" deal stage — Workflow 2's
+    Create Deal action sets it. This is a custom pipeline stage (not an Apollo
+    default, not created by apollo-account-setup). If it's missing, the deal
+    stage dropdown has nothing to select and the workflow stays in Draft.
 
 For EACH workflow in WORKFLOWS (1–4):
 

@@ -27,6 +27,7 @@ Both `.py` files are data the skill reads at runtime - not scripts to run, not d
 - Client name confirmed - all sequences/workflows will be prefixed with it
 - Apollo open and logged in at app.apollo.io in Chrome
 - `apollo-account-setup` run once on this Apollo account - the workflow plays reference contact stages it creates, and they will not save without them
+- Deal pipeline has an "Activated Lead" stage - Workflow 2's Create Deal action targets it. This is a custom pipeline stage, not an Apollo default and not created by `apollo-account-setup`; add it in Settings → Deals → Pipeline before building workflows, or Workflow 2 stays stuck in Draft
 
 ---
 
