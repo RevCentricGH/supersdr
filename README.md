@@ -19,7 +19,7 @@ Four things to know:
 
 - **A skill is a packaged job.** It is a folder of instructions (and sometimes helper files) that teaches Claude exactly how to do one task the SuperSDR way. You do not configure anything in code.
 - **You run skills inside Claude.** Most run in the Claude Cowork desktop app: download the skill's ZIP, upload the folder into a chat, and follow the prompts. 
-- **Two motions.** The skills split into **Win a client** and **Run outbound**. Pick the motion you are in and work down the list.
+- **Two motions.** The skills split into **Win a client** and **Run outbound**. Pick the motion you are in and work down the list. One utility sits outside both: `grill-me`, for planning any task before Claude runs it.
 - **One doc ties outbound together: the client SPOT.** A client SPOT is a client's Single Point of Truth, a multi-tab Google Doc with their positioning, ICP, and pain. You build it once per client with `client-spot`, and every other outbound skill reads from it.
 
 Any jargon you hit along the way (ICP, TAM, disposition, sequence) is defined in the [Glossary](#glossary) at the bottom.
@@ -252,6 +252,7 @@ python3 run.py
 - **Just signed a client.** Move to **Run outbound** and work the stages in order. Run `apollo-account-setup` once (only the first time on a new Apollo account), then `client-spot` to build the SPOT, then down the list: pitch, list, campaigns.
 - **Already running campaigns.** Install `master-tracker` (Tier 2) to pull call data into a sheet and read campaign health. Use `custom-decks` (Tier 2) to build decks for prospects who are warming up.
 - **Debugging a campaign that is not working.** Re-read the SPOT first; weak positioning shows up everywhere downstream. Re-run `list-builder` on a small sample to sanity-check the ICP before scaling. Check `master-tracker` for conversion rates by rep. If reps stall on calls, run `objection-drill`.
+- **Starting a big or unfamiliar task.** Run `grill-me` first. It interviews you until the goal, inputs, and outputs are airtight, then the work proceeds in the same session - fully briefed.
 
 ## Glossary
 
