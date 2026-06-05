@@ -7,7 +7,8 @@ Exits non-zero with a list of problems if anything is wrong.
 Checks:
   1. No gitignored/internal files (DEV_STATUS.md, .internal, __pycache__) are committed.
   2. Every top-level folder with a SKILL.md has frontmatter whose `name:` matches the
-     folder and whose `description:` is non-empty.
+     folder and whose `description:` is non-empty, has a space after the colon (YAML
+     drops the key without it), and is at most 1024 chars (Claude's skill upload limit).
 """
 import os
 import sys
@@ -45,14 +46,19 @@ def main():
             errors.append(f"{skill}: missing YAML frontmatter (--- ... ---) at top")
             continue
         fm = m.group(1)
-        name = re.search(r"^name:\s*(.+)$", fm, re.MULTILINE)
-        desc = re.search(r"^description:\s*(.+)$", fm, re.MULTILINE)
+        for key in ("name", "description"):
+            if re.search(rf"^{key}:\S", fm, re.MULTILINE):
+                errors.append(f"{skill}: '{key}:' needs a space after the colon (YAML drops the key without it)")
+        name = re.search(r"^name:\s+(.+)$", fm, re.MULTILINE)
+        desc = re.search(r"^description:\s+(.+)$", fm, re.MULTILINE)
         if not name or not name.group(1).strip():
             errors.append(f"{skill}: frontmatter is missing a non-empty 'name:'")
         elif name.group(1).strip() != entry:
             errors.append(f"{skill}: frontmatter name '{name.group(1).strip()}' does not match folder '{entry}'")
         if not desc or not desc.group(1).strip():
             errors.append(f"{skill}: frontmatter is missing a non-empty 'description:'")
+        elif len(desc.group(1).strip()) > 1024:
+            errors.append(f"{skill}: description is {len(desc.group(1).strip())} chars (Claude skill upload limit is 1024)")
 
     if errors:
         print("Validation FAILED:\n")
