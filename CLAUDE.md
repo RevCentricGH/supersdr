@@ -3,7 +3,7 @@
 Public Claude Cowork skills for the SuperSDR community (RevCentric). Each top-level dir is one skill.
 
 ## Structure
-- A skill is a folder with a `SKILL.md`. Frontmatter `name:` MUST equal the folder name; `description:` must be non-empty (it's the trigger). Optional `reference/` holds supporting docs.
+- A skill is a folder with a `SKILL.md`. Frontmatter `name:` MUST equal the folder name; `description:` must be non-empty (it's the trigger) and at most 1024 chars (Claude rejects the skill at upload past that). Both keys need a space after the colon or YAML drops them. Optional `reference/` holds supporting docs.
 - Skills ship publicly as GitHub release ZIPs (`.github/workflows/build-skill-zips.yml`). Assume anything committed is public.
 
 ## Deeper context (read on demand, not auto-loaded)

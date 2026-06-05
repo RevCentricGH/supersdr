@@ -11,8 +11,9 @@ slices is here, in the issue bodies, in `CLAUDE.md`, and in the existing skill f
 
 - **Skill** — a self-contained capability: a folder with a `SKILL.md` plus any companion
   files. Frontmatter `name:` must equal the folder name; `description:` is the trigger and
-  must be non-empty. Each top-level dir is one skill. Skills ship publicly as per-skill ZIPs,
-  so assume anything committed is public.
+  must be non-empty and at most 1024 chars (Claude rejects the skill at upload past that).
+  Each top-level dir is one skill. Skills ship publicly as per-skill ZIPs, so assume
+  anything committed is public.
 - **Runtime** — a skill is exactly one of two kinds.
   - **Cowork skill** — runs interactively in the Claude Cowork desktop app. No cron, no
     unattended loops, no local API keys, no OAuth token files, no Python that *executes* as a
