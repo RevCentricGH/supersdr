@@ -1,0 +1,22 @@
+{
+  "smartlead_api_key": "YOUR_SMARTLEAD_API_KEY",
+  "google_sheet_id": "YOUR_MASTER_TRACKER_SHEET_ID",
+
+  "google_oauth": {
+    "credentials_file": "credentials.json",
+    "token_file": "token.json"
+  },
+
+  "clients": [
+    {
+      "name": "Acme Co",
+      "rep_tabs": ["Alice Rep", "Bob Rep"],
+      "smartlead_campaign_ids": [123456, 234567]
+    },
+    {
+      "name": "Beta Inc",
+      "rep_tabs": ["Carol Rep"],
+      "smartlead_campaign_ids": [345678]
+    }
+  ]
+}
