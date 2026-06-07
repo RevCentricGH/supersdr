@@ -43,7 +43,8 @@ class DigestBuilder:
 
 def digest_has_activity(sections):
     """True if any client had calls or any campaign returned stats this week. An all-zero week
-    has no activity; the caller skips delivery rather than push an empty section."""
+    has no activity; the caller still delivers, prefixed with a no-activity notice, so the
+    recipient knows the run happened."""
     for s in sections:
         if s.get("calls"):
             return True

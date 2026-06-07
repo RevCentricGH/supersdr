@@ -151,11 +151,13 @@ def main(argv=None):
         if not digest_has_activity(sections):
             print(
                 f"warning: no call or campaign activity for {args.week}; "
-                "skipping delivery (nothing to send)",
+                "delivering no-activity notice",
                 file=sys.stderr,
             )
-            print(digest)
-            return
+            digest = (
+                f"weekly-checkin {args.week}: no call or campaign activity this week.\n\n"
+                + digest
+            )
 
         run_id = _new_run_id()
         doc_appender = _doc_appender(creds) if delivery_cfg.get("type") == "google_doc" else None

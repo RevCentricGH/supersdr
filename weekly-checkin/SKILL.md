@@ -30,7 +30,8 @@ master-tracker data; a mid-run abort leaves nothing to clean up.
 4. Builds one digest section per client (call count, disposition breakdown, per-campaign stats)
    and delivers the digest to the destination in `config.json` (`delivery.type`: a Google Doc,
    Slack, or email). With `--dry-run` it prints the digest and sends nothing. A week with no
-   calls and no campaign stats is skipped, not delivered as an empty section.
+   calls and no campaign stats is still delivered, topped with a "no call or campaign activity
+   this week" notice, so a quiet week is visible rather than silent.
 
 Run it again any time. It reads live data each run, so re-running is safe and always current.
 
@@ -156,7 +157,8 @@ The logic lives in the `weeklycheckin` package and is unit-tested:
   column, or an unparseable date.
 - `digest_builder.py` - `DigestBuilder`: joins the sheet rows and the SmartLead stats into one
   section per client; `render_digest` formats the sections; `digest_has_activity` is the
-  empty-week guard that tells `run.py` to skip delivery.
+  empty-week check - on an all-zero week `run.py` still delivers, with a "no call or campaign
+  activity this week" notice on top, so you know the run happened.
 - `deliver.py` - `deliver`: the single join point that validates the `delivery` config and routes
   to one of `deliver_to_doc` / `deliver_to_slack` / `deliver_to_email`. The side-effecting pieces
   (the Docs append, the HTTP POST, the SMTP send) are injected, so the routing, the `run_id`
@@ -195,7 +197,7 @@ for prints a named warning to stderr and is left out of the digest, not silently
 | Auth fails or asks to re-authorize every run | The OAuth token expired or was revoked. Delete the `token_file` (`token.json` by default) and run again to re-authorize. Switching `delivery.type` to/from `google_doc` also changes the requested scopes and forces one re-authorization. |
 | `weekly-checkin delivery: ...` then exit | Delivery config is wrong: an unsupported `delivery.type`, a missing required field, or an unset/empty secret env var. The message names the exact problem. Fix `config.json` or `export` the env var, then re-run. |
 | `Slack webhook returned HTTP 403/404` | The incoming webhook was rotated or revoked. Recreate it in Slack and update the env var named by `slack_webhook_env`. |
-| `skipping delivery (nothing to send)` | No calls and no campaign stats for that week. Confirm master-tracker synced the week and the SmartLead campaigns had activity; a genuinely quiet week is skipped by design. |
+| `delivering no-activity notice` | No calls and no campaign stats for that week. The digest is still delivered with a "no call or campaign activity this week" line on top. If activity was expected, confirm master-tracker synced the week and the SmartLead campaigns had activity. |
 | `another weekly-checkin run holds ...` | A previous run is still going, or it crashed and left a lock younger than six hours. If the process is gone, delete the named lockfile and re-run; older locks are reclaimed automatically. |
 
 **The share-vs-auth same-account trap.** The Google account you complete OAuth with and the

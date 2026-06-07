@@ -1,4 +1,4 @@
-"""run.py end-to-end wiring: dry-run, empty-week skip, delivery routing, and lock contention.
+"""run.py end-to-end wiring: dry-run, empty-week notice, delivery routing, and lock contention.
 
 The live digest build (Google Sheets + SmartLead) and the live Docs/Slack/SMTP clients are stubbed
 so the orchestration in run.main - validate, lock, build, activity-gate, route, release - is
@@ -61,17 +61,24 @@ def test_dry_run_prints_digest_and_skips_delivery(tmp_path, capsys, monkeypatch)
     assert not os.path.exists(lockfile.lock_path_for(cfg))
 
 
-def test_empty_week_skips_delivery_with_warning(tmp_path, capsys, monkeypatch):
+def test_empty_week_delivers_no_activity_notice(tmp_path, capsys, monkeypatch):
     monkeypatch.setattr(run, "_build_digest", lambda config, week: (_zero_sections(), object()))
     posts = []
-    monkeypatch.setattr(deliver, "_default_http_post", lambda: lambda *a: posts.append(a))
+
+    class _Resp:
+        status_code = 200
+
+    monkeypatch.setattr(deliver, "_default_http_post", lambda: lambda url, payload, t: posts.append((url, payload)) or _Resp())
+    monkeypatch.setenv("WC_HOOK", "https://hooks/X")
     cfg = _write_config(tmp_path, {"type": "slack", "slack_webhook_env": "WC_HOOK"})
 
     run.main(["--week", "2026-W22", "--config", cfg])
 
     err = capsys.readouterr().err
-    assert "skipping delivery" in err
-    assert posts == []
+    assert "no call or campaign activity" in err
+    assert len(posts) == 1
+    assert "no call or campaign activity this week" in posts[0][1]["text"]
+    assert "Quiet Co" in posts[0][1]["text"]
     assert not os.path.exists(lockfile.lock_path_for(cfg))  # lock released in finally
 
 
