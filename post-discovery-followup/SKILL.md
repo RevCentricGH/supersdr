@@ -1,16 +1,18 @@
 ---
 name: post-discovery-followup
-description: Run the post-discovery-call workflow inside Cowork with the operator present. Trigger this skill when the user shares a discovery-call transcript (pasted text or a Drive, Gemini, or Fireflies link) and wants the next step after the call, or says things like "I just got off a discovery call", "here's the call transcript", "triage this call", "what's the outcome of this call", or "run post-discovery follow-up". The skill reads the full transcript, proposes one of seven call outcomes with one line of reasoning, and waits for the operator to confirm or override before anything else happens. It then branches on the confirmed outcome per the outcome taxonomy: some outcomes hand off to the client-proposal-doc-builder skill for a draft and then update Apollo, while the rest report the manual next step and stop with no draft and no Apollo write.
+description: Run the post-discovery or post-closing call workflow inside Cowork with the operator present. Trigger this skill when the user shares a discovery-call or closing-call transcript (pasted text or a Drive, Gemini, or Fireflies link) and wants the next step after the call, or says things like "I just got off a discovery call", "we had the closing call", "here's the call transcript", "triage this call", or "run post-discovery follow-up". The skill reads the full transcript, infers the call type (discovery or closing) and one of seven call outcomes with one line of reasoning each, and waits for the operator to confirm or override before anything else happens. It then branches on the confirmed call type and outcome per the outcome taxonomy: some outcomes hand off to the client-proposal-doc-builder skill for a draft and then update Apollo, a closing call routes its five closing outcomes to post-closing handling for the Apollo stage, and the rest report the manual next step and stop.
 ---
 
 # Post-Discovery Follow-up
 
-A Cowork skill that reproduces the useful part of the post-discovery workflow with the
-operator in the session. The operator shares a discovery-call transcript. The skill reads it,
-proposes the call outcome and one line of reasoning, and lets the operator confirm or
-override. On a draft outcome it chains into `client-proposal-doc-builder` for the proposal or
-follow-up email, sends it through the Gmail connector, and updates the deal stage in Apollo.
-On the other outcomes it reports the outcome and the manual next step and stops.
+A Cowork skill that reproduces the useful part of the post-discovery and post-closing workflow
+with the operator in the session. The operator shares a call transcript, discovery or closing.
+The skill reads it, proposes the call type and the call outcome with one line of reasoning each,
+and lets the operator confirm or override. On a draft outcome it chains into
+`client-proposal-doc-builder` for the proposal or follow-up email, sends it through the Gmail
+connector, and updates the deal stage in Apollo. On a closing call the five closing outcomes
+route to post-closing handling that resolves the deal to its Apollo stage. On a discovery call's
+other outcomes it reports the outcome and the manual next step and stops.
 
 The whole path runs in one Cowork session. The transcript, the company name, the confirmed
 outcome, the returned draft, and the recipient carry forward from step to step with no manual
@@ -18,17 +20,18 @@ stitching. The skill uses connectors only - Google Drive, Gmail, and Claude-in-C
 Apollo - with no server, no cron, and no local API keys. Every external action (the email send
 and the Apollo write) waits for the operator's explicit approval.
 
-This file is the orchestrator. The outcome definitions, the classification criteria, the
-outcome-to-Apollo-stage map, and the draft-vs-report branching live in one place:
-`reference/outcome-taxonomy.md`. Read that file when you classify and when you branch. Do not
-restate its contents here.
+This file is the orchestrator. The call-type definitions, the outcome definitions, the
+classification criteria, the outcome-to-Apollo-stage map, and the call-type branching live in
+one place: `reference/outcome-taxonomy.md`. Read that file when you classify and when you
+branch. Do not restate its contents here.
 
 ## Getting started
 
 When the skill loads, greet the operator:
 
-> "I run the post-discovery follow-up. Share the discovery-call transcript and I'll read it,
-> propose the call outcome, and wait for your call before anything goes out.
+> "I run the post-discovery and post-closing follow-up. Share the call transcript, discovery or
+> closing, and I'll read it, propose the call type and the outcome, and wait for your call
+> before anything goes out.
 >
 > Paste the transcript, or give me a Google Drive, Gemini, or Fireflies link. Either works."
 
@@ -55,36 +58,57 @@ few lines, no stopping once you think you know the outcome. This applies the sam
 pasted text and to content retrieved from a link. The outcome and every later step are only
 as good as a full read.
 
-## Step 3 - Classify and propose the outcome
+## Step 3 - Classify and propose the call type and outcome
 
-Load `reference/outcome-taxonomy.md`. Match the full transcript against its classification
-criteria and pick the single best-fit outcome from the seven values it defines: `proposal`,
-`needs_followup`, `closed_won`, `closed_lost`, `fridge`, `disqualified`, `stay_in_proposal`.
+Load `reference/outcome-taxonomy.md`. From the full transcript, infer two things:
 
-Present the proposed outcome with exactly one line of reasoning, then stop and wait:
+- **The call type** - `discovery` or `closing`, per the call-type definitions in the taxonomy.
+- **The outcome** - the single best-fit value from the seven the taxonomy defines: `proposal`,
+  `needs_followup`, `closed_won`, `closed_lost`, `fridge`, `disqualified`, `stay_in_proposal`.
 
-> "Proposed outcome: **needs_followup**
-> Reasoning: They want this but need the VP of Sales to sign off before pricing, so the next
-> step is a follow-up, not a proposal.
+Present both with exactly one line of reasoning each, then stop and wait:
+
+> "Call type: **closing**
+> Reasoning: The proposal was already out and this call was the go/no-go on it.
 >
-> Confirm, or tell me the right outcome."
+> Proposed outcome: **closed_won**
+> Reasoning: They gave a verbal yes and asked us to send the paperwork.
+>
+> Confirm both, or tell me the right call type or outcome."
 
 Then wait for the operator to confirm or override. Until the operator responds, produce no
 draft, write nothing to Apollo, send nothing, and take no external side effect of any kind.
-The proposal is a proposal, not an action. If the operator overrides, use the outcome they
-give.
+The proposal is a proposal, not an action. If the operator overrides the call type or the
+outcome, use the values they give.
 
-## Step 4 - Branch on the confirmed outcome
+## Step 4 - Branch on the confirmed call type and outcome
 
-Look up the confirmed outcome in `reference/outcome-taxonomy.md` and route by its branch.
+Look up the confirmed outcome in `reference/outcome-taxonomy.md` and route by its branch. The
+call type decides the branch for the five closing outcomes; the two draft outcomes (`proposal`,
+`needs_followup`) hand off to the draft branch on either call type.
 
-**Stop-and-report branch.** For an outcome the taxonomy marks stop-and-report, output the
-outcome label and the manual next step that the taxonomy lists for it, then stop. Produce no
-draft of any kind and make no write to Apollo. Example:
+**Stop-and-report branch (discovery call).** On a discovery call, for any of the five closing
+outcomes the taxonomy marks stop-and-report, output the outcome label and the manual next step
+the taxonomy lists for it, then stop. Produce no draft of any kind and make no write to Apollo.
+Example:
 
 > "Outcome: **fridge**
 > Manual next step: park the deal in Apollo and set a reminder to revisit. No draft and no
 > stage write from me on this one."
+
+**Post-closing handling (closing call).** On a closing call the deal is being resolved, so the
+five closing outcomes are actionable rather than report-only. For the confirmed outcome, look up
+its target Apollo stage in `reference/outcome-taxonomy.md` (the Outcome-to-Apollo-stage map),
+then state the resolved outcome, that target stage, and the opportunity it applies to. The deal
+moves to that stage on the confirmed opportunity - confirm the right opportunity first, no
+best-guess move. Example:
+
+> "Call type: closing. Outcome: **closed_won**
+> This deal is won. Target Apollo stage: Closed Won.
+> Set the deal to Closed Won in Apollo once you've confirmed it's the right opportunity."
+
+On `stay_in_proposal` the deal stays in Proposal: leave the stage and note the call for the next
+touch. This branch produces no draft and no follow-up email.
 
 **Draft branch - hand off to `client-proposal-doc-builder`.** For an outcome the taxonomy
 marks draft-and-Apollo-write (`proposal` and `needs_followup`), hand off to the
@@ -146,7 +170,8 @@ No email is ever sent without a usable recipient and the operator's explicit app
 ## Step 6 - Update the Apollo deal stage
 
 This step runs only on a confirmed `proposal` or `needs_followup` outcome, after the follow-up
-email step (Step 5). The other five outcomes never reach it; they stop and report.
+email step (Step 5). The other five outcomes never reach it: on a discovery call they stop and
+report, and on a closing call they route to post-closing handling (Step 4).
 
 Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. Look up the target stage for
 the confirmed outcome in `reference/outcome-taxonomy.md` (the outcome-to-Apollo-stage map); the
@@ -172,11 +197,16 @@ opportunity is confirmed, change nothing and say so.
 At the end of a run, output a short summary so the operator can verify it at a glance. The
 summary always reports:
 
+- **Call type** - discovery or closing, as confirmed.
 - **Outcome** - the confirmed outcome label.
 - **Reasoning** - the one line that explained the outcome.
 
-For a stop-and-report outcome, the summary adds the **manual next step** and states plainly
-that no draft was produced and no Apollo write happened.
+For a discovery-call outcome that stops and reports, the summary adds the **manual next step**
+and states plainly that no draft was produced and no Apollo write happened.
+
+For a closing-call outcome routed to post-closing handling, the summary adds the **target
+Apollo stage** for the confirmed outcome and the opportunity it applies to. No draft and no
+follow-up email on this branch.
 
 For a draft-and-Apollo-write outcome (the two outcomes the taxonomy marks as such), the
 summary also reports:
@@ -206,9 +236,9 @@ the completion summary) follow these voice rules:
 
 ## Reference
 
-- `reference/outcome-taxonomy.md` - the seven outcomes, the classification criteria, the
-  outcome-to-Apollo-stage map, and the draft-vs-report branching. Single source of truth for
-  triage and Apollo routing. Read it when you classify and when you branch.
+- `reference/outcome-taxonomy.md` - the call-type definitions, the seven outcomes, the
+  classification criteria, the outcome-to-Apollo-stage map, and the call-type branching. Single
+  source of truth for triage and Apollo routing. Read it when you classify and when you branch.
 - `apollo_stage_update.py` - the browser EXECUTION_GUIDE for the Apollo deal-stage update
   (search, confirm, flip, verify). Read it in Step 6. The outcome-to-stage map it uses lives in
   `reference/outcome-taxonomy.md`, not in the .py. The `.py` file is data the skill reads at
