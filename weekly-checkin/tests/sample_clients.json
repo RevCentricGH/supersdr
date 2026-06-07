@@ -1,0 +1,49 @@
+[
+  {
+    "client": "Acme Co",
+    "week": "2026-W22",
+    "calls": 42,
+    "dispositions": {"Meeting Booked": 4, "Not Interested": 11, "No Answer": 27},
+    "campaigns": [
+      {
+        "campaign_id": 123456,
+        "stats": {
+          "sent": 800,
+          "opens": 360,
+          "replies": 24,
+          "bounces": 6,
+          "open_rate": 0.45,
+          "reply_rate": 0.03
+        }
+      }
+    ]
+  },
+  {
+    "client": "Beta Inc",
+    "week": "2026-W22",
+    "calls": 9,
+    "dispositions": {"No Answer": 9},
+    "campaigns": [
+      {
+        "campaign_id": 345678,
+        "stats": {
+          "sent": 120,
+          "opens": 18,
+          "replies": 0,
+          "bounces": 14,
+          "open_rate": 0.15,
+          "reply_rate": 0.0
+        }
+      }
+    ]
+  },
+  {
+    "client": "Gamma LLC",
+    "week": "2026-W22",
+    "calls": 0,
+    "dispositions": {},
+    "campaigns": [
+      {"campaign_id": 901234, "stats": null}
+    ]
+  }
+]

@@ -4,6 +4,8 @@ Channels let external services (Telegram, Discord, iMessage, webhooks) push even
 
 This unlocks async, event-driven workflows that the SuperSDR skills alone don't cover.
 
+> **Not the same as `weekly-checkin`'s Slack delivery.** `weekly-checkin` posts its digest straight to a Slack incoming webhook from a terminal run or cron job. That is a one-way native push, not a channel: no Cowork session, no Telegram bot, no two-way reaction. The channels described here are a different mechanism. Don't wire `weekly-checkin` through a channel; point its `delivery.slack_webhook_env` at a webhook directly.
+
 ---
 
 ## When you'd want this

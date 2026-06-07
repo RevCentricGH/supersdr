@@ -45,7 +45,7 @@ Run `apollo-account-setup` once per Apollo account. Then run `client-spot` first
 Every skill sits on one of three rungs. The rung tells you what setup it needs before you start. As your comfort with AI tools grows, you climb the ladder.
 
 - **Tier 1 · Cowork.** You upload the skill into the Claude desktop app and run it in a Cowork chat or session. No terminal, no code, nothing to install beyond the app and a few connectors that are already available in Cowork. This is where everyone starts, and most of the toolkit lives here.
-- **Tier 2 · Claude Code.** The skill runs in a terminal as real software, with Python, local credentials, API connections. This rung is for jobs that need a runtime: pulling call data on a schedule, or rendering files like slide decks. You install it once and run a command. Two skills live here: `master-tracker` and `custom-decks`.
+- **Tier 2 · Claude Code.** The skill runs in a terminal as real software, with Python, local credentials, API connections. This rung is for jobs that need a runtime: pulling call data on a schedule, or rendering files like slide decks. You install it once and run a command. Three skills live here: `master-tracker`, `custom-decks`, and `weekly-checkin`.
 - **Tier 3 · n8n + Claude Code.** Fully automated pipelines where n8n triggers and orchestrates the work and Claude Code carries it out, with no human in the loop. This is the top rung and the direction the toolkit is heading. Nothing here yet, we are currently shipping it for RevCentric stay tuned :)
 
 **Level up your stack.** Start at Tier 1 and get a feel for running skills in the Claude desktop app. When you want unattended reporting or branded decks, install the two Tier 2 skills. Tier 3 (n8n + Claude Code) is the horizon: the same skills, wired to run on their own. If you want a middle step toward automation, you can also push events into a live Cowork session from your phone or a webhook; see [CHANNELS.md](CHANNELS.md).
@@ -131,6 +131,7 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
 | [master-tracker](master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
+| [weekly-checkin](weekly-checkin/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a weekly per-client digest from the master-tracker sheet and each client's SmartLead stats, then delivers it to a configured destination (a Google Doc, Slack, or email). Runs on a weekly cron or on demand. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/weekly-checkin.zip) |
 
 ### Work smarter
 
@@ -209,7 +210,7 @@ Do this once before running skills that reach external systems.
 
 ### Advanced: Claude Code path
 
-Skip this section if you only use the desktop app. It covers the two Tier 2 skills, `master-tracker` and `custom-decks`, which run in a terminal with real Python, local API keys, and a Google OAuth token file. **Do not upload them to Cowork.** They cannot run there.
+Skip this section if you only use the desktop app. It covers the three Tier 2 skills, `master-tracker`, `custom-decks`, and `weekly-checkin`, which run in a terminal with real Python, local API keys, and a Google OAuth token file. **Do not upload them to Cowork.** They cannot run there.
 
 You drive these the same way you drive any skill, by asking Claude. The only difference is the home: instead of the desktop app, you run **Claude Code** in a terminal and tell it what you want in plain English ("set up master-tracker", "build a deck for this prospect"). Claude Code does the terminal work, so you should never have to type raw commands to run a skill.
 
@@ -222,8 +223,9 @@ That install command is the only thing you type by hand. From here on you talk t
 
 **Credentials.** These come from web dashboards, so you grab them yourself, then paste them to Claude Code and it writes them into the skill's `config.json` for you.
 
-- **Apollo API key** - required by both skills for call data and contact lookup. Apollo, then Settings, then Integrations, then API.
-- **Google OAuth token** - required by both to read and write Google Sheets and Drive. Each skill walks you through the OAuth setup and needs its own `token.json`.
+- **Apollo API key** - required by `master-tracker` and `custom-decks` for call data and contact lookup. Apollo, then Settings, then Integrations, then API.
+- **Google OAuth token** - required by all three to work with Google Sheets and Drive. Each skill walks you through the OAuth setup and needs its own `token.json`. `weekly-checkin` reads the master-tracker sheet (read-only); Google Doc delivery additionally appends to a Doc.
+- **SmartLead API key** - required by `weekly-checkin` for per-campaign stats. SmartLead, then Settings, then API.
 - **Deepgram API key** - required by `custom-decks` for audio transcription. Sign up at deepgram.com.
 - **Groq API key** - required by `custom-decks` as a transcription fallback; fires only when Deepgram returns empty. Sign up at console.groq.com.
 
@@ -244,6 +246,12 @@ pip install -r requirements.txt
 npm install -g @marp-team/marp-cli
 cp config.template.json config.json   # fill in your credentials
 python3 run.py
+
+# weekly-checkin (needs a SmartLead API key and the master-tracker Google Sheet)
+cd weekly-checkin
+pip install -r requirements.txt
+cp config.template.json config.json   # fill in clients + delivery destination
+python3 run.py --week 2026-W22 --dry-run   # preview, then drop --dry-run to deliver
 ```
 
 ## Recommended path by situation

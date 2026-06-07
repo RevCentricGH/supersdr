@@ -41,6 +41,18 @@ class DigestBuilder:
         return sections
 
 
+def digest_has_activity(sections):
+    """True if any client had calls or any campaign returned stats this week. An all-zero week
+    has no activity; the caller skips delivery rather than push an empty section."""
+    for s in sections:
+        if s.get("calls"):
+            return True
+        for c in s.get("campaigns", []):
+            if c.get("stats"):
+                return True
+    return False
+
+
 def render_digest(sections):
     """Render the digest sections to plain text for printing to stdout."""
     lines = []

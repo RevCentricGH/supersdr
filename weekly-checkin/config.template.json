@@ -18,5 +18,23 @@
       "rep_tabs": ["Carol Rep"],
       "smartlead_campaign_ids": [345678]
     }
-  ]
+  ],
+
+  "schedule": {
+    "cron": "0 9 * * 1"
+  },
+
+  "delivery": {
+    "type": "google_doc",
+    "target": "YOUR_GOOGLE_DOC_ID",
+
+    "slack_webhook_env": "WEEKLY_CHECKIN_SLACK_WEBHOOK",
+
+    "from_address": "reports@youragency.com",
+    "subject": "Weekly client check-in",
+    "smtp_host": "smtp.gmail.com",
+    "smtp_port": 587,
+    "smtp_user": "reports@youragency.com",
+    "smtp_password_env": "WEEKLY_CHECKIN_SMTP_PASSWORD"
+  }
 }
