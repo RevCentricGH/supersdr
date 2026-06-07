@@ -1,21 +1,46 @@
 # Outcome taxonomy
 
 Single source of truth for post-discovery triage and Apollo routing. The orchestrator
-(`SKILL.md`) and every later slice read this file. Outcome definitions, classification
-criteria, the outcome-to-Apollo-stage map, and the draft-vs-report branching assignment
-live here and nowhere else. If any of those facts need to change, change them here.
+(`SKILL.md`) and every later slice read this file. Outcome definitions, the call-type
+definitions, classification criteria, the outcome-to-Apollo-stage map, and the call-type
+branching assignment live here and nowhere else. If any of those facts need to change, change
+them here.
 
 Interface:
 
-- Transcript in, one proposed outcome out (with one line of reasoning).
-- Confirmed outcome in, target Apollo stage and branch out.
+- Transcript in, one proposed call type and one proposed outcome out (each with one line of
+  reasoning).
+- Confirmed call type plus confirmed outcome in, target Apollo stage and branch out.
 
 ## The seven outcomes
 
-Every discovery call resolves to exactly one of these values:
+Every call resolves to exactly one of these values:
 
 `proposal`, `needs_followup`, `closed_won`, `closed_lost`, `fridge`, `disqualified`,
 `stay_in_proposal`.
+
+## Call type: discovery vs closing
+
+Every call is one of two types. Triage infers the call type from the full transcript and
+proposes it alongside the outcome; the operator confirms or overrides the call type before any
+branch runs. The call type decides how the five closing outcomes are handled (see Branching).
+
+### discovery
+
+The first real working call. The rep is qualifying the prospect and earning the right to send
+a proposal. Signals: introductions, problem discovery, "what does your outbound look like
+today," qualifying on need, budget, and authority, and a forward step that is a proposal or a
+follow-up. No proposal is under review on this call.
+
+### closing
+
+A later call on a deal that already has a proposal in play. The rep and the prospect are
+deciding the deal. Signals: a proposal or pricing already on the table, "did you get a chance
+to review it," final objections, a yes-or-no decision, contract or paperwork talk, or an
+explicit close. The deal is being resolved, not opened.
+
+When the signals are mixed, prefer the more conservative read and let the operator override. A
+call with no proposal in play is a discovery call.
 
 ## Classification criteria
 
@@ -66,6 +91,11 @@ The deal is already in the proposal stage and the call surfaced nothing that mov
 or kills it. Signals: a status check, a minor clarification, a "still reviewing internally."
 It stays in proposal; no new document is warranted from this call.
 
+A closing call naturally resolves to one of the five closing outcomes (`closed_won`,
+`closed_lost`, `fridge`, `disqualified`, `stay_in_proposal`). If a call you read as closing
+lands on `proposal` or `needs_followup`, treat that as a signal to re-check the call type with
+the operator.
+
 ## Outcome-to-Apollo-stage map
 
 Each outcome maps to one target Apollo opportunity stage. Stage labels below are the logical
@@ -82,17 +112,40 @@ skill is built for any operator's account, so nothing is hardcoded to one pipeli
 | `disqualified` | Disqualified |
 | `stay_in_proposal` | Proposal Sent (unchanged) |
 
-## Branching: draft-and-Apollo-write vs stop-and-report
+### Closing-call outcomes
 
-Two outcomes branch to draft-and-Apollo-write. The skill produces a draft (proposal document
-or follow-up email) through `client-proposal-doc-builder` and, after operator approval,
-updates the Apollo stage:
+On a closing call the five closing outcomes are actionable: each resolves the deal to its
+target Apollo stage from the map above.
+
+| Closing outcome | Target Apollo stage |
+|---|---|
+| `closed_won` | Closed Won |
+| `closed_lost` | Closed Lost |
+| `disqualified` | Disqualified |
+| `fridge` | Nurture / Fridge |
+| `stay_in_proposal` | Proposal Sent (unchanged) |
+
+## Branching by call type
+
+The call type decides the branch for the five closing outcomes. The two draft outcomes
+(`proposal`, `needs_followup`) branch to draft-and-Apollo-write on either call type.
+
+### draft-and-Apollo-write (`proposal`, `needs_followup`)
+
+The skill produces a draft (proposal document or follow-up email) through
+`client-proposal-doc-builder` and, after operator approval, updates the Apollo stage:
 
 - `proposal` (full proposal document)
 - `needs_followup` (follow-up email only, no proposal document)
 
-The other five outcomes branch to stop-and-report. The skill reports the outcome label and
-the manual next step, then stops. No draft, no Apollo write:
+This branch is the same on a discovery call or a closing call. On a closing call these two
+outcomes are uncommon (a proposal is already in play), so when they come up there, re-check the
+call type with the operator first.
+
+### Discovery call: the five closing outcomes stop and report
+
+On a discovery call the five closing outcomes stop and report. The skill reports the outcome
+label and the manual next step, then stops. No draft, no Apollo write:
 
 - `closed_won` (manual next step: confirm paperwork, set the stage to Closed Won by hand)
 - `closed_lost` (manual next step: set the stage to Closed Lost by hand)
@@ -100,7 +153,20 @@ the manual next step, then stops. No draft, no Apollo write:
 - `disqualified` (manual next step: set the stage to Disqualified by hand)
 - `stay_in_proposal` (manual next step: leave the stage unchanged; note the call for the next touch)
 
-`stay_in_proposal` is a stop-and-report outcome. Even though the deal sits in the proposal
-stage, this call produces no new draft and triggers no Apollo write. The five stop-and-report
-outcomes report only; their stage moves stay manual, which keeps this skill in its Phase 1
-lane and out of Phase 3 side effects.
+### Closing call: the five closing outcomes route to post-closing handling
+
+On a closing call the deal is being resolved, so these five outcomes are actionable rather than
+report-only. Each routes to post-closing handling: the skill states the resolved outcome and
+its target Apollo stage from the map above, and the deal moves to that stage on the confirmed
+opportunity. This is the action track, not the report-only track the discovery path uses for
+these outcomes.
+
+- `closed_won` -> Closed Won
+- `closed_lost` -> Closed Lost
+- `disqualified` -> Disqualified
+- `fridge` -> Nurture / Fridge
+- `stay_in_proposal` -> stays in Proposal Sent; follow up manually
+
+This file defines the call-type branch and the closing-stage targets. Moving the deal to the
+target stage reuses the same Apollo stage-update flow the discovery path uses; confirm the
+opportunity before any stage change.
