@@ -1,13 +1,19 @@
 ---
 name: master-tracker
-description: Claude Code skill - runs in a terminal with real Python and local credentials, not in Cowork. Pull one or more reps' Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to run on a schedule. Trigger when the user wants to sync Apollo calls into a tracking sheet, build a per-rep outbound activity tracker, or says things like "pull my Apollo calls into the sheet", "update the call tracker", "run master-tracker", or "sync the dialer calls". It pulls each configured rep's calls with paged, 429-aware Apollo search, keeps only the configured dispositions, writes rows deduped by date and prospect, never overwrites manual columns, and marks a call ingested only after its row is written so a call tagged after the dialer logged it is still picked up on a later run.
+description: Standalone Python CLI for any agentic harness with shell access - runs in a terminal with local credentials. Pull one or more reps' Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to run on a schedule. Trigger when the user wants to sync Apollo calls into a tracking sheet, build a per-rep outbound activity tracker, or says things like "pull my Apollo calls into the sheet", "update the call tracker", "run master-tracker", or "sync the dialer calls". It pulls each configured rep's calls with paged, 429-aware Apollo search, keeps only the configured dispositions, writes rows deduped by date and prospect, never overwrites manual columns, and marks a call ingested only after its row is written so a call tagged after the dialer logged it is still picked up on a later run.
+capabilities:
+  - a shell with Python 3.10+ (dependencies installed from requirements.txt)
+  - Apollo REST API (API key supplied via config.json)
+  - Google Sheets read/write via Google OAuth (credential paths supplied via config.json)
+  - local file read and write (config.json, the OAuth token file, the ingest-state ledger)
 ---
 
 # master-tracker
 
-> **Claude Code skill - runs in a terminal, NOT Cowork.** This skill is real Python that needs
-> a shell, the filesystem, local API keys, and a Google OAuth token file. Do not upload it into
-> the Cowork desktop app. Run it from a terminal (or a cron job) with `python3 run.py`.
+> **Runs in any agentic harness with shell access.** This skill is a standalone Python CLI: it
+> needs a shell, the filesystem, a local Apollo API key, and a Google OAuth token file, declared
+> in `requirements.txt` and `config.json`. A harness that cannot run shell commands cannot run
+> it. Run it from a terminal (or a cron job) with `python3 run.py`.
 
 Pull each rep's dialed Apollo calls into per-rep tabs of a Google Sheet. The sheet becomes the
 single source of truth for outbound activity: one tab per rep, one row per call, filtered to the
@@ -72,7 +78,7 @@ This is a one-time setup per operator. Everything runs on your own accounts.
 1. **Install dependencies** (Python 3.10+):
 
    ```
-   cd master-tracker
+   cd skills/master-tracker
    python3 -m pip install -r requirements.txt
    ```
 
@@ -156,7 +162,7 @@ The side-effecting wrappers are kept thin and validated by the manual end-to-end
 Run the tests from the repo root:
 
 ```
-python3 -m pytest master-tracker
+python3 -m pytest skills/master-tracker
 ```
 
 ## Troubleshooting
