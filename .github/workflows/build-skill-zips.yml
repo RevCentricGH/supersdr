@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-latest
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,16 +21,18 @@ jobs:
 
       - name: Build ZIPs for skills containing SKILL.md
         run: |
-          mkdir -p dist
-          for dir in */; do
+          dist_dir="$GITHUB_WORKSPACE/dist"
+          mkdir -p "$dist_dir"
+          for dir in skills/*/; do
             dir="${dir%/}"
+            name="$(basename "$dir")"
             if [ -f "$dir/SKILL.md" ]; then
-              echo "Zipping $dir"
-              (cd "$dir" && zip -r "../dist/$dir.zip" .)
+              echo "Zipping $name"
+              (cd "$dir" && zip -r "$dist_dir/$name.zip" .)
             fi
           done
           echo "Built:"
-          ls -la dist/
+          ls -la "$dist_dir"
 
       - name: Replace 'latest' release with fresh ZIPs
         env:
@@ -38,3 +44,23 @@ jobs:
             --title "Latest skills (auto-built from main)" \
             --notes "Per-skill ZIPs auto-built from the latest \`main\` commit. The README's Download ZIP links resolve here once swapped to native GitHub release URLs." \
             dist/*.zip
+
+      - name: Verify release assets match skills/
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          expected=$(ls -d skills/*/ | wc -l)
+          actual=$(gh release view latest --json assets --jq '[.assets[].name] | length')
+          echo "Expected $expected ZIPs, release has $actual"
+          if [ "$actual" -ne "$expected" ]; then
+            echo "Release asset count mismatch; 'latest' is not current."
+            exit 1
+          fi
+          for dir in skills/*/; do
+            name="$(basename "${dir%/}")"
+            if ! gh release view latest --json assets --jq '.assets[].name' | grep -qx "$name.zip"; then
+              echo "Missing asset: $name.zip"
+              exit 1
+            fi
+          done
+          echo "All $expected skill ZIPs present on the 'latest' release."

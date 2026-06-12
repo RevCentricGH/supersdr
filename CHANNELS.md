@@ -1,3 +1,5 @@
+> **Cowork-only.** Everything in this doc applies to Claude Cowork sessions only; it does not apply to Claude Code or other harnesses.
+
 # Channels — async notifications for SuperSDR skills
 
 Channels let external services (Telegram, Discord, iMessage, webhooks) push events into a running Claude Cowork session. Two-way: you send a message from your phone, Claude reacts to it live, the reply pushes back through the same channel.
