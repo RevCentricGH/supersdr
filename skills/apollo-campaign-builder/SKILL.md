@@ -1,31 +1,45 @@
 ---
 name: apollo-campaign-builder
 description: Set up a new client's full Apollo campaign - automatically create all 7 outreach sequences and 4 workflow plays in the Apollo UI using browser automation. Use when user says "set up Apollo for [client]", "build Apollo campaign for [client]", "run Apollo campaign builder", or provides a SPOT doc and asks to set up outreach sequences.
+capabilities: [drive a web browser]
 ---
 
 # Apollo Campaign Builder
 
-**Runtime:** Claude Cowork
+**Runtime:** any agentic harness with browser automation
 
 ## Purpose
 
 Browser-automation skill for onboarding a new client into Apollo. Creates all 7 outreach sequences and 4 workflow plays directly in the Apollo UI - no manual clicking.
 
-Run this skill after the SPOT doc is complete. The lead list is built separately by `list-builder`; this skill starts from Apollo open in Chrome and confirms the client name in Step 1.
+Run this skill after the SPOT doc is complete. The lead list is built separately by `list-builder`; this skill starts from Apollo open in a browser and confirms the client name in Step 1.
 
 ## Files
 
 - `sequence_builder.py` - step definitions for all 7 sequences + browser execution guide
 - `workflow_builder.py` - definitions for all 4 workflow plays + browser execution guide
+- `reference/execution-guide.md` - the click-by-click browser loop, verification checklist, campaign map, troubleshooting, voice rules
 
 Both `.py` files are data the skill reads at runtime - not scripts to run, not docs to edit.
+
+---
+
+## Required capability: drive a web browser
+
+This skill requires browser automation - the ability to navigate, click, and type inside a live browser session. Apollo has no API for sequences or workflows; the UI is the only way to build them.
+
+If the host cannot navigate and click inside a live browser, stop immediately and tell the user:
+
+> "apollo-campaign-builder requires browser automation; there is no text-only fallback. Enable browser automation before running this skill."
+
+Do not offer a manual checklist or degrade to text instructions. Missing capability = hard stop.
 
 ---
 
 ## Prerequisites
 
 - Client name confirmed - all sequences/workflows will be prefixed with it
-- Apollo open and logged in at app.apollo.io in Chrome
+- Apollo open and logged in at app.apollo.io in the browser
 - `apollo-account-setup` run once on this Apollo account - the workflow plays reference contact stages it creates, and they will not save without them
 - Deal pipeline has an "Activated Lead" stage - Workflow 2's Create Deal action targets it. This is a custom pipeline stage, not an Apollo default and not created by `apollo-account-setup`; add it in Settings → Deals → Pipeline before building workflows, or Workflow 2 stays stuck in Draft
 
@@ -37,12 +51,7 @@ When this skill is loaded, greet the user:
 
 > "I'm the Apollo Campaign Builder. Tell me the client name and I'll set up all 7 outreach sequences and 4 workflow plays in your Apollo account."
 
-Assume Apollo is open in Chrome and browser automation is enabled in Cowork. Try to navigate to `https://app.apollo.io/#/sequences` and start the workflow.
-
-**Only if something fails**, walk the user through the fix one issue at a time:
-
-- **Page redirects to login or doesn't load** → "Apollo isn't open or you're not logged in. Open Chrome, go to app.apollo.io, log in, then tell me you're ready."
-- **Browser navigation fails entirely / browser automation not available** → "Browser automation (Claude in Chrome) isn't enabled. Go to Settings → Computer Use, turn on browser control, then come back."
+Assume Apollo is open and logged in and browser automation is available. Navigate to `https://app.apollo.io/#/sequences` and start the workflow. If the page redirects to login or doesn't load, tell the user: "Apollo isn't open or you're not logged in. Open your browser, go to app.apollo.io, log in, then tell me you're ready."
 
 ---
 
@@ -61,44 +70,9 @@ All sequences and workflows will be prefixed: "{ClientName} - ..."
 
 Read `sequence_builder.py` - it contains the full step definitions for all 7 sequences and the execution guide in `EXECUTION_GUIDE`.
 
-**Before starting:**
-- Confirm Chrome is open and logged in at app.apollo.io
-- Use `mcp__Claude_in_Chrome__navigate` to go to `https://app.apollo.io/#/sequences`
-- Verify the page loads (not redirected to login)
+Build each of the 7 sequences in `sequence_builder.SEQUENCES` in the Apollo UI: create the sequence with the client-prefixed name, add every step with its type and timing, verify the step count, and activate it.
 
-**For each sequence 1–7 in `sequence_builder.SEQUENCES`:**
-
-1. Navigate to `https://app.apollo.io/#/sequences`
-2. Click "New Sequence" / "Create Sequence"
-3. Enter the name: `{client} - {sequence["name"]}` (e.g. "Acme Corp - Call Only")
-4. Confirm creation - wait for the steps editor to load
-5. For each step in `sequence["steps"]`:
-   - Click "Add a step"
-   - Select the step type: Phone Call / Manual Email / Automatic Email / Action Item
-   - Set the timing (`delay` + `unit`) - "immediately" means 0 / leave blank
-   - Save the step and wait for it to appear in the list
-6. Verify step count matches `len(sequence["steps"])` - if wrong, stop and flag
-7. Activate the sequence
-8. Note the sequence ID from the URL for Step 3
-
-After each sequence confirm:
-```
-✓ Sequence {n}: {name} - {step_count} steps, active
-```
-
-After all 7:
-```
-All 7 sequences created:
-  1. {client} - Call Only          (10 steps)
-  2. {client} - Activated Lead     (7 steps)
-  3. {client} - Nurture            (7 steps)
-  4. {client} - Cold Follow-Up     (14 steps)
-  5. {client} - Pending Meeting    (2 steps)
-  6. {client} - Reschedule         (10 steps)
-  7. {client} - Referred To        (10 steps)
-```
-
-If a step modal behaves unexpectedly - screenshot and report before retrying. Do not skip steps.
+> **Before Step 2:** Read `reference/execution-guide.md` now - the click-by-click browser loop is there. Do not begin Step 2 without it.
 
 ---
 
@@ -138,90 +112,8 @@ All 4 workflows created:
 
 ---
 
-## Step 4 - Verification Checklist
+## Step 4 - Verify and map
 
-Confirm each item and report to the user:
+Run the verification checklist and output the visual campaign map - both are in `reference/execution-guide.md`. When every box is checked and the map is rendered, the client is fully set up in Apollo and ready to run.
 
-```
-SEQUENCES
-[ ] Call Only          - 10 steps, active, prefixed with client name
-[ ] Activated Lead     - 7 steps, active
-[ ] Nurture            - 7 steps, active
-[ ] Cold Follow-Up     - 14 steps, active
-[ ] Pending Meeting    - 2 steps, active
-[ ] Reschedule         - 10 steps, active
-[ ] Referred To        - 10 steps, active
-
-WORKFLOWS
-[ ] Disposition: Meeting Scheduled  - active, sequence + list names show [client]
-[ ] Disposition: Activated Lead     - active, sequence name shows [client]
-[ ] Disposition: Connect Incomplete - active, sequence name shows [client]
-[ ] Disposition: Nurture            - active, sequence name shows [client]
-```
-
-## Step 5 - Visual campaign map
-
-After verification, output a Mermaid diagram showing how the 4 workflows route SDR dispositions into sequences. Cowork renders this natively - gives the user a single visual that maps the entire campaign logic.
-
-````
-```mermaid
-flowchart TD
-    SDR[SDR sets contact disposition]
-    SDR --> MS{Meeting Scheduled}
-    SDR --> AL{Activated Lead}
-    SDR --> CI{Connect Incomplete}
-    SDR --> NT{Nurture}
-
-    MS --> MS_LIST[Add to List:<br/>{client} - Meetings Booked]
-    MS --> MS_SEQ[Sequence:<br/>{client} - Pending Meeting<br/>2 steps]
-    MS --> MS_STAGE[Stage: Meeting Pending]
-
-    AL --> AL_SEQ[Sequence:<br/>{client} - Activated Lead<br/>7 steps]
-    AL --> AL_DEAL[Create Deal<br/>stage: Activated Lead]
-    AL --> AL_LINK[Associate Contact to Deal]
-    AL --> AL_STAGE[Stage: Activated Lead]
-
-    CI --> CI_SEQ[Sequence:<br/>{client} - Cold Follow-Up<br/>14 steps]
-    CI --> CI_STAGE[Stage: Approaching]
-
-    NT --> NT_SEQ[Sequence:<br/>{client} - Nurture<br/>7 steps]
-    NT --> NT_STAGE[Stage: Nurture]
-
-    OTHER[Manual entry points] -.-> CO[{client} - Call Only<br/>10 steps]
-    OTHER -.-> RS[{client} - Reschedule<br/>10 steps]
-    OTHER -.-> RF[{client} - Referred To<br/>10 steps]
-
-    style MS fill:#e3f2fd
-    style AL fill:#fff3e0
-    style CI fill:#fce4ec
-    style NT fill:#e8f5e9
-```
-````
-
-Substitute `{client}` with the actual client name. The dotted lines from "Other entry points" represent the 4 sequences that aren't workflow-triggered - SDRs add contacts to those manually.
-
-When all boxes are checked and the visual map is rendered, the client is fully set up in Apollo and ready to run.
-
----
-
-## Troubleshooting
-
-One issue at a time. Walk the user through the fix, then retry the step.
-
-| Symptom | Likely cause and fix |
-| --- | --- |
-| A sequence will not save | A step is half-finished. Apollo blocks "Save changes" until every step has a type and timing set. Finish or delete the incomplete step, then click "Save changes" (top-right) again. |
-| "Add to Sequence" picker shows no match | The sequence does not exist yet, or the typed name is off. Build all 7 sequences in Step 2 first, then build the workflows. In the picker, search the exact prefixed name ("{client} - ..."); the picker matches the saved sequence name. |
-| Workflow stays in "Draft" after clicking Launch | A block is incomplete, so Apollo refuses to activate it. The usual culprits: the trigger has no Contact stage selected, or an action block (sequence, deal, list, or contact stage) has no value set. Open the workflow, fix the flagged block, then click "Launch workflow" again; the status flips from Draft to Active. |
-
----
-
-## Voice Rules
-
-Apply to all Claude-authored output - greetings, confirmations, step reports, error messages.
-
-- No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
-- No hedging: "I think", "it seems", "potentially", "it's worth noting"
-- No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
-- No em-dashes. Hyphen or rewrite.
-- Short. Direct. One idea per sentence.
+For any error along the way, use the Troubleshooting table in `reference/execution-guide.md` - one issue at a time. Apply the Voice Rules there to all output.
