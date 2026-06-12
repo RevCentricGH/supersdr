@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""Validate every top-level skill folder.
+"""Validate every skill folder under skills/.
 
 Run from the repo root: `python3 scripts/validate_skills.py`.
 Exits non-zero with a list of problems if anything is wrong.
 
 Checks:
   1. No gitignored/internal files (DEV_STATUS.md, .internal, __pycache__) are committed.
-  2. Every top-level folder with a SKILL.md has frontmatter whose `name:` matches the
+  2. Every folder under skills/ with a SKILL.md has frontmatter whose `name:` matches the
      folder and whose `description:` is non-empty, has a space after the colon (YAML
      drops the key without it), and is at most 1024 chars (Claude's skill upload limit).
+  3. At least one skill exists under skills/ (guards against running from the wrong cwd).
+  4. No SKILL.md lives outside skills/ (a skill dropped at root or any other depth fails).
 """
 import os
 import sys
 import re
 import subprocess
+from pathlib import Path
 
 FORBIDDEN = ["DEV_STATUS.md", ".internal"]
 
@@ -35,11 +38,17 @@ def main():
         if "__pycache__" in t.split("/"):
             errors.append(f"__pycache__ committed: {t}")
 
-    # 2. Every top-level folder with a SKILL.md must be a valid skill.
-    for entry in sorted(os.listdir(".")):
-        skill = os.path.join(entry, "SKILL.md")
-        if not (os.path.isdir(entry) and os.path.isfile(skill)):
+    # 2. Every folder under skills/ with a SKILL.md must be a valid skill.
+    if not os.path.isdir("skills"):
+        print("Validation FAILED:\n\n  - skills/ directory not found (run from the repo root)")
+        sys.exit(1)
+    skill_count = 0
+    for entry in sorted(os.listdir("skills")):
+        folder = os.path.join("skills", entry)
+        skill = os.path.join(folder, "SKILL.md")
+        if not (os.path.isdir(folder) and os.path.isfile(skill)):
             continue
+        skill_count += 1
         text = open(skill, encoding="utf-8").read()
         m = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
         if not m:
@@ -59,6 +68,18 @@ def main():
             errors.append(f"{skill}: frontmatter is missing a non-empty 'description:'")
         elif len(desc.group(1).strip()) > 1024:
             errors.append(f"{skill}: description is {len(desc.group(1).strip())} chars (Claude skill upload limit is 1024)")
+
+    # 3. Zero skills found means the scan looked at the wrong place; never pass silently.
+    if skill_count == 0:
+        errors.append("no skills found under skills/ (every skill must live at skills/<name>/SKILL.md)")
+
+    # 4. No SKILL.md may live outside skills/.
+    for p in sorted(Path(".").rglob("SKILL.md")):
+        parts = p.parts
+        if parts[0] in (".git", ".github"):
+            continue
+        if parts[0] != "skills":
+            errors.append(f"misplaced SKILL.md outside skills/: {p}")
 
     if errors:
         print("Validation FAILED:\n")
