@@ -2,8 +2,8 @@
 Apollo Sequence Builder — DATA FILE
 
 Read by the apollo-campaign-builder skill. The skill loads SEQUENCES and
-EXECUTION_GUIDE as Python constants, then drives the Apollo UI via the
-Claude in Chrome MCP tools. This file is not executed — there is no CLI.
+EXECUTION_GUIDE as Python constants, then drives the Apollo UI via
+browser automation. This file is not executed — there is no CLI.
 """
 
 # ------------------------------------------------------------------
