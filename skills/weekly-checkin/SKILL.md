@@ -1,13 +1,20 @@
 ---
 name: weekly-checkin
-description: Claude Code skill - runs in a terminal with real Python and local credentials, not in Cowork. Build a weekly client-delivery digest for one ISO week and deliver it to a configured destination - a Google Doc, Slack, or email. It reads each client's call and disposition rows from the master-tracker Google Sheet and pulls their SmartLead campaign stats, then assembles a per-client section with the call count, disposition breakdown, and SmartLead sent, open rate, reply rate, and bounce count. Trigger when the user wants a weekly client check-in, or wants to schedule or send the weekly digest - "run weekly-checkin", "send the weekly client report", "schedule the weekly check-in", "how did each client do this week". Runs on a weekly cron or on demand for one ISO week (YYYY-WNN, Monday-anchored); destination and schedule are config, not hardcoded; use --dry-run to preview without sending. It only reads the sheet, never writes to it. Per-student credentials (SmartLead API key and Google OAuth); nothing is hardcoded.
+description: Standalone Python CLI for any agentic harness with shell access - runs in a terminal with local credentials. Build a weekly client-delivery digest and deliver it to a configured destination - a Google Doc, Slack, or email. It reads each client's call and disposition rows from the master-tracker Google Sheet and pulls their SmartLead campaign stats, then assembles a per-client section with the call count, disposition breakdown, and SmartLead sent, open rate, reply rate, and bounce count. Trigger when the user wants a weekly client check-in, or wants to schedule or send the weekly digest - "run weekly-checkin", "send the weekly client report", "schedule the weekly check-in", "how did each client do this week". Runs on a weekly cron or on demand for one ISO week (YYYY-WNN, Monday-anchored); destination and schedule are config, not hardcoded; use --dry-run to preview without sending. It only reads the sheet, never writes to it. Per-student credentials (SmartLead API key and Google OAuth); nothing is hardcoded.
+capabilities:
+  - a shell with Python 3.10+ (dependencies installed from requirements.txt)
+  - read a Google Sheet via Google OAuth (the master-tracker sheet; credential paths in config.json)
+  - the SmartLead API (API key supplied via config.json)
+  - deliver to a Google Doc, a Slack incoming webhook, or email over SMTP (destination and secrets via config.json and env vars)
+  - local file read and write (config.json, the OAuth token file, the lockfile)
 ---
 
 # weekly-checkin
 
-> **Claude Code skill - runs in a terminal, NOT Cowork.** This skill is real Python that needs
-> a shell, the filesystem, a local SmartLead API key, and a Google OAuth token file. Do not
-> upload it into the Cowork desktop app. Run it from a terminal with `python3 run.py --week ...`.
+> **Runs in any agentic harness with shell access.** This skill is a standalone Python CLI: it
+> needs a shell, the filesystem, a local SmartLead API key, and a Google OAuth token file, declared
+> in `requirements.txt` and `config.json`. A harness that cannot run shell commands cannot run it.
+> Run it from a terminal (or a cron job) with `python3 run.py --week ...`.
 
 Build a weekly client-delivery digest. For a given ISO week, it reads the call and disposition
 rows master-tracker wrote to your Google Sheet and pulls each client's SmartLead campaign stats,
