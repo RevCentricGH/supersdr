@@ -14,7 +14,7 @@ import re
 import sys
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKILL_DIR = os.path.join(REPO_ROOT, "skills", "apollo-campaign-builder")
+SKILL_DIR = os.path.join(REPO_ROOT, "apollo-campaign-builder")
 
 sys.path.insert(0, SKILL_DIR)
 import workflow_builder  # noqa: E402  (sibling skill dir, added to sys.path above)

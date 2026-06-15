@@ -1,19 +1,14 @@
 ---
 name: custom-decks
-description: Generate a tailored prospect deck end-to-end from a single prospect (name, company, website) plus a call transcript or audio URL, rendered to Google Slides and PDF, returning a View link. Trigger when the user wants to build a custom deck for a specific prospect, says things like "build a deck for this prospect", "make a custom deck", "generate a pitch deck from this call", or "run custom-decks". It transcribes audio with Deepgram and a Groq fallback, scrapes the prospect site within character budgets, drafts grounded copy with Claude (refusing on insufficient signal), renders a Marp deck to PDF and PPTX, uploads it to Drive as Google Slides with a clickable CTA, and returns the Slides View URL.
-capabilities:
-  - a shell with Python 3.10+
-  - Node 18+ with npx (runs marp-cli)
-  - Deepgram, Groq, and Anthropic API keys
-  - a Google OAuth token file with Drive, Slides, and Sheets scopes
-  - write access to a Google Drive folder
+description: Claude Code skill - runs in a terminal with real Python, Node/Marp, local API keys, and a Google OAuth token file, not in Cowork. Generate a tailored prospect deck end-to-end from a single prospect (name, company, website) plus a call transcript or audio URL, rendered to Google Slides and PDF, returning a View link. Trigger when the user wants to build a custom deck for a specific prospect, says things like "build a deck for this prospect", "make a custom deck", "generate a pitch deck from this call", or "run custom-decks". It transcribes audio with Deepgram and a Groq fallback, scrapes the prospect site within character budgets, drafts grounded copy with Claude (refusing on insufficient signal), renders a Marp deck to PDF and PPTX, uploads it to Drive as Google Slides with a clickable CTA, and returns the Slides View URL.
 ---
 
 # custom-decks
 
-> **Runs in any agentic harness with shell access.** This skill needs a shell with Python 3.10+,
-> Node 18+ (for Marp via npx), Deepgram/Groq/Anthropic API keys, and a Google OAuth token file
-> with Drive, Slides, and Sheets scopes. Run it with `python3 run.py`.
+> **Claude Code skill - runs in a terminal, NOT Cowork.** This skill is real Python that needs
+> a shell, the filesystem, Node (for Marp), local API keys (Deepgram, Groq, Anthropic), and a
+> Google OAuth token file. Do not upload it into the Cowork desktop app. Run it from a terminal
+> with `python3 run.py`.
 
 Build a deck tailored to one prospect, grounded in their call and their website, branded as
 your own agency, rendered to Google Slides + PDF, and returned as a View link only when the
