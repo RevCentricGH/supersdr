@@ -43,6 +43,8 @@ Bridge — "As promised, I've put together a customized proposal for the {scope}
 engagement we discussed." Infer scope from summary + pricing_discussed (e.g.,
 "3-month cold email + cold calling", "fractional SDR training build-out").
 
+Here's the proposal: {proposal_link}
+
 [Optional confidence line] — only if a concrete past campaign result from your agency was
 explicitly mentioned in the call summary. Never fabricate campaign names or numbers.
 Skip entirely if no signal exists.
@@ -107,8 +109,11 @@ Hey {First Name},
 Really great catching up today, love what you're building with {Company}.
 
 As promised, I've put together a customized proposal for the 3-month cold email +
-cold calling engagement we discussed. Given the results from our {Prior Client} campaign,
-i think this will be a slam dunk.
+cold calling engagement we discussed.
+
+Here's the proposal: {proposal_link}
+
+Given the results from our {Prior Client} campaign, i think this will be a slam dunk.
 
 A few highlights from the proposal:
 - *Cold Calling* - dedicated dialing for higher-touch conversion with qualified prospects
