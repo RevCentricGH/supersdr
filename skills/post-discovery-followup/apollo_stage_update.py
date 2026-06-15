@@ -4,9 +4,10 @@ Apollo Deal-Stage Update - DATA FILE
 Read by the post-discovery-followup skill on a draft-and-Apollo-write outcome
 (`proposal` or `needs_followup`), after the operator has approved the draft.
 
-This file holds the browser EXECUTION_GUIDE for the Apollo opportunity stage
-update: search by company name, show the matched opportunity and its current
-stage, require explicit operator confirmation, then flip the stage and verify.
+This file holds the EXECUTION_GUIDE for the Apollo opportunity stage update via
+the Apollo REST API: find the opportunity by company name, show the matched
+opportunity and its current stage, require explicit operator confirmation, then
+update the stage and verify. No browser.
 
 The outcome-to-Apollo-stage map is NOT duplicated here. It lives in
 `reference/outcome-taxonomy.md` (the "Outcome-to-Apollo-stage map" table), which
@@ -14,7 +15,7 @@ is the single source of truth for triage and Apollo routing. Look up the target
 stage for the confirmed outcome there before running this guide. Only `proposal`
 and `needs_followup` reach this guide; the other five outcomes stop and report.
 
-This file is not executed - there is no CLI.
+This file is not executed - there is no CLI. It is read at runtime as data.
 """
 
 # ------------------------------------------------------------------
@@ -30,11 +31,11 @@ This file is not executed - there is no CLI.
 # hardcoded to one pipeline. If the map changes, change it in
 # outcome-taxonomy.md, not here.
 #
-# Live example (RevCentric.ai pipeline, dry-run 2026-06-01): the columns were
+# Live example (RevCentric.ai pipeline, dry-run 2026-06-01): the stages were
 # Activated Lead, Discovery Booked, Discovery Held, Close Call Booked, Proposal,
 # Closed Won, Fridge, Closed Lost, Disqualified, Churned. There, "Proposal Sent"
-# is the column named "Proposal", and there is NO "Follow-up" column - so on
-# needs_followup the operator picks the closest column or declines (no write).
+# is the stage named "Proposal", and there is NO "Follow-up" stage - so on
+# needs_followup the operator picks the closest stage or declines (no write).
 
 
 # ------------------------------------------------------------------
@@ -42,29 +43,36 @@ This file is not executed - there is no CLI.
 # ------------------------------------------------------------------
 
 EXECUTION_GUIDE = """
-APOLLO DEAL-STAGE UPDATE - BROWSER EXECUTION STEPS (KANBAN BOARD)
-================================================================
+APOLLO DEAL-STAGE UPDATE - APOLLO REST API (no browser)
+=======================================================
 
 WHEN THIS RUNS:
   Only on a confirmed `proposal` or `needs_followup` outcome, after the operator
   has reviewed the draft from client-proposal-doc-builder. The other five
   outcomes never reach this guide - they stop and report with no Apollo write.
 
+REQUIRED CAPABILITY:
+  An HTTP client bound to the Apollo REST API at api.apollo.io, authenticated
+  with the operator's Apollo API key (APOLLO_API_KEY in the environment). If you
+  have no HTTP-client capability, or APOLLO_API_KEY is not set, stop and tell the
+  operator which is missing. There is no browser or manual-checklist fallback;
+  the REST API path is the only path.
+
 NO SILENT WRITE (the core rule):
   Never move a deal on a best-guess match. The operator confirms the exact deal
   AND the target stage before any write. On zero or multiple matches, the
   operator picks or supplies the deal. There is no automatic top-match write and
-  no alias table - the operator resolves any name mismatch in person at the
+  no alias table - the operator resolves any name mismatch in the session at the
   confirmation step.
 
 VOCABULARY:
-  In the Apollo UI an "opportunity" is a "Deal". The Kanban board lays deals out
-  in columns, one column per pipeline stage. Flipping a stage means moving the
-  deal's card to the target stage's column. The board is what most operators use.
+  In the Apollo API an "opportunity" is the deal. Each opportunity carries an
+  `opportunity_stage_id` pointing at one pipeline stage. Moving a deal's stage
+  means setting that id to the target stage's id.
 
 Before starting:
-  1. Confirm Chrome is open and logged in at app.apollo.io. If it is not, stop
-     and ask: "Open Chrome, go to app.apollo.io, log in, then let me know."
+  1. Confirm an HTTP client is bound to api.apollo.io with APOLLO_API_KEY set.
+     If not, stop (see REQUIRED CAPABILITY).
   2. Have the company name (the same one passed to client-proposal-doc-builder,
      inferred from the transcript).
   3. Look up the target stage for the confirmed outcome in
@@ -72,76 +80,73 @@ Before starting:
        proposal       -> "Proposal Sent" (logical)
        needs_followup -> "Follow-up"     (logical)
      These are LOGICAL labels. The real pipeline may name them differently or
-     not have them at all - the operator confirms the real column at STEP D.
+     not have them at all - the operator confirms the real stage at STEP D.
 
-STEP A - Open the Deals board (Kanban)
-  - Use mcp__Claude_in_Chrome__navigate to open https://app.apollo.io/#/deals
-    (the older #/opportunities path redirects here).
-  - Switch to the board: in the left nav it is Win deals -> Deals; choose the
-    "Board view of Deals" (the Kanban view). When a single pipeline is shown the
-    URL gains an opportunityPipelineIds[] parameter.
-  - Confirm the board loaded and did not redirect to login. If it redirected,
-    stop and ask the operator to log in.
-  - Confirm the right pipeline is shown (pipeline picker at the top, e.g.
-    "All Pipelines"). The board columns are the pipeline stages, left to right.
+STEP A - List the pipeline stages
+  - Call the Apollo opportunity-stages endpoint to get every stage in the
+    operator's pipeline with its id and display name, in order.
+  - These names are what the operator sees; the logical label from the map is
+    matched against them at STEP D.
 
-STEP B - Find the deal by company name
-  - Type the company name into the board's deal search/filter. Use real
-    keystrokes - a pasted/scripted value will NOT filter unless the input
-    handler fires (confirmed in the dry-run). Do not use the global
-    "Search across Apollo" box; use the deal-scoped search for this board.
-  - Match on the company the deal belongs to (the Company column), not on the
-    deal title alone. Apollo deal titles often read "<Company> - New Deal".
-  - Collect every deal whose company matches, with its current stage column and
-    last activity / created date.
+STEP B - Find the opportunity by company name
+  - Query the Apollo opportunities search endpoint, filtering by the company
+    name. Match on the account/company the opportunity belongs to, not on the
+    deal title alone - Apollo deal titles often read "<Company> - New Deal".
+  - Collect every opportunity whose company matches, with its id, current
+    `opportunity_stage_id` (resolved to the stage name from STEP A), and last
+    activity / created date.
 
 STEP C - Resolve the match (this is where alias mismatches get fixed)
   - EXACTLY ONE match:
-      Carry it to STEP D for confirmation. Do not move it yet.
+      Carry its id to STEP D for confirmation. Do not update it yet.
   - ZERO matches:
-      Tell the operator no deal matched that company name. The name on the
-      calendar or in the transcript often differs from the Apollo account name
-      (agency vs end-client, campaign alias). Ask the operator to supply the
-      deal: search again under the name they give, or have them point to the
-      card. Do not create a new deal. Do not move anything.
+      Tell the operator no opportunity matched that company name. The name on
+      the calendar or in the transcript often differs from the Apollo account
+      name (agency vs end-client, campaign alias). Ask the operator to supply
+      the deal: search again under the name they give, or have them paste the
+      opportunity id. Do not create a new opportunity. Do not update anything.
   - MULTIPLE matches:
-      List them (deal title, company, current stage column, last activity) and
-      ask the operator to pick. Do not guess and do not move the top match.
+      List them (deal title, company, current stage, last activity) and ask the
+      operator to pick. Do not guess and do not update the first match.
 
-STEP D - Confirm the deal AND the real target stage before any write
+STEP D - Confirm the opportunity AND the real target stage before any write
   - Show the operator, in one block:
       - the deal title and company
-      - its CURRENT stage column
+      - its CURRENT stage name
       - the TARGET stage (the logical label from the map)
-  - Map the logical label to a real column in this pipeline. The label may not
-    exist verbatim. In the dry-run pipeline, "Proposal Sent" was the column named
-    "Proposal", and there was no "Follow-up" column at all. Ask the operator to
-    confirm which real column is the target.
-  - If no column fits (e.g. needs_followup in a pipeline with no follow-up
-    stage), the operator picks the closest column or declines. On decline, write
+  - Map the logical label to a real stage from STEP A. The label may not exist
+    verbatim. In the dry-run pipeline, "Proposal Sent" was the stage named
+    "Proposal", and there was no "Follow-up" stage at all. Ask the operator to
+    confirm which real stage is the target, and record its stage id.
+  - If no stage fits (e.g. needs_followup in a pipeline with no follow-up
+    stage), the operator picks the closest stage or declines. On decline, write
     nothing and report that the stage was left unchanged.
   - Require an explicit "yes" to proceed. Do not treat "sure", "ok", or "yeah"
     as confirmation. On anything else, stop and write nothing.
 
-STEP E - Move the deal to the target column
-  - On the board, drag the deal's card from its current column to the confirmed
-    target stage column. If drag is unreliable, open the deal and set the stage
-    from the deal's own stage control, then return to the board.
-  - NOTE: in a dry-run, creating and deleting a deal worked, but a scripted drag
-    did NOT move the card - Apollo's board drag-and-drop needs native pointer
-    input (Claude-in-Chrome provides this; a synthetic/scripted drag may not).
-    If the drag does not register, fall back to the deal's own stage control,
-    or screenshot and report. This step writes live data, so validate it on a
-    throwaway test deal, never on a real one.
+STEP E - Update the opportunity's stage
+  - Call the Apollo opportunity-update endpoint for the confirmed opportunity id,
+    setting `opportunity_stage_id` to the target stage id from STEP D.
+  - On an ambiguous timeout or network failure, do NOT silently re-attempt the
+    update - the write may already have succeeded. Tell the operator "update may
+    or may not have applied - verify in Apollo directly" and halt. Explicit retry
+    is the operator's decision.
+  - On a 429 (rate-limited), stop and surface it; do not auto-retry.
 
-STEP F - Verify the move took
-  - Confirm the card now sits in the target column and the column counts updated
-    (target +1, previous column -1). Confirm no error toast appeared.
-  - If it did not move: retry once. If it fails again, screenshot and report -
-    do not claim the stage was updated when it was not.
+STEP F - Verify the update took
+  - Re-read the opportunity by its id and confirm its `opportunity_stage_id` now
+    equals the target stage id. Match by id, never by name string.
+  - If it did not change: report it - do not claim the stage was updated when it
+    was not.
 
 REPORT:
-  State the deal, the old stage, the new stage, and that the move was verified.
+  State the deal, the old stage, the new stage, and that the update was verified.
   If the write was skipped (no confirmed match, no fitting stage, or the operator
   declined), say so plainly and that no stage was changed.
+
+ERROR HANDLING (every message shown to the operator):
+  Redact APOLLO_API_KEY, authorization headers, request URLs, and raw response
+  bodies. Still carry safe diagnostics: sanitized HTTP status, Apollo error
+  category if present, the operation name (stages-list, opportunity-search,
+  opportunity-update, verify), and the opportunity id when available.
 """

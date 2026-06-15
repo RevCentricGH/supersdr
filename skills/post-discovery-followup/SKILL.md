@@ -1,24 +1,28 @@
 ---
 name: post-discovery-followup
-description: Run the post-discovery or post-closing call workflow inside Cowork with the operator present. Trigger this skill when the user shares a discovery-call or closing-call transcript (pasted text or a Drive, Gemini, or Fireflies link) and wants the next step after the call, or says things like "I just got off a discovery call", "we had the closing call", "here's the call transcript", "triage this call", or "run post-discovery follow-up". The skill reads the full transcript, infers the call type (discovery or closing) and one of seven call outcomes with one line of reasoning each, and waits for the operator to confirm or override before anything else happens. It then branches on the confirmed call type and outcome per the outcome taxonomy: some outcomes hand off to the client-proposal-doc-builder skill for a draft and then update Apollo, a closing call routes its five closing outcomes to post-closing handling for the Apollo stage, and the rest report the manual next step and stop.
+description: Run the post-discovery or post-closing call workflow with the operator present. Trigger this skill when the user shares a discovery-call or closing-call transcript (pasted text or a Drive, Gemini, or Fireflies link) and wants the next step after the call, or says things like "I just got off a discovery call", "we had the closing call", "here's the call transcript", "triage this call", or "run post-discovery follow-up". The skill reads the full transcript, infers the call type (discovery or closing) and one of seven call outcomes with one line of reasoning each, and waits for the operator to confirm or override before anything else happens. It then branches on the confirmed call type and outcome per the outcome taxonomy: some outcomes hand off to the client-proposal-doc-builder skill for a draft and then update Apollo, a closing call routes its five closing outcomes to post-closing handling for the Apollo stage, and the rest report the manual next step and stop.
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: send an email, call the Apollo REST API, fetch and read a document from a shared link
 ---
 
 # Post-Discovery Follow-up
 
-A Cowork skill that reproduces the useful part of the post-discovery and post-closing workflow
+A skill that reproduces the useful part of the post-discovery and post-closing workflow
 with the operator in the session. The operator shares a call transcript, discovery or closing.
 The skill reads it, proposes the call type and the call outcome with one line of reasoning each,
 and lets the operator confirm or override. On a draft outcome it chains into
-`client-proposal-doc-builder` for the proposal or follow-up email, sends it through the Gmail
-connector, and updates the deal stage in Apollo. On a closing call the five closing outcomes
+`client-proposal-doc-builder` for the proposal or follow-up email, sends it with your
+email-sending capability, and updates the deal stage in Apollo via the Apollo REST API. On a closing call the five closing outcomes
 route to post-closing handling that resolves the deal to its Apollo stage. On a discovery call's
 other outcomes it reports the outcome and the manual next step and stops.
 
-The whole path runs in one Cowork session. The transcript, the company name, the confirmed
+The whole path runs in one session. The transcript, the company name, the confirmed
 outcome, the returned draft, and the recipient carry forward from step to step with no manual
-stitching. The skill uses connectors only - Google Drive, Gmail, and Claude-in-Chrome for
-Apollo - with no server, no cron, and no local API keys. Every external action (the email send
-and the Apollo write) waits for the operator's explicit approval.
+stitching. The skill needs three capabilities: a way to fetch and read a document from a shared
+link (for transcript links), a way to send an email, and an HTTP client for the Apollo REST API
+(with APOLLO_API_KEY set). Bind each to whatever your harness provides. Every external action
+(the email send and the Apollo write) waits for the operator's explicit approval. If a capability
+a step needs is missing, that step is a hard stop - no manual-checklist or text-paste fallback.
 
 This file is the orchestrator. The call-type definitions, the outcome definitions, the
 classification criteria, the outcome-to-Apollo-stage map, and the call-type branching live in
@@ -43,10 +47,10 @@ Accept the transcript in either form:
 
 - **Pasted text.** Use the pasted block as the transcript.
 - **A link** to a Google Drive doc, a Gemini transcript, or a Fireflies transcript. Fetch the
-  full document content from the link first, using the Google Drive connector for Drive links
-  or browser automation for Gemini and Fireflies links. Do not classify off the link, the
-  title, or a preview. Retrieve the whole document, then treat the retrieved text as the
-  transcript.
+  full document content from the link first with your document-reading capability (a Docs/Drive
+  reader for Drive links, a web fetch or browser for Gemini and Fireflies links). Do not classify
+  off the link, the title, or a preview. Retrieve the whole document, then treat the retrieved
+  text as the transcript.
 
 If the link cannot be retrieved, stop and tell the operator which link failed and ask them to
 paste the text instead. Never classify from a transcript you could not read.
@@ -149,7 +153,7 @@ update the Apollo deal stage (Step 6).
 
 This step runs only on a confirmed `proposal` or `needs_followup` outcome, after the operator
 has reviewed the draft from `client-proposal-doc-builder`. The other five outcomes never reach
-it. The email goes out through the Gmail connector.
+it. The email goes out through your email-sending capability.
 
 Before anything sends:
 
@@ -160,7 +164,7 @@ Before anything sends:
   and require an explicit "yes" to send. Do not treat "sure", "ok", or "yeah" as approval. If
   the operator edits the copy, send the edited version. Send nothing until they approve.
 
-On approval, send the subject and body to the recipient through the Gmail connector, then:
+On approval, send the subject and body to the recipient with your email-sending capability, then:
 
 - Confirm the send succeeded and report it.
 - If the send fails, report the failure plainly and do not claim it went out.
@@ -176,9 +180,10 @@ report, and on a closing call they route to post-closing handling (Step 4).
 Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. Look up the target stage for
 the confirmed outcome in `reference/outcome-taxonomy.md` (the outcome-to-Apollo-stage map); the
 EXECUTION_GUIDE does not restate the map. The target stage is a logical label - the operator's
-Apollo pipeline may name it differently or not have it - so the real column is confirmed with
-the operator before any write. Then, through Claude-in-Chrome browser automation on
-a logged-in Apollo:
+Apollo pipeline may name it differently or not have it - so the real stage is confirmed with
+the operator before any write. This step needs an HTTP client bound to the Apollo REST API with
+APOLLO_API_KEY set; if that capability is missing, stop and tell the operator (no browser or
+manual fallback). Then, through the Apollo REST API:
 
 - Search Apollo opportunities for the company name (the same name passed to
   `client-proposal-doc-builder`).
@@ -187,7 +192,7 @@ a logged-in Apollo:
 - On zero or multiple matches, let the operator pick or supply the opportunity. The calendar or
   transcript name often differs from the Apollo account name (agency vs end-client, campaign
   alias); the operator resolves that here, in the session. There is no alias table.
-- On confirmation, flip the stage to the target and verify the change took.
+- On confirmation, update the stage to the target and verify the change took.
 
 Never write on a best-guess match. No silent top-match write. If the operator declines or no
 opportunity is confirmed, change nothing and say so.
@@ -239,7 +244,7 @@ the completion summary) follow these voice rules:
 - `reference/outcome-taxonomy.md` - the call-type definitions, the seven outcomes, the
   classification criteria, the outcome-to-Apollo-stage map, and the call-type branching. Single
   source of truth for triage and Apollo routing. Read it when you classify and when you branch.
-- `apollo_stage_update.py` - the browser EXECUTION_GUIDE for the Apollo deal-stage update
-  (search, confirm, flip, verify). Read it in Step 6. The outcome-to-stage map it uses lives in
+- `apollo_stage_update.py` - the Apollo REST API EXECUTION_GUIDE for the Apollo deal-stage update
+  (search, confirm, update, verify). Read it in Step 6. The outcome-to-stage map it uses lives in
   `reference/outcome-taxonomy.md`, not in the .py. The `.py` file is data the skill reads at
   runtime - not a script to run, not a doc to edit.
