@@ -73,10 +73,13 @@ def main():
     if skill_count == 0:
         errors.append("no skills found under skills/ (every skill must live at skills/<name>/SKILL.md)")
 
-    # 4. No SKILL.md may live outside skills/.
+    # 4. No SKILL.md may live outside skills/. Skip the gitignored internal roots
+    #    (.internal helper, etc.) - they are expected on disk but never committed,
+    #    and check #1 above already guards against them being tracked.
+    skip_roots = {".git", ".github"} | {f.rstrip("/") for f in FORBIDDEN}
     for p in sorted(Path(".").rglob("SKILL.md")):
         parts = p.parts
-        if parts[0] in (".git", ".github"):
+        if parts[0] in skip_roots:
             continue
         if parts[0] != "skills":
             errors.append(f"misplaced SKILL.md outside skills/: {p}")
