@@ -1,6 +1,8 @@
 ---
 name: pre-brief
 description: Turn a sales-call transcript into a one-page Google Doc meeting brief, framed for the call type. Paste the transcript (and optionally prior artifacts like a proposal, a prior brief, or Apollo notes) or share a Drive, Fireflies, or Gemini link. pre-brief infers whether it is a discovery, onboarding, or closing call, confirms the type with you, then returns 5 to 8 points - each anchored to the transcript moment or pasted-artifact passage it came from - followed by a transcript-anchors section, as a Google Doc View link. Trigger this skill when the user says brief me on this call, prep me for this meeting, prep me for the kickoff, prep me for the closing or decision call, run pre-brief, what do I need to know going into this meeting or onboarding session, pastes a call transcript and wants meeting prep, or shares a Drive, Fireflies, or Gemini recording link and asks for a brief or a pre-read before a meeting.
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: write and format a Google Doc, fetch and read a document from a shared link (Google Drive, Fireflies, or Gemini)
 ---
 
 # pre-brief
@@ -21,7 +23,7 @@ At each decision point below, emit one plain-text log line so a run can be audit
 
 `[pre-brief] event=<event> detail=<short detail>`
 
-Events: `type-inferred`, `operator-override`, `unsupported-type-refused`, `artifact-fetch-unavailable`, `artifact-too-large`, `connector-fallback`, `doc-created`, `doc-failed`, `reference-file-missing`. Each step says which event to emit.
+Events: `type-inferred`, `operator-override`, `unsupported-type-refused`, `artifact-fetch-unavailable`, `artifact-too-large`, `doc-created`, `doc-failed`, `reference-file-missing`. Each step says which event to emit.
 
 ## Getting started
 
@@ -29,9 +31,9 @@ When this skill loads, greet the user:
 
 > "I'm pre-brief. Paste a sales-call transcript or share a Drive, Fireflies, or Gemini link, and I'll turn it into a one-page meeting brief, framed for the call type. I'll figure out whether it's a discovery, onboarding, or closing call and confirm with you first. You can also paste any prior artifacts (a proposal, a prior brief, Apollo notes) and I'll use them to anchor the brief - for a closing call those artifacts are what ground the discovery recap and proposal status, so paste them if you have them. You get back a Google Doc View link."
 
-Assume the Google Drive connector is connected with write access. Proceed once the user provides a transcript or a link.
+Assume you can create and format a Google Doc. Bind this to whatever Docs/Drive capability your harness has - a connector, an MCP server, or a Docs API client. Proceed once the user provides a transcript or a link.
 
-**Only if creating the Doc fails:** "Looks like Google Drive is not connected with write access in Cowork. Go to Settings -> Connectors -> Google Drive, connect your account, and enable edit permission. Then tell me you're ready, or say the word and I'll hand you the brief as text to paste into a Doc yourself."
+**If you have no capability to create a Google Doc:** stop and tell the user which capability is missing - they need a Google Docs / Drive tool with write access in their harness. Don't hand them the brief as chat text to paste themselves; the Doc View link is the deliverable.
 
 ## What to give it
 
@@ -40,7 +42,7 @@ The transcript, either:
 - Paste the full transcript text directly in the message, or
 - Share a Drive, Fireflies, or Gemini link to the transcript.
 
-If a link is given, fetch and read the complete document through the Google Drive connector before doing anything else. Do not extract points until the full text is loaded.
+If a link is given, fetch and read the complete document using your Doc-reading capability before doing anything else. Do not extract points until the full text is loaded.
 
 Optionally, prior artifacts (handled at Step 1b): a proposal link, a prior brief, Apollo notes. These help identify the call type and anchor the brief. They are pasted, not fetched: the skill does not pull anything from Apollo or Drive on its own beyond a transcript link you share.
 
@@ -48,7 +50,7 @@ Optionally, prior artifacts (handled at Step 1b): a proposal link, a prior brief
 
 ### Step 1 - Load the full transcript
 
-If the user pasted the transcript, use it as-is. If they gave a link, fetch the whole document through the connector and confirm the full text loaded. Never extract from a partial read.
+If the user pasted the transcript, use it as-is. If they gave a link, fetch the whole document with your Doc-reading capability and confirm the full text loaded. Never extract from a partial read.
 
 Note whether the transcript has timestamps (most call tools stamp each line, e.g. `[00:14:32]` or `00:14`). The anchor format depends on this:
 
@@ -113,7 +115,7 @@ Pull the 5 to 8 substantive moments that fit the active framing. Rules for the p
 
 ### Step 3 - Build the Google Doc
 
-Create the brief with the Google Drive connector. The connector must have write permission.
+Create the brief with your Google Doc capability. It must have write permission.
 
 1. **Create a Doc** titled with the active template's title pattern: `Pre-Brief (Discovery): {prospect or meeting name}` for `pre-disco`, `Pre-Brief (Onboarding): {client or account name}` for `pre-onboarding`, `Pre-Brief (Closing): {prospect or account name}` for `pre-closing`. Infer the name from the transcript; if it is unclear, ask the user in one line.
 2. **Write the point section(s)**, numbered continuously in priority order (the things most likely to come up first) so the anchors section can reference them. For `pre-disco`, write two sections: "What matters going in" (the Research finding, Concern, Objection, Ask, and Commitment points) and "Suggested agenda" (the Agenda item points). For `pre-onboarding` and `pre-closing`, write one section, "What matters going in", with all the points. Each line carries its kind tag and its anchor. Format a transcript-grounded point as:
@@ -129,15 +131,13 @@ Create the brief with the Google Drive connector. The connector must have write 
    `**Point 3** [00:14:32] "verbatim line or short exchange from the transcript"`
    `**Point 5** [proposal] "retained snippet or cited passage from the artifact"`
 
-4. **Capture the Doc URL** once creation is confirmed. Emit `[pre-brief] event=doc-created detail=<active type>`. If creation fails, emit `[pre-brief] event=doc-failed detail=<reason>` and fall back to text (below).
+4. **Capture the Doc URL** once creation is confirmed. Emit `[pre-brief] event=doc-created detail=<active type>`. If creation fails, emit `[pre-brief] event=doc-failed detail=<reason>` and stop (see below).
 
-The templates above are content specs, not literal text. Apply bold through the connector's formatting, never literal `**` characters - the anchor labels read as bold "Point 3", not `**Point 3**` with asterisks in the Doc. If the connector cannot apply bold, write the label as plain text.
+The templates above are content specs, not literal text. Apply bold through your Doc capability's formatting, never literal `**` characters - the anchor labels read as bold "Point 3", not `**Point 3**` with asterisks in the Doc. If your Doc capability cannot apply bold, write the label as plain text.
 
 Output is the structured Doc only. Do not build a styled-HTML one-pager or any other artifact.
 
-If the connector is not connected or lacks write permission, output the full brief as formatted text instead, emit `[pre-brief] event=connector-fallback detail=<reason>`, and tell the user:
-
-> "Paste this into a new Google Doc titled '{active title pattern, e.g. Pre-Brief (Onboarding): {name}}'."
+If you have no capability to create a Google Doc, or it lacks write permission, stop and tell the user which capability is missing and that they need to enable Doc write access in their harness. Emit `[pre-brief] event=doc-failed detail=<reason>`. Do not paste the brief into chat as a substitute - the Doc View link is the deliverable.
 
 ### Step 4 - Deliver the View link
 
@@ -169,4 +169,4 @@ These apply to everything this skill produces - the Doc and Claude's own message
 - **Anchor everything.** A point with no anchor is an unverifiable claim. Transcript-grounded points anchor to a timestamp (or quote plus speaker on an unstamped transcript); artifact-grounded points anchor to the cited artifact passage. Every point gets an anchor or it does not ship.
 - **Do not pad to a number.** Five well-grounded points beat eight where three are filler. The range is 5 to 8, not a quota.
 - **Quote, do not paraphrase, in the anchors section.** The "Transcript anchors" lines are verbatim so the reader can trust them. Paraphrase belongs in the "What matters going in" points, not the anchors.
-- **One pass into the Doc.** If you write section by section and something lands out of order, re-read the Doc through the connector and fix it before handing over the link.
+- **One pass into the Doc.** If you write section by section and something lands out of order, re-read the Doc with your Doc capability and fix it before handing over the link.
