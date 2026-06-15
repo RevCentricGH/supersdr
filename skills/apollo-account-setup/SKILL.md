@@ -1,6 +1,7 @@
 ---
 name: apollo-account-setup
 description: One-time Apollo account setup for new SuperSDR students — link workspace email, register outbound number with Free Caller Registry, configure 19 custom dispositions, add 11 contact stages, and wire the 19 disposition→stage triggers. Run once before any client campaigns are built. Use when user says "set up my Apollo account", "configure Apollo", "Apollo account setup", "set up dispositions", "set up contact stages", "set up triggers", "Apollo onboarding", or is setting up Apollo for the first time.
+capabilities: [drive a web browser]
 ---
 
 # Apollo Account Setup
@@ -13,7 +14,7 @@ This runs once per Apollo account, not per client. Dispositions and contact stag
 
 Run this skill first. Run the Apollo Campaign Builder after.
 
-_Cowork skill - upload the ZIP and run from the Claude desktop app._
+**Runtime:** any agentic harness with browser automation
 
 ## Files
 
@@ -39,7 +40,7 @@ These are the source of truth for all disposition, stage, and trigger data. Do n
 
 ## Prerequisites
 
-- Logged in at app.apollo.io in Chrome
+- Logged in at app.apollo.io in your browser
 - Workspace email credentials ready
 - Outbound phone number(s) ready to register
 
@@ -89,9 +90,15 @@ Do not proceed until confirmed.
 
 ---
 
-## Browser automation fallback (applies to Steps 3-5)
+## Required capability: drive a web browser
 
-If browser automation is unavailable, or a step fails against the Apollo UI (button missing or disabled, dialog not opening, page layout changed), stop the automation and output that step's full data - the dispositions, stages, or triggers list - as a labeled manual checklist in chat so the user can enter the entries by hand. Do not improvise around a changed UI.
+This skill requires browser automation - the ability to navigate, click, and type inside a live browser session. Apollo has no API for dispositions, contact stages, or triggers; the UI is the only way to configure them.
+
+If the host cannot navigate and click inside a live browser, stop immediately and tell the user:
+
+> "apollo-account-setup requires browser automation; there is no text-only fallback. Enable browser automation before running this skill."
+
+Do not offer a manual checklist or degrade to text instructions. Missing capability = hard stop. If a step fails against a changed Apollo UI (button missing or disabled, dialog not opening, layout changed), stop and report the failure - do not improvise around it or dump the data as a manual checklist.
 
 ---
 
