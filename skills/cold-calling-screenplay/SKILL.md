@@ -1,6 +1,8 @@
 ---
 name: cold-calling-screenplay
 description: Generate a verbatim cold call main pitch screenplay (Short or Full version) for any B2B company. Use when user says "screenplay", "cold call script", "cold calling screenplay", "main pitch", "talk track", "outbound script", "SDR script", "short version", "full version", "quick pitch", "thumbnail pitch", "big idea only", "full story", or asks to write a cold calling pitch for any company or persona.
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: none required - a complete SPOT doc replaces all research. Optional: search the web, spawn parallel research sub-agents.
 ---
 
 # Cold Calling Screenplay Generator
@@ -9,7 +11,7 @@ description: Generate a verbatim cold call main pitch screenplay (Short or Full 
 
 Generates verbatim, delivery-annotated cold call main pitch talk tracks. Two versions: Short (status thumbnail + big idea paragraph) and Full (thumbnail + change in world + big question + UVP). Scope is the main pitch only - between the opener and the close.
 
-_Cowork skill - upload the ZIP and run from the Claude desktop app._
+_Self-contained reasoning skill - runs in any agentic harness. A complete SPOT doc (Tabs 3 and 4) replaces all research; web search and research sub-agents are optional speedups, not requirements._
 
 ## Prerequisites
 
@@ -68,16 +70,16 @@ If a SPOT doc was provided, skip this step - Tab 3 and Tab 4 cover it. Otherwise
 
 **If the gap is small (1-2 missing facts):** a couple of inline web searches is fine.
 
-**If the gap is large (no SPOT doc, minimal context):** spawn parallel sub-agents to research multiple angles at once using the Agent tool (`Explore` subagent type). Recommended split:
+**If the gap is large (no SPOT doc, minimal context):** spawn parallel research sub-agents to cover multiple angles at once, if your harness can spawn them. Recommended split:
 
 - Agent 1: Product, what it does, plain-vanilla mechanics, twist/differentiator
 - Agent 2: Customer logos, case studies, awards from `site:[clientdomain.com]` (for status thumbnail)
 - Agent 3: Target persona's day-in-the-life pain in symptomese (forums, podcasts, review sites)
 - Agent 4: Industry-specific "change in the world" - non-avoidable shift creating urgency now
 
-Run all in a single message with multiple Agent tool calls. Synthesize results when they return. This cuts research time significantly and keeps the screenplay grounded in real evidence rather than generic language.
+Run them concurrently if your harness supports parallel sub-agents. Synthesize results when they return. This cuts research time significantly and keeps the screenplay grounded in real evidence rather than generic language.
 
-If the Agent tool isn't available in this runtime, take the single-threaded path - search the web for:
+If your harness can't spawn sub-agents, take the single-threaded path - search the web for:
 - What the product actually does (the "plain vanilla")
 - What makes it different (the "twist")
 - Real pain points the target persona faces today

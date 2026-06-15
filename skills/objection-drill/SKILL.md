@@ -1,6 +1,8 @@
 ---
 name: objection-drill
 description: Cold call objection handling drill and roleplay tool for SDRs. Two modes - Quick Drill (paste an objection, get framed responses) and Live Roleplay (skill plays the prospect, you respond, get graded). Use when user says "drill me on objections", "how do I handle [objection]", "I keep getting hit with [X]", "roleplay me as a [persona]", "objection drill", "practice objections", "give me responses to [objection]", or pastes a real objection from a recent call. Also use when the user asks for help mid-call prep or wants to train on a specific client's objection set.
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: none required - self-contained reasoning skill; reads its bundled reference/ files
 ---
 
 # Objection Drill Skill
@@ -9,7 +11,7 @@ description: Cold call objection handling drill and roleplay tool for SDRs. Two 
 
 Two-mode cold call objection trainer for SDRs and closers. Built on the Universal Loop, 5 Objection Families, and low-and-slow tone framework. Works for any client when the per-client objection library (SPOT Tab 7) is provided.
 
-_Cowork skill - upload the ZIP and run from the Claude desktop app._
+_Self-contained reasoning skill - runs in any agentic harness. No integration required._
 
 ---
 

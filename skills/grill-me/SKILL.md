@@ -1,6 +1,8 @@
 ---
 name: grill-me
 description: Interview the user relentlessly about a task or plan until reaching shared understanding, resolving each branch of the decision tree. Use when user says "grill me", wants to stress-test a plan before running it, or describes something big, vague, or multi-step they're about to start. Do NOT trigger for quick questions or small single-step tasks.
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: none required - pure reasoning, no external integrations
 ---
 
 # Grill Me

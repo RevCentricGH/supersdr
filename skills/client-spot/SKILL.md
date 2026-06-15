@@ -1,6 +1,8 @@
 ---
 name: client-spot
 description: Generate a client single point of truth (SPOT) document - multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Pulls from onboarding call transcripts, meeting summaries, Google form responses, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: write and format a Google Doc, search the web
 ---
 
 # Client SPOT Skill
@@ -9,9 +11,9 @@ description: Generate a client single point of truth (SPOT) document - multi-tab
 
 Generates a complete single point of truth document for a new client, structured as 9 separate tabs in a Google Doc.
 
-The skill pulls from the trigger message, attached transcripts, Google form responses, and optionally web research, then generates all 9 tabs in one pass and creates the Google Doc via MCP.
+The skill pulls from the trigger message, attached transcripts, Google form responses, and optionally web research, then generates all 9 tabs in one pass and creates the Google Doc using your doc-writing capability.
 
-**Runtime: Claude Cowork**
+**Needs:** a way to create and format a Google Doc. Bind this to whatever Docs/Drive capability your harness has - a connector, an MCP server, or a Docs API client. Web search is optional, for the research pass.
 
 ## Downstream consumers
 
@@ -81,7 +83,7 @@ Pull anything typed in: client name, website, campaign type, anything not in the
 - "[Client name] competitors" → market positioning
 - "[Client name] [target buyer title]" → buyer persona context
 
-**If no first-party material was provided (deep research mode):** skip the web research question - research is not optional when there is no other input. Tell the user you're running full research and proceed. Spawn parallel Explore subagents to dig deeper from multiple angles in one shot. Recommended split:
+**If no first-party material was provided (deep research mode):** skip the web research question - research is not optional when there is no other input. Tell the user you're running full research and proceed. Spawn parallel research sub-agents to dig deeper from multiple angles in one shot. Recommended split:
 
 - Agent 1: Product, positioning, founding story, traction milestones (read their site + recent press)
 - Agent 2: Customers and case studies (logos, named results, segments served)
@@ -103,15 +105,15 @@ The full field-by-field templates for all 9 tabs are in `reference/tab-templates
 
 ### Step 5 - Create the Google Doc
 
-Use the Google Drive MCP to create and populate the document. Do not construct raw API calls - let the MCP handle formatting and insertion.
+Use your Google Docs capability to create and populate the document. Prefer a high-level Docs tool or connector over raw API calls - let it handle formatting and insertion.
 
 1. Create a new Google Doc titled "[Client Name] Single Point of Truth"
 2. Add 9 tabs with these exact names (in order): Campaign Status, Campaign Brief, Company Overview, Problem Solution, ICP & Buyer Persona, Competitor Overview, Objection Handling, Screenplay, Apollo Campaign Setup
 3. Write each tab's generated content into the matching tab via the MCP
 
-If the MCP does not support tab creation, create the doc as a single document with each tab's content under a clear section heading and tell the user tabs must be added manually.
+If your doc capability does not support tab creation, create the doc as a single document with each tab's content under a clear section heading and tell the user tabs must be added manually.
 
-**If Google Doc creation fails entirely:** output all 9 tab content blocks as labeled sections in the chat so the user can paste manually, and tell them what failed.
+**If you have no capability to create a Google Doc:** stop and tell the user which capability is missing. Don't paste the tabs into chat as a substitute - the Google Doc is the deliverable.
 
 ### Step 6 - Hand off
 
