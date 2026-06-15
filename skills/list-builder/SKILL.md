@@ -1,15 +1,17 @@
 ---
 name: list-builder
-description: Build an enriched, dial-ready contact list from a client's SPOT doc using Apollo MCP. Pure Claude Cowork - no API keys, no scripts, no local files. Outputs a Google Sheet (or inline table) ready for downstream channel tools. Use when user says "build me a list for [client]", "dial list for [client]", "build the list", "run list builder", or "build contacts for [client]".
+description: Build an enriched, dial-ready contact list from a client's SPOT doc using the Apollo API. Outputs a Google Sheet (or inline table) ready for downstream channel tools. Use when user says "build me a list for [client]", "dial list for [client]", "build the list", "run list builder", or "build contacts for [client]".
+# capabilities is free-form prose for human readers and harness docs, not a schema-backed list
+capabilities: source and enrich contacts via the Apollo API, read a Google Doc (the client SPOT), search the web, and write a Google Sheet. Optional capabilities add pipeline stages - see reference/integrations.md.
 ---
 
 # List Builder
 
 ## Purpose
 
-Builds a dial-ready, intent-scored contact list using a client's SPOT doc as the ICP source and Apollo MCP for sourcing + enrichment. Outputs a Google Sheet (or inline table) with email status, phone line-type, fit score, intent score, urgency tier, and a hook per contact. Everything runs through MCP tools - no scripts, no API keys, no local files.
+Builds a dial-ready, intent-scored contact list using a client's SPOT doc as the ICP source and the Apollo API for sourcing + enrichment. Outputs a Google Sheet (or inline table) with email status, phone line-type, fit score, intent score, urgency tier, and a hook per contact.
 
-_Cowork skill - upload the ZIP and run from the Claude desktop app._
+Bind each capability to whatever your harness provides - an Apollo connector or MCP server, a Google Docs/Sheets tool, a web-search tool. Optional capabilities (email validation, phone line-type lookup, and more) each add a pipeline stage when present; see `reference/integrations.md`.
 
 ---
 
@@ -25,30 +27,15 @@ When this skill is loaded, greet the user:
 
 ## Prerequisites (check at startup)
 
-Required MCPs the user must have connected to their Claude account:
-- **Apollo MCP** (`apollo-io`) - sourcing + contact enrichment
+**Required:** an Apollo sourcing + enrichment capability (people search + contact enrich/match). Bind it to whatever your harness provides - an Apollo connector, an MCP server, or a direct Apollo API client.
 
-Optional MCPs - each adds a stage to the pipeline if connected, otherwise that stage is skipped or downgraded:
+If you have no Apollo capability, stop and tell the user:
 
-| MCP | What it adds |
-|---|---|
-| **Google Drive / Sheets** | SPOT doc reading + Google Sheet output |
-| **ZeroBounce** | Email validation (replaces "trust Apollo's verified status" with a real deliverability check) |
-| **Twilio** | Phone line-type detection (mobile / landline / VoIP) via Twilio Lookup |
-| **Perplexity** | Richer signal research in Layer 4 (the deep per-company signal research stage - see Stage 7) |
-| **Clay** | Additional enrichment passes if Apollo's hit rate is low |
-| **Common Room** | Intent signals (website visitors, community engagement) for Layer 4 |
-| **Smartlead** / **Instantly** | Push the final list to a cold email campaign in one step |
-| **HeyReach** | Push the final list to a LinkedIn outreach sequence in one step |
-| **HubSpot** | Sync the final contacts into CRM as leads |
+> "This skill needs an Apollo sourcing capability (a connector, an MCP server, or an API client) and there's no substitute - Apollo is the core dependency. Connect one, then ask me again."
 
-Detect what's available at startup. Use what you have. Don't ask the user to set things up they don't need.
+**Optional capabilities** each add a pipeline stage when present and are skipped or downgraded when absent: reading the SPOT and writing the output sheet, email validation, phone line-type lookup, deeper signal research, extra enrichment, intent signals, and push-to-campaign / CRM sync. The full list and what each adds is in `reference/integrations.md`.
 
-If Apollo MCP isn't available, stop and tell the user:
-
-> "Apollo MCP isn't connected. Add it in Claude → Settings → MCP Servers → Apollo. Then ask me again."
-
-Don't try to substitute - Apollo is the core dependency.
+Detect what's available at startup. Use what you have. Don't ask the user to set up things they don't need.
 
 ---
 
@@ -58,7 +45,7 @@ Parse the client name from the user's message. If missing, ask once: "Which clie
 
 Find the SPOT doc:
 1. User pasted a Google Docs URL → use that
-2. Search Drive for "{Client Name} SPOT" or "{Client Name} Single Point of Truth"
+2. Search your document store (e.g. Google Drive) for "{Client Name} SPOT" or "{Client Name} Single Point of Truth"
 3. Nothing found → "No SPOT doc for [Client]. Run `/client-spot` first to create one, or paste the link."
 
 Read **Tab 9 (Apollo Campaign Setup)** from the SPOT doc - that tab is built specifically to feed this skill. Tab 5 (ICP & Buyer Persona) is the fallback if Tab 9 is incomplete.
@@ -81,11 +68,11 @@ Default batch: 100.
 
 ## Pipeline
 
-All stages run inline using MCP tools and Claude's reasoning. No external scripts.
+All stages run inline using your harness's tools and Claude's reasoning. No external scripts.
 
-### Stage 1 - Source contacts (Apollo MCP)
+### Stage 1 - Source contacts (Apollo)
 
-Call Apollo MCP's people search tool with the extracted filters. Use the appropriate Apollo MCP tool for the mode:
+Call Apollo's people-search with the extracted filters. Use the appropriate Apollo call for the mode:
 - **TAM mode**: pull contacts from the saved label / list ID
 - **Fresh mode**: live search with person_titles, employee ranges, locations, tech signals
 
@@ -95,41 +82,7 @@ Page until you hit the batch size.
 
 ### Stage 2 - Heuristic ICP scoring (inline)
 
-Score each contact 0-100. Baseline 50, then add/subtract:
-
-**Domain signals**
-- `.ai` TLD → +15
-- `.io` / `.dev` / `.xyz` / `.app` → +5
-
-**Company name**
-- Contains "AI" as word → +10
-- Contains "labs" / "intelligence" / "cognition" / "llm" → +5
-- Contains "copilot" / "agent" / "gpt" → +8
-
-**Industry**
-- AI / ML → +15
-- Software / IT → +5
-
-**Employee count**
-- <50 → +10
-- 50-199 → +5
-- 500-1999 → -5
-- 2000+ → -15
-
-**Funding stage**
-- Seed / Series A → +5
-- Series D+ / IPO / Public → -5
-
-**Title seniority**
-- C-suite (CTO, CEO, Chief X) → +10
-- VP / Head of → +7
-- Director → +4
-- ML / AI / LLM / Prompt in title → +3
-
-Clamp to 0-100. Assign tiers:
-- ≥75 → Tier 1
-- 50-74 → Tier 2
-- <50 → Tier 3 (drop)
+Score each contact 0-100 from a baseline of 50 using the domain, company-name, industry, employee-count, funding-stage, and title-seniority weights in `reference/scoring.md`. Clamp to 0-100 and assign tiers: Tier 1 (≥75), Tier 2 (50-74), Tier 3 (<50, drop). Load `reference/scoring.md` for the full weight table and thresholds.
 
 ### Stage 3 - ICP qualification on a sample (inline web research, Tier 1+2 only)
 
@@ -144,7 +97,7 @@ Don't qualify the whole list yet. Take the first 10-15 Tier 1+2 contacts (highes
 
 Record one short reason for every kept and every dropped contact in the sample - this is what the operator confirms next.
 
-Use native web search. If Perplexity MCP is connected, use that for richer checks.
+Use web search. If a deeper-research capability is present, use it for richer checks.
 
 ### Stage 4 - Sample confirm-then-scale checkpoint
 
@@ -170,28 +123,28 @@ Wait for the operator. Two paths:
 
 Once locked, apply the locked criteria to the full Tier 1+2 list: re-run Stage 2 scoring and Stage 3 qualification across every remaining contact, dropping the same way the sample did. The locked criteria, not the originals, govern the full list. The contacts that survive are the only input to the reveal and enrichment stages below - that's how a wrong ICP read stops costing enrichment spend.
 
-### Stage 5 - Reveal contact info (Apollo MCP)
+### Stage 5 - Reveal contact info (Apollo)
 
-For contacts with locked emails, call Apollo MCP's enrich/match tool to reveal email + phone. Apollo MCP returns its own email status (verified/unverified) - keep it as a first-pass signal, but the next stage does the real validation if the right MCPs are connected.
+For contacts with locked emails, call Apollo's enrich/match to reveal email + phone. Apollo returns its own email status (verified/unverified) - keep it as a first-pass signal, but the next stage does the real validation if the right capabilities are present.
 
 Apollo also returns a do-not-call / call-restriction status on the contact and on each revealed phone number. Carry it onto the row as the **DNC** flag (true = do-not-call or call-restricted). The next stage gates on it: a flagged contact is never dial-ready, no matter how strong the fit.
 
-### Stage 6 - Validate emails + phones (optional MCPs)
+### Stage 6 - Validate emails + phones (optional capabilities)
 
-This stage runs only if the relevant MCPs are connected. If neither is, mark everything as "Not validated - dial and see" and continue. The DNC gate below is the exception: it runs from Apollo's own flags, needs no extra MCP, and applies on every run.
+This stage runs only if the relevant capabilities are present. If neither is, mark everything as "Not validated - dial and see" and continue. The DNC gate below is the exception: it runs from Apollo's own flags, needs no extra capability, and applies on every run.
 
-**Email validation (ZeroBounce MCP):**
-- For every contact with an email, call ZeroBounce's `validate_email` (single) or `validate_email_batch` (bulk) tool
+**Email validation (an email-validation capability):**
+- For every contact with an email, call its single or batch validation
 - Map results: `valid` → Email Ready = true; `catch-all` → Email Ready = true (lower confidence); `invalid` / `do_not_mail` / `spamtrap` → Email Ready = false; `unknown` → Email Ready = false but keep the row
 - Drop rows with `invalid` emails AND no phone
 
-**Phone line-type (Twilio MCP):**
-- For every contact with a phone, call Twilio Lookup's phone number lookup tool with `line_type_intelligence` enabled
+**Phone line-type (a phone line-type lookup capability):**
+- For every contact with a phone, call its line-type lookup
 - Map: `mobile` → MOBILE; `landline` → LANDLINE; `voip` / `nonFixedVoip` → VOIP; 404 → INVALID
-- **DNC gate (runs with or without Twilio):** if the DNC flag from Stage 5 is true, set Phone Ready = false and keep the contact out of READY / Ready to Dial. Do-not-call and call-restricted contacts are excluded no matter the line type or fit score
+- **DNC gate (runs with or without a phone lookup):** if the DNC flag from Stage 5 is true, set Phone Ready = false and keep the contact out of READY / Ready to Dial. Do-not-call and call-restricted contacts are excluded no matter the line type or fit score
 - Phone Ready = (MOBILE or LANDLINE) and DNC is false (VoIP usually has low connect rate - flag but don't drop)
 
-If a user has Clay MCP connected and Apollo's enrichment hit rate was low (<40%), offer to run a Clay enrichment pass on the unrevealed contacts before validating.
+If an extra-enrichment capability is present and Apollo's enrichment hit rate was low (<40%), offer to run an extra enrichment pass on the unrevealed contacts before validating.
 
 ### Stage 7 - Layer 4 enrichment (Tier 1 only)
 
@@ -201,9 +154,9 @@ For each Tier 1 contact, do signal research and apply compound intent scoring. T
 
 - Batch Tier 1 contacts by unique company (typically 30-50 companies for a 100-contact pull)
 - Split into 4-6 batches of ~5-10 companies each
-- Spawn one sub-agent per batch using the Agent tool (`Explore` subagent type works well for read-heavy research)
+- Spawn one research sub-agent per batch, if your harness can spawn them (a read-heavy research agent works well)
 - Each sub-agent's prompt: list of companies + the signal taxonomy below + instructions to return structured findings per contact
-- Run all sub-agents in parallel (single message, multiple Agent tool calls)
+- Run all sub-agents in parallel if your harness supports it
 - Synthesize results when they return
 - If sub-agents aren't available in this runtime, run the batches as sequential web searches - slower, same output
 
@@ -217,7 +170,7 @@ This typically cuts Layer 4 wall time by 5-10× and keeps your main context clea
 - Product launches / news
 - Self-authored content from the contact (for hooks)
 
-If Perplexity MCP / Apollo MCP / other research tools are connected, sub-agents use them automatically - they inherit the user's MCP environment.
+If deeper-research or Apollo capabilities are present, sub-agents use them automatically - they inherit the host's tool environment.
 
 Load `reference/output-schema.md` for the INTENT_SCORE formula, urgency tier thresholds, and hook bucket framework. Apply them here.
 
@@ -225,35 +178,34 @@ Load `reference/output-schema.md` for the INTENT_SCORE formula, urgency tier thr
 
 ### Stage 8 - Output
 
-**If Google Sheets MCP is connected:** use it to create and populate the sheet - do not construct raw API calls.
+**If you have a Google Sheets capability:** use it to create and populate the sheet - prefer a high-level Sheets tool over raw API calls.
 
 1. Create a new sheet titled `{Client} List - {date}`
 2. Write the header row using the plain-text column names from `reference/output-schema.md` - markdown formatting does not carry into cells (`Email Ready`, not `**Email Ready**`)
 3. Write one contact per row, one column per field
 4. Share the URL with the user
 
-If the sheet write fails after the MCP is connected, fall back to the inline markdown table and tell the user what failed.
+If the sheet write fails after the capability is present, fall back to the inline markdown table and tell the user what failed.
 
-**If Google Sheets MCP is not connected:** output as a markdown table inline.
+**If you have no Google Sheets capability:** output as a markdown table inline.
 
 Either way, the column schema is the same. This is the contract downstream channel tools read.
 
 ### Stage 9 - Push to downstream channel (optional)
 
-After the sheet/CSV is written, check which campaign MCPs are connected. If any are available, ask:
+After the sheet/CSV is written, check which campaign or CRM capabilities are present. If any are available, ask:
 
-> "List is ready. Want me to push it directly to [Smartlead / Instantly / HeyReach / HubSpot]?"
+> "List is ready. Want me to push it directly to your campaign / outreach / CRM tool?"
 
 If yes:
 
-- **Smartlead MCP** → create a new campaign named `{Client} - {date}` and upload all `Email Ready = true` contacts. Default to paused state for safety.
-- **Instantly MCP** → same pattern. Always start paused.
-- **HeyReach MCP** → for LinkedIn outreach. Push contacts where `LinkedIn Ready = true` into a new sequence.
-- **HubSpot MCP** → create contacts in CRM with lead source tagged as the client list. Useful for tracking even without immediate outreach.
+- **A cold-email campaign tool (e.g. Smartlead / Instantly)** → create a new campaign named `{Client} - {date}` and upload all `Email Ready = true` contacts. Always start paused.
+- **A LinkedIn outreach tool (e.g. HeyReach)** → push contacts where `LinkedIn Ready = true` into a new sequence.
+- **A CRM (e.g. HubSpot)** → create contacts as leads with lead source tagged as the client list. Useful for tracking even without immediate outreach.
 
-If multiple are connected, offer them as a multi-select. Always default to paused/draft state - the user reviews before activating.
+If multiple are present, offer them as a multi-select. Always default to paused/draft state - the user reviews before activating.
 
-If no campaign MCPs are connected, skip this stage. Just tell the user where the sheet is.
+If no campaign or CRM capabilities are present, skip this stage. Just tell the user where the sheet is.
 
 ### Output schema (the contract)
 
@@ -263,7 +215,7 @@ See `reference/output-schema.md` for the full column definitions, urgency tier t
 
 ## Final summary to the user
 
-Include a Mermaid funnel diagram showing how contacts moved through each stage. Cowork renders this natively - the user sees the drop-off visually instead of just reading numbers.
+Include a Mermaid funnel diagram showing how contacts moved through each stage. Most chat surfaces render Mermaid natively - the user sees the drop-off visually instead of just reading numbers.
 
 ````
 Built [N] contacts for [Client].
@@ -305,15 +257,15 @@ Output: [Google Sheet URL] or [CSV path or "inline above"]
 Next: Red Hot needs AE attention today. Hot contacts → sequence today.
 ````
 
-Fill the diagram's `{placeholder}` values from the actual stage counts. If a stage was skipped (e.g. no email validation MCPs), omit that node and reconnect the arrows.
+Fill the diagram's `{placeholder}` values from the actual stage counts. If a stage was skipped (e.g. no email-validation capability), omit that node and reconnect the arrows.
 
 ---
 
 ## Gotchas
 
 - **Persistent dedup across runs**: no local cache, so the dedup happens at source (Stage 1) via Apollo's `already_contacted` filter and prior-list exclusion. Tag contacts from each list you build so the next pull's `already_contacted` filter catches them.
-- **DNC is non-negotiable**: the DNC gate runs from Apollo's own flags with no extra MCP. Never override it to hit a contact count - a do-not-call or call-restricted contact stays out of Ready to Dial even when every other signal is strong.
-- **Apollo MCP hit rate low (<40%)**: offer a Clay enrichment pass on unrevealed contacts before proceeding to validation.
+- **DNC is non-negotiable**: the DNC gate runs from Apollo's own flags with no extra capability. Never override it to hit a contact count - a do-not-call or call-restricted contact stays out of Ready to Dial even when every other signal is strong.
+- **Apollo hit rate low (<40%)**: offer an extra enrichment pass on unrevealed contacts before proceeding to validation.
 - **Layer 4 wall time**: always spawn parallel sub-agents for Tier 1 enrichment - sequential web search across 30+ companies is too slow and burns context.
 
 ---

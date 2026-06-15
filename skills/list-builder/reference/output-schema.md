@@ -4,11 +4,11 @@ The Google Sheet column contract. Every downstream channel tool reads this schem
 
 | Column | Filled by | Notes |
 |---|---|---|
-| First Name, Last Name, Title, Company, Company Domain | Apollo MCP | Identity |
-| Email, Email Status, **Email Ready** (bool) | Apollo + ZeroBounce if connected | Email Ready = ZeroBounce `valid` / `catch-all`, or Apollo `verified` as fallback |
-| Phone, Phone Type, **Phone Ready** (bool) | Apollo + Twilio if connected | Phone Ready = (MOBILE or LANDLINE) and DNC is false; Phone Type from Twilio Lookup |
-| **DNC** (bool) | Apollo MCP | Do-not-call / call-restricted flag from Apollo (contact-level or phone-level). true = never dial; forces Phone Ready = false and excludes the row from READY |
-| LinkedIn URL, **LinkedIn Ready** (bool) | Apollo MCP | LinkedIn Ready = URL present |
+| First Name, Last Name, Title, Company, Company Domain | Apollo | Identity |
+| Email, Email Status, **Email Ready** (bool) | Apollo + email validation if present | Email Ready = validation `valid` / `catch-all`, or Apollo `verified` as fallback |
+| Phone, Phone Type, **Phone Ready** (bool) | Apollo + phone line-type lookup if present | Phone Ready = (MOBILE or LANDLINE) and DNC is false; Phone Type from the line-type lookup |
+| **DNC** (bool) | Apollo | Do-not-call / call-restricted flag from Apollo (contact-level or phone-level). true = never dial; forces Phone Ready = false and excludes the row from READY |
+| LinkedIn URL, **LinkedIn Ready** (bool) | Apollo | LinkedIn Ready = URL present |
 | **Fit Score** (0-100) | Claude inline | Heuristic ICP score from Stage 2 |
 | Fit Tier (1-3) | Claude inline | Tier 1 = ≥75, Tier 2 = 50-74, Tier 3 = dropped |
 | **Intent Score** (0-200+) | Claude inline (Tier 1 only) | Compound signal × recency from Stage 6 |
