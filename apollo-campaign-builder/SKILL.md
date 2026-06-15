@@ -63,7 +63,7 @@ Read `sequence_builder.py` - it contains the full step definitions for all 7 seq
 
 **Before starting:**
 - Confirm Chrome is open and logged in at app.apollo.io
-- Use `mcp__Claude_in_Chrome__navigate` to go to `https://app.apollo.io/#/sequences`
+- Navigate to `https://app.apollo.io/#/sequences` in Chrome
 - Verify the page loads (not redirected to login)
 
 **For each sequence 1–7 in `sequence_builder.SEQUENCES`:**

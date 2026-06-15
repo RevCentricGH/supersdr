@@ -110,7 +110,7 @@ Read `tam_filter_builder.py`. It contains:
 - `FILTER_SCHEMA` - how each extracted SPOT field maps onto an Apollo filter section (UI type, include/exclude support, special toggles)
 - `EXECUTION_GUIDE` - the ordered, step-by-step browser walkthrough (STEP A → STEP K)
 
-Follow `EXECUTION_GUIDE` exactly. Use `mcp__Claude_in_Chrome__navigate` to open `https://app.apollo.io/#/people` and confirm the page loaded (not redirected to login) before STEP B.
+Follow `EXECUTION_GUIDE` exactly. Navigate to `https://app.apollo.io/#/people` in Chrome and confirm the page loaded (not redirected to login) before STEP B.
 
 **Verification checkpoints - run after EACH filter is applied:**
 
