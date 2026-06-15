@@ -25,7 +25,7 @@ In order to allow the Service Provider to properly perform the Services, the Com
 
 **(a) Fees**
 
-In consideration of the performance of the Services, the Company shall pay to the Service Provider the fees set out in the "Investment Summary" section of this proposal (the "Fees"). {FEES_LANGUAGE} The Service Provider shall invoice the Company monthly: fifty percent (50%) at the beginning of each month and fifty percent (50%) at the end of each month. Each invoice shall be due and payable upon receipt.
+In consideration of the performance of the Services, the Company shall pay to the Service Provider the fees set out in the "Investment Summary" section of this proposal (the "Fees"). {FEES_LANGUAGE} The Service Provider shall invoice the Company monthly in advance. Each invoice is due and payable upon receipt, with the first month's Fees due upon execution of this Agreement.
 
 **(b) Tax**
 
