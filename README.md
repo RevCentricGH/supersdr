@@ -18,7 +18,7 @@ Each skill is self-contained. You can run one on its own, or run several in sequ
 Four things to know:
 
 - **A skill is a packaged job.** It is a folder of instructions (and sometimes helper files) that teaches Claude exactly how to do one task the SuperSDR way. You do not configure anything in code.
-- **Skills run in any agentic harness.** Claude Code, Claude Cowork, Codex, Hermes - if it can read a folder of instructions, it can run these skills. [AGENTS.md](AGENTS.md) holds the install protocol.
+- **You run skills inside Claude.** Most run in the Claude Cowork desktop app: download the skill's ZIP, upload the folder into a chat, and follow the prompts. 
 - **Two motions.** The skills split into **Win a client** and **Run outbound**. Pick the motion you are in and work down the list. One utility sits outside both: `grill-me`, for planning any task before Claude runs it.
 - **One doc ties outbound together: the client SPOT.** A client SPOT is a client's Single Point of Truth, a multi-tab Google Doc with their positioning, ICP, and pain. You build it once per client with `client-spot`, and every other outbound skill reads from it.
 
@@ -70,19 +70,19 @@ pre-brief  ->  discovery call  ->  post-discovery-followup
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [pre-brief](skills/pre-brief/) | Turn a booking-call transcript into a one-page meeting brief so you walk in prepared. Pulls the concerns, objections, asks, and commitments, each anchored to the moment in the call, and returns a Google Doc. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
+| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page meeting brief so you walk in prepared. Pulls the concerns, objections, asks, and commitments, each anchored to the moment in the call, and returns a Google Doc. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
 
 **Stage 2 - After the call**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [post-discovery-followup](skills/post-discovery-followup/) | Read a discovery-call transcript, decide the outcome, and take the next step. On a proposal or follow-up outcome it hands off to `client-proposal-doc-builder` for the draft, sends the approved email through Gmail, and updates the deal stage in Apollo. You approve every action. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
+| [post-discovery-followup](post-discovery-followup/) | Read a discovery-call transcript, decide the outcome, and take the next step. On a proposal or follow-up outcome it hands off to `client-proposal-doc-builder` for the draft, sends the approved email through Gmail, and updates the deal stage in Apollo. You approve every action. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/post-discovery-followup.zip) |
 
 **Stage 3 - Make the offer**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [client-proposal-doc-builder](skills/client-proposal-doc-builder/) | Build a send-ready outbound agency proposal from your discovery call as a Google Doc, with pricing tiers, the completed-conversations model, and T&Cs, then draft the follow-up email that sends the link. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
+| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal from your discovery call as a Google Doc, with pricing tiers, the completed-conversations model, and T&Cs, then draft the follow-up email that sends the link. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
 
 ### Run outbound
 
@@ -92,46 +92,46 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [apollo-account-setup](skills/apollo-account-setup/) | One-time Apollo setup before any campaigns: link your workspace email, register your outbound number with the Free Caller Registry, and configure the 19 dispositions, 11 contact stages, and 19 disposition-to-stage triggers. Run once per Apollo account. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-account-setup.zip) |
+| [apollo-account-setup](apollo-account-setup/) | One-time Apollo setup before any campaigns: link your workspace email, register your outbound number with the Free Caller Registry, and configure the 19 dispositions, 11 contact stages, and 19 disposition-to-stage triggers. Run once per Apollo account. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-account-setup.zip) |
 
 **Stage 2 - Brief the client**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [client-spot](skills/client-spot/) | Build the client's SPOT: a multi-tab Google Doc covering campaign status, company overview, problem and solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Every outbound skill reads from it. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-spot.zip) |
+| [client-spot](client-spot/) | Build the client's SPOT: a multi-tab Google Doc covering campaign status, company overview, problem and solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Every outbound skill reads from it. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-spot.zip) |
 
 **Stage 3 - Build the pitch**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [cold-calling-screenplay](skills/cold-calling-screenplay/) | Write a word-for-word cold call script (Short or Full version) for any B2B company, built from the client's SPOT and live case studies pulled from their website. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/cold-calling-screenplay.zip) |
-| [objection-drill](skills/objection-drill/) | Train reps on objections. Quick Drill gives three ready responses to a pasted objection; Live Roleplay plays the prospect, you respond, and it grades you. Covers the 5 core objection families. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
+| [cold-calling-screenplay](cold-calling-screenplay/) | Write a word-for-word cold call script (Short or Full version) for any B2B company, built from the client's SPOT and live case studies pulled from their website. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/cold-calling-screenplay.zip) |
+| [objection-drill](objection-drill/) | Train reps on objections. Quick Drill gives three ready responses to a pasted objection; Live Roleplay plays the prospect, you respond, and it grades you. Covers the 5 core objection families. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/objection-drill.zip) |
 
 **Stage 4 - Build the list**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [tam-contact-mapper](skills/tam-contact-mapper/) | Apply the client's ICP filters in Apollo's People tab and save the search as a named TAM view. Maps the full contact universe with no enrichment; nothing is imported. Run it before `list-builder`. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
-| [list-builder](skills/list-builder/) | Build an enriched, dial-ready contact list from the SPOT using Apollo. Scores fit and intent, routes each contact by temperature (Red Hot to Cold), and outputs a Google Sheet ready to dial. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
+| [tam-contact-mapper](tam-contact-mapper/) | Apply the client's ICP filters in Apollo's People tab and save the search as a named TAM view. Maps the full contact universe with no enrichment; nothing is imported. Run it before `list-builder`. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/tam-contact-mapper.zip) |
+| [list-builder](list-builder/) | Build an enriched, dial-ready contact list from the SPOT using Apollo. Scores fit and intent, routes each contact by temperature (Red Hot to Cold), and outputs a Google Sheet ready to dial. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/list-builder.zip) |
 
 **Stage 5 - Launch the campaigns**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [apollo-campaign-builder](skills/apollo-campaign-builder/) | Set up the client's full Apollo campaign: all 7 outreach sequences and 4 workflow plays, built in the Apollo UI for you. Run after `list-builder`. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
+| [apollo-campaign-builder](apollo-campaign-builder/) | Set up the client's full Apollo campaign: all 7 outreach sequences and 4 workflow plays, built in the Apollo UI for you. Run after `list-builder`. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/apollo-campaign-builder.zip) |
 
 **Stage 6 - Advance the deal**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [custom-decks](skills/custom-decks/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides and PDF with a View link. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
+| [custom-decks](custom-decks/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a tailored prospect deck from a call transcript and the prospect's website, branded as your agency, rendered to Google Slides and PDF with a View link. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/custom-decks.zip) |
 
 **Stage 7 - Track and measure**
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [master-tracker](skills/master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
-| [weekly-checkin](skills/weekly-checkin/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a weekly per-client digest from the master-tracker sheet and each client's SmartLead stats, then delivers it to a configured destination (a Google Doc, Slack, or email). Runs on a weekly cron or on demand. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/weekly-checkin.zip) |
+| [master-tracker](master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
+| [weekly-checkin](weekly-checkin/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a weekly per-client digest from the master-tracker sheet and each client's SmartLead stats, then delivers it to a configured destination (a Google Doc, Slack, or email). Runs on a weekly cron or on demand. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/weekly-checkin.zip) |
 
 ### Work smarter
 
@@ -139,24 +139,26 @@ Cross-cutting utilities that improve every other skill and task.
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [grill-me](skills/grill-me/) | A question loop for planning anything. Run it at the start of a session: it interviews you one question at a time until Claude fully understands the goal, inputs, outputs, and tools - then the work proceeds in the same session, fully briefed. A sharp plan beats a smart model. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/grill-me.zip) |
+| [grill-me](grill-me/) | A question loop for planning anything. Run it at the start of a session: it interviews you one question at a time until Claude fully understands the goal, inputs, outputs, and tools - then the work proceeds in the same session, fully briefed. A sharp plan beats a smart model. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/grill-me.zip) |
 
 ## Getting started
 
-The skills work in any agentic harness - Claude Code, Claude Cowork, Codex, Hermes, and others. **[AGENTS.md](AGENTS.md) is the install guide:** point your agent at it (or read it yourself), pick the skills you want from [`skills/`](skills/), copy each skill's folder into your harness's skills directory, and the model binds each capability to the tools you have connected.
+Start with the Cowork path. It is the simplest and covers every Tier 1 skill, which is most of the toolkit. The Claude Code path is for the two Tier 2 skills and is kept separate below; skip it until you naturally find gaps with Cowork and you genuinely feel the need to advance. You'll know when it happens, don't overengineer for a solution or pain you don't even feel yet.
 
-Two ways to get the files:
+### Cowork path (start here)
 
-- **Clone or download the repo** (green **Code** button, then **Download ZIP**) and copy the `skills/<name>/` folders you want.
-- **Per-skill ZIPs** via the **Download ZIP** links in the tables above - each is one skill folder, built from the latest `main`.
+**Run a skill, in four steps:**
 
-Always install the whole skill folder, not just `SKILL.md`. Some skills ship companion files in `reference/` or helper code.
+1. Pick a skill from the tables above and click its **Download ZIP**. You get a ZIP of just that skill folder.
+2. Extract the ZIP.
+3. Open the Claude desktop app, start a chat, and upload the entire extracted folder, not just `SKILL.md`. Some skills need their companion files.
+4. Follow the skill's prompts.
 
-The sections below cover harness-specific setup: connector setup for Cowork, and terminal setup for the three Tier 2 skills.
+Whole-repo alternative: click the green **Code** button at the top of this page, choose **Download ZIP**, extract it, and upload the folder for the skill you want.
 
-### Cowork setup
+**One-time Cowork setup**
 
-One-time setup if you run skills in the Claude Cowork desktop app (upload the extracted skill folder into a chat, not just `SKILL.md`). Do this once before running skills that reach external systems.
+Do this once before running skills that reach external systems.
 
 - **Install the Claude desktop app.** Required for Cowork. Download it at https://claude.com/download.
 - **Paste the voice rules into Project Instructions (recommended).** Go to Claude, then Settings, then Project, then Instructions, and paste this so output sounds like a person across every session:
@@ -233,20 +235,20 @@ Prefer to run the commands yourself? Here is what Claude Code does under the hoo
 
 ```bash
 # master-tracker
-cd skills/master-tracker
+cd master-tracker
 pip install -r requirements.txt
 cp config.template.json config.json   # fill in your credentials
 python3 run.py
 
 # custom-decks (also needs Node and Marp for deck rendering)
-cd skills/custom-decks
+cd custom-decks
 pip install -r requirements.txt
 npm install -g @marp-team/marp-cli
 cp config.template.json config.json   # fill in your credentials
 python3 run.py
 
 # weekly-checkin (needs a SmartLead API key and the master-tracker Google Sheet)
-cd skills/weekly-checkin
+cd weekly-checkin
 pip install -r requirements.txt
 cp config.template.json config.json   # fill in clients + delivery destination
 python3 run.py --week 2026-W22 --dry-run   # preview, then drop --dry-run to deliver
@@ -295,7 +297,7 @@ Outbound calling is regulated. You are responsible for running it legally. A few
 
 ## Stay updated, contributing, and license
 
-**Stay updated.** Skills improve over time. Watch this repo: click **Watch**, then **Custom**, then **Releases only** at the top of this page. GitHub emails you whenever a new version ships. When a release lands, re-download and re-install the affected skill. All releases live at https://github.com/RevCentricGH/supersdr/releases.
+**Stay updated.** Skills improve over time. Watch this repo: click **Watch**, then **Custom**, then **Releases only** at the top of this page. GitHub emails you whenever a new version ships. When a release lands, re-download and re-upload the affected skill's ZIP. All releases live at https://github.com/RevCentricGH/supersdr/releases.
 
 **Contributing.** Found a bug or have an improvement? Open a GitHub issue, or send a pull request. Note that everything in this repo ships publicly as per-skill ZIPs, so do not commit anything private.
 
