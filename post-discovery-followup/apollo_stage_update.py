@@ -75,7 +75,7 @@ Before starting:
      not have them at all - the operator confirms the real column at STEP D.
 
 STEP A - Open the Deals board (Kanban)
-  - Use mcp__Claude_in_Chrome__navigate to open https://app.apollo.io/#/deals
+  - Navigate to https://app.apollo.io/#/deals in Chrome
     (the older #/opportunities path redirects here).
   - Switch to the board: in the left nav it is Win deals -> Deals; choose the
     "Board view of Deals" (the Kanban view). When a single pipeline is shown the
