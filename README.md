@@ -58,12 +58,14 @@ Skills are grouped by the job you are doing. Each row shows the skill, what it d
 
 ### Win a client
 
-The acquisition motion: book the call, work the call, make the offer. The three skills run in call order, and `post-discovery-followup` hands off to `client-proposal-doc-builder` when the call ends in a proposal:
+The acquisition motion: book the call, work the call, make the offer, kick off onboarding when they sign. The skills run in call order. `post-discovery-followup` hands off to `client-proposal-doc-builder` when the call ends in a proposal, and `onboarding-kickoff` starts the handoff to fulfillment once the client pays:
 
 ```
 pre-brief  ->  discovery call  ->  post-discovery-followup
                                      |
                                      |-- proposal or follow-up outcome  ->  client-proposal-doc-builder
+
+client signs and pays  ->  onboarding-kickoff  ->  client-spot (start fulfillment)
 ```
 
 **Stage 1 - Prep for the call**
@@ -83,6 +85,12 @@ pre-brief  ->  discovery call  ->  post-discovery-followup
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
 | [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal from your discovery call as a Google Doc, with pricing tiers, the completed-conversations model, and T&Cs, then draft the follow-up email that sends the link. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
+
+**Stage 4 - Kick off onboarding**
+
+| Skill | What it does | Tier | |
+|-------|-------------|------|---|
+| [onboarding-kickoff](onboarding-kickoff/) | Once a client signs and pays, draft and send the welcome and onboarding-form email, move the Apollo deal to the onboarding stage, and hand off to `client-spot` to start fulfillment. You approve the send and the stage move. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/onboarding-kickoff.zip) |
 
 ### Run outbound
 
@@ -176,7 +184,7 @@ Do this once before running skills that reach external systems.
 
 - **Connect the connectors each skill needs.** A connector links Claude to an outside service.
   - **Google Drive:** Settings, then Connectors, then Google Drive. Connect your account and enable edit access (read-only is not enough for the proposal builder or list-builder).
-  - **Gmail:** Settings, then Connectors, then Gmail, with send access. Used by `post-discovery-followup` to send the approved follow-up, and only after you approve the recipient, subject, and body.
+  - **Gmail:** Settings, then Connectors, then Gmail, with send access. Used by `post-discovery-followup` to send the approved follow-up and by `onboarding-kickoff` to send the welcome email, and only after you approve the recipient, subject, and body.
   - **Apollo MCP:** Settings, then MCP Servers, and connect Apollo (`apollo-io`). The skill calls Apollo through the connector, so no API key lives in the skill.
   - **Browser automation (Claude in Chrome):** Settings, then Computer Use, and enable browser control. Log into Apollo in Chrome and keep that tab open while running these skills.
 
@@ -193,6 +201,7 @@ Do this once before running skills that reach external systems.
 | objection-drill | | | | | |
 | client-proposal-doc-builder | required (write) | | | | |
 | post-discovery-followup | required | | required | required | |
+| onboarding-kickoff | | | required | required | |
 | pre-brief | required (write) | | | | |
 
 **Optional MCPs for `list-builder`.** Each one unlocks a stage of the pipeline if connected, and the skill degrades gracefully without it. Connect whichever you have.
