@@ -97,18 +97,28 @@ Example:
 > stage write from me on this one."
 
 **Post-closing handling (closing call).** On a closing call the deal is being resolved, so the
-five closing outcomes are actionable rather than report-only. For the confirmed outcome, look up
-its target Apollo stage in `reference/outcome-taxonomy.md` (the Outcome-to-Apollo-stage map),
-then state the resolved outcome, that target stage, and the opportunity it applies to. The deal
-moves to that stage on the confirmed opportunity - confirm the right opportunity first, no
-best-guess move. Example:
+five closing outcomes are actionable. Four write to Apollo; one does not.
+
+- `closed_won`, `closed_lost`, `disqualified`, and `fridge` each move the deal to their target
+  stage. Look the stage up in `reference/outcome-taxonomy.md` (closed_won -> Closed Won,
+  closed_lost -> Closed Lost, disqualified -> Disqualified, fridge -> Nurture / Fridge), then run
+  the Apollo stage update (Step 6) on the confirmed opportunity. `fridge` here is a direct move
+  to the Fridge stage with no breakup email - the breakup-email path is n8n automation, not part
+  of this skill (see the deferred-to-n8n note below).
+- `stay_in_proposal` writes nothing: the deal stays in Proposal Sent. Note the call for the next
+  touch and stop. No draft, no follow-up email, no stage change.
+
+Example:
 
 > "Call type: closing. Outcome: **closed_won**
-> This deal is won. Target Apollo stage: Closed Won.
-> Set the deal to Closed Won in Apollo once you've confirmed it's the right opportunity."
+> Target Apollo stage: Closed Won. I'll run the Apollo stage update once you confirm the
+> opportunity - no best-guess move."
 
-On `stay_in_proposal` the deal stays in Proposal: leave the stage and note the call for the next
-touch. This branch produces no draft and no follow-up email.
+**Deferred to n8n (not automated here).** The rc-meetings design automates four things around a
+closing call that this Cowork skill does not: the 7-day decision clock, the auto-fridge when the
+clock runs out, the breakup email before fridging, and the Slack decision button. None of these
+run in Cowork. When one is relevant - a `fridge` outcome, or a deal left undecided - say so
+plainly so the operator handles it by hand or leaves it to the n8n workflow once that is built.
 
 **Draft branch - hand off to `client-proposal-doc-builder`.** For an outcome the taxonomy
 marks draft-and-Apollo-write (`proposal` and `needs_followup`), hand off to the
@@ -169,9 +179,14 @@ No email is ever sent without a usable recipient and the operator's explicit app
 
 ## Step 6 - Update the Apollo deal stage
 
-This step runs only on a confirmed `proposal` or `needs_followup` outcome, after the follow-up
-email step (Step 5). The other five outcomes never reach it: on a discovery call they stop and
-report, and on a closing call they route to post-closing handling (Step 4).
+This step runs on two paths:
+
+- A confirmed `proposal` or `needs_followup` outcome, after the follow-up email step (Step 5).
+- A confirmed closing-call `closed_won`, `closed_lost`, `disqualified`, or `fridge` outcome,
+  routed here from post-closing handling (Step 4). There is no preceding email on this path.
+
+The remaining cases never reach this step: on a discovery call the five closing outcomes stop and
+report (Step 4), and `stay_in_proposal` leaves the stage unchanged.
 
 Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. Look up the target stage for
 the confirmed outcome in `reference/outcome-taxonomy.md` (the outcome-to-Apollo-stage map); the
@@ -180,8 +195,8 @@ Apollo pipeline may name it differently or not have it - so the real column is c
 the operator before any write. Then, through Claude-in-Chrome browser automation on
 a logged-in Apollo:
 
-- Search Apollo opportunities for the company name (the same name passed to
-  `client-proposal-doc-builder`).
+- Search Apollo opportunities for the company name (the prospect's company from the transcript;
+  on the draft path this is the same name passed to `client-proposal-doc-builder`).
 - Show the matched opportunity and its current stage, and require an explicit operator "yes"
   before any write.
 - On zero or multiple matches, let the operator pick or supply the opportunity. The calendar or
@@ -204,9 +219,13 @@ summary always reports:
 For a discovery-call outcome that stops and reports, the summary adds the **manual next step**
 and states plainly that no draft was produced and no Apollo write happened.
 
-For a closing-call outcome routed to post-closing handling, the summary adds the **target
-Apollo stage** for the confirmed outcome and the opportunity it applies to. No draft and no
-follow-up email on this branch.
+For a closing-call outcome routed to post-closing handling, the summary adds the **stage set** -
+the Apollo stage the confirmed opportunity was moved to (Closed Won, Closed Lost, Disqualified,
+or Nurture / Fridge), or that the write was skipped because the opportunity was not confirmed or
+the operator declined. For `stay_in_proposal` it states the stage was left in Proposal Sent. On a
+`fridge` outcome, or a deal left undecided, it adds the **deferred-to-n8n note** (the 7-day clock,
+auto-fridge, breakup email, and Slack button are not automated here). No draft and no follow-up
+email on this branch.
 
 For a draft-and-Apollo-write outcome (the two outcomes the taxonomy marks as such), the
 summary also reports:
