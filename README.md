@@ -281,7 +281,7 @@ Plain-language definitions of the jargon you will hit.
 - **ICP** - Ideal Customer Profile: the type of company and person a client wants to reach (industry, size, title, signals). It drives who lands on the dial list.
 - **TAM** - Total Addressable Market: the full universe of contacts that fit the ICP. `tam-contact-mapper` saves this as an Apollo search before any enrichment.
 - **Dialer** - the software reps use to make calls. In this toolkit, reps dial in Apollo's dialer, which logs each call.
-- **Disposition** - the outcome you tag on a call (for example "Connected - Meeting Booked" or "No Answer"). `apollo-account-setup` configures the standard set, and `master-tracker` filters and counts by disposition.
+- **Disposition** - the outcome you tag on a call (for example "Meeting Scheduled" or "No Answer / Not Available"). `apollo-account-setup` configures the standard set, and `master-tracker` filters and counts by disposition.
 - **MCP connector** - a link that lets Claude talk to an outside service (Apollo, Google Drive, Gmail) without you handing it an API key inside a skill. You connect it once in settings.
 - **Browser automation (Claude in Chrome)** - Claude controlling a real Chrome tab to click through a web app, used for the Apollo UI work where there is no connector.
 - **Sequence and workflow play** - Apollo outreach building blocks. A sequence is a series of steps (calls, emails) a contact moves through; a workflow play automates an action when a condition is met. `apollo-campaign-builder` sets these up.
