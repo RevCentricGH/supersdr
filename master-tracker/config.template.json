@@ -7,7 +7,7 @@
     "Bob Rep": { "apollo_user_id": "APOLLO_USER_ID_FOR_BOB" }
   },
 
-  "keep_dispositions": ["Interested", "Meeting Booked", "Not Interested"],
+  "keep_dispositions": ["Activated Lead", "Meeting Scheduled", "Not Interested"],
   "keep_prefixes": ["Callback"],
 
   "backfill_days": 30,
@@ -17,8 +17,8 @@
   "stats": {
     "summary_tab": "Overall Statistics",
     "icp_column": "ICP",
-    "meeting_dispositions": ["Meeting Booked"],
-    "qualified_dispositions": ["Interested", "Meeting Booked", "Not Interested"],
+    "meeting_dispositions": ["Meeting Scheduled"],
+    "qualified_dispositions": ["Activated Lead", "Meeting Scheduled", "Not Interested"],
     "leaderboard_metric": "rate",
     "labels": {
       "icp_header": "ICP Breakdown",

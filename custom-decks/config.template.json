@@ -11,7 +11,7 @@
   "queue": {
     "google_sheet_id": "",
     "rep_tabs": ["Rep A", "Rep B"],
-    "keep_dispositions": ["Meeting Booked", "Interested"],
+    "keep_dispositions": ["Meeting Scheduled", "Activated Lead"],
     "decks_tab": "Custom Decks",
     "lock_file": "custom-decks-queue.lock"
   },
