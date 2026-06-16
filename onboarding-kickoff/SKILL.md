@@ -1,18 +1,19 @@
 ---
 name: onboarding-kickoff
-description: Kick off onboarding for a client who just paid, inside Cowork with the operator present. Trigger when the operator says a client signed or paid and wants to start onboarding, or says things like "run onboarding-kickoff", "client just paid, start onboarding", "kick off onboarding for [client]", "send the welcome email", or pastes the closing-call transcript and asks to start onboarding. The skill takes the client context (name and details, or the closing-call transcript) and the onboarding-form link, drafts the welcome and onboarding-form email, waits for the operator to review and approve it, then sends it through the Gmail connector. It halts with a clear message if there is no usable recipient. It ends by handing off to client-spot to build the SPOT and start fulfillment. It does not create the SPOT itself.
+description: Kick off onboarding for a client who just paid, inside Cowork with the operator present. Trigger when the operator says a client signed or paid and wants to start onboarding, or says things like "run onboarding-kickoff", "client just paid, start onboarding", "kick off onboarding for [client]", "send the welcome email", or pastes the closing-call transcript and asks to start onboarding. The skill takes the client context (name and details, or the closing-call transcript) and the onboarding-form link, drafts the welcome and onboarding-form email, waits for the operator to review and approve it, then sends it through the Gmail connector. It then moves the client's Apollo opportunity to the onboarding stage with a search-and-confirm lookup. It halts with a clear message if there is no usable recipient. It ends by handing off to client-spot to build the SPOT and start fulfillment. It does not create the SPOT itself.
 ---
 
 # Onboarding Kickoff
 
 A Cowork skill the operator runs once a client has paid. It drafts the welcome and
 onboarding-form email, lets the operator review and approve it, sends it through the Gmail
-connector, and ends by handing off to `client-spot`. It runs with the operator in the session;
-nothing goes out without their explicit approval.
+connector, moves the client's Apollo opportunity to the onboarding stage, and ends by handing
+off to `client-spot`. It runs with the operator in the session; nothing goes out and no stage
+moves without their explicit approval.
 
-This skill is the clean start of fulfillment. It sends the first email and points the operator
-at the next skill. It does not build the SPOT and does not write to Apollo - that keeps the
-acquisition and fulfillment work in their own lanes.
+This skill is the clean start of fulfillment. It sends the first email, advances the deal, and
+points the operator at the next skill. It does not build the SPOT - that keeps the acquisition
+and fulfillment work in their own lanes.
 
 **Runtime: Claude Cowork**
 
@@ -26,7 +27,8 @@ When the skill loads, greet the operator:
 >
 > Tell me the client (name and a line of context, or paste the closing-call transcript) and the
 > onboarding-form link. If the form link is the same every time, give it to me once and I'll use
-> it."
+> it. After the email goes out I'll move the deal to the onboarding stage in Apollo, with your
+> confirmation."
 
 Wait for the client context and the form link before doing anything else.
 
@@ -65,7 +67,7 @@ Find the recipient before anything sends:
   empty address, and do not proceed to the send step. Ask the operator for the recipient and
   wait.
 
-A run with no usable recipient halts here. It does not send.
+A run with no usable recipient halts here. It does not send and does not move the Apollo stage.
 
 ## Step 4 - Approve and send through Gmail
 
@@ -80,14 +82,36 @@ On approval, send the subject and body to the recipient through the Gmail connec
 
 No email is ever sent without a usable recipient and the operator's explicit approval.
 
-## Step 5 - Hand off to client-spot
+## Step 5 - Move the Apollo opportunity to the onboarding stage
 
-After the email is sent (or after reporting a send failure), end with the handoff. Do not build
-the SPOT here and do not chain into the other skill automatically - tell the operator to run it:
+This step runs after the email step (Step 4), whether the email sent or its send was reported as
+failed. It does not run on a no-recipient halt - that run already stopped at Step 3.
 
-> "Welcome email sent. Next, run `client-spot` to build this client's SPOT and start
-> fulfillment. Paste the onboarding-form response and any call notes into that skill when you
-> have them."
+Read `apollo_stage_update.py` and follow its `EXECUTION_GUIDE`. The target is the onboarding
+stage. That is a logical label - the operator's Apollo pipeline may name it differently, track
+onboarding in a separate pipeline, or not have the column - so the real column is confirmed with
+the operator before any write. Then, through the Claude in Chrome browser extension on a
+logged-in Apollo:
+
+- Search Apollo deals for the company name (the same client carried through this skill).
+- Show the matched deal and its current stage, and require an explicit operator "yes" before any
+  write.
+- On zero or multiple matches, let the operator pick or supply the deal. The transcript name
+  often differs from the Apollo account name (agency vs end-client, campaign alias); the operator
+  resolves that here, in the session. There is no alias table.
+- On confirmation, move the deal to the onboarding column and verify the move took.
+
+Never write on a best-guess match. No silent top-match write. If the operator declines or no deal
+is confirmed, change nothing and say so.
+
+## Step 6 - Hand off to client-spot
+
+After the stage step, end with the handoff. Do not build the SPOT here and do not chain into the
+other skill automatically - tell the operator to run it:
+
+> "Welcome email sent and the deal is in the onboarding stage. Next, run `client-spot` to build
+> this client's SPOT and start fulfillment. Paste the onboarding-form response and any call notes
+> into that skill when you have them."
 
 This skill stops at the handoff. Creating the SPOT is `client-spot`'s job.
 
@@ -98,10 +122,12 @@ At the end of a run, output a short summary so the operator can verify it at a g
 - **Client** - the client name as confirmed.
 - **Email sent** - confirmation that the approved welcome email was sent through Gmail (with the
   recipient), or the failure if it did not send.
+- **Stage set** - confirmation that the deal was moved to the onboarding stage (with the column
+  name), or that the move was skipped because the deal match was not confirmed or no column fit.
 - **Handoff** - that the next step is to run `client-spot`.
 
-If the run halted because there was no usable recipient, say that plainly: no email was sent and
-the operator needs to supply a recipient to continue.
+If the run halted because there was no usable recipient, say that plainly: no email was sent, no
+stage was moved, and the operator needs to supply a recipient to continue.
 
 ## Voice
 
@@ -113,3 +139,10 @@ completion summary) follow these voice rules:
 - No AI-vocabulary buzzwords.
 - No em-dashes. Use a hyphen or rewrite.
 - Short. Direct. One idea per sentence.
+
+## Reference
+
+- `apollo_stage_update.py` - the browser EXECUTION_GUIDE for the Apollo onboarding-stage move
+  (search, confirm, move, verify). Read it in Step 5. The skill bundles its own copy so it ships
+  as a standalone ZIP. The `.py` file is data the skill reads at runtime - not a script to run,
+  not a doc to edit.
