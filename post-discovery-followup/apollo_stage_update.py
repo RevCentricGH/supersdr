@@ -46,9 +46,12 @@ APOLLO DEAL-STAGE UPDATE - BROWSER EXECUTION STEPS (KANBAN BOARD)
 ================================================================
 
 WHEN THIS RUNS:
-  Only on a confirmed `proposal` or `needs_followup` outcome, after the operator
-  has reviewed the draft from client-proposal-doc-builder. The other five
-  outcomes never reach this guide - they stop and report with no Apollo write.
+  On a confirmed `proposal` or `needs_followup` outcome (after the operator has
+  reviewed the draft from client-proposal-doc-builder), or on a confirmed
+  closing-call `closed_won`, `closed_lost`, `disqualified`, or `fridge` outcome
+  (routed here from post-closing handling, with no preceding draft). A discovery
+  call's five closing outcomes stop and report, and `stay_in_proposal` leaves the
+  stage unchanged - those never reach this guide.
 
 NO SILENT WRITE (the core rule):
   Never move a deal on a best-guess match. The operator confirms the exact deal
@@ -65,12 +68,16 @@ VOCABULARY:
 Before starting:
   1. Confirm Chrome is open and logged in at app.apollo.io. If it is not, stop
      and ask: "Open Chrome, go to app.apollo.io, log in, then let me know."
-  2. Have the company name (the same one passed to client-proposal-doc-builder,
-     inferred from the transcript).
+  2. Have the company name (the prospect's company, inferred from the transcript;
+     on the draft path it is the same name passed to client-proposal-doc-builder).
   3. Look up the target stage for the confirmed outcome in
-     reference/outcome-taxonomy.md (Outcome-to-Apollo-stage map):
-       proposal       -> "Proposal Sent" (logical)
-       needs_followup -> "Follow-up"     (logical)
+     reference/outcome-taxonomy.md (Outcome-to-Apollo-stage map). Examples:
+       proposal       -> "Proposal Sent"     (logical)
+       needs_followup -> "Follow-up"         (logical)
+       closed_won     -> "Closed Won"        (logical)
+       closed_lost    -> "Closed Lost"       (logical)
+       disqualified   -> "Disqualified"      (logical)
+       fridge         -> "Nurture / Fridge"  (logical)
      These are LOGICAL labels. The real pipeline may name them differently or
      not have them at all - the operator confirms the real column at STEP D.
 
