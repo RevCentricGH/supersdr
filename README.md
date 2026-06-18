@@ -84,7 +84,7 @@ client signs and pays  ->  onboarding-kickoff  ->  client-spot (start fulfillmen
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal from your discovery call as a Google Doc, with pricing tiers, the completed-conversations model, and T&Cs, then draft the follow-up email that sends the link. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
+| [client-proposal-doc-builder](client-proposal-doc-builder/) | Build a send-ready outbound agency proposal from your discovery call as a formatted Word document (.docx, opens in Google Docs), with pricing tiers, the completed-conversations model, and T&Cs, then draft the follow-up email (attaches the .docx, or links a Google Doc if you make one). | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/client-proposal-doc-builder.zip) |
 
 **Stage 4 - Kick off onboarding**
 
@@ -183,7 +183,7 @@ Do this once before running skills that reach external systems.
   Each skill embeds these rules too; this just applies them globally.
 
 - **Connect the connectors each skill needs.** A connector links Claude to an outside service.
-  - **Google Drive:** Settings, then Connectors, then Google Drive. Connect your account and enable edit access (read-only is not enough for the proposal builder or list-builder).
+  - **Google Drive:** Settings, then Connectors, then Google Drive. Connect your account and enable edit access (read-only is not enough for list-builder; the proposal builder only needs Drive if you want a shareable Google Doc link, which is optional).
   - **Gmail:** Settings, then Connectors, then Gmail, with send access. Used by `post-discovery-followup` to send the approved follow-up and by `onboarding-kickoff` to send the welcome email, and only after you approve the recipient, subject, and body.
   - **Apollo MCP:** Settings, then MCP Servers, and connect Apollo (`apollo-io`). The skill calls Apollo through the connector, so no API key lives in the skill.
   - **Browser automation (Claude in Chrome):** Settings, then Computer Use, and enable browser control. Log into Apollo in Chrome and keep that tab open while running these skills.
@@ -199,7 +199,7 @@ Do this once before running skills that reach external systems.
 | list-builder | required | required | | | many optional (see below) |
 | apollo-campaign-builder | | | required | | |
 | objection-drill | | | | | |
-| client-proposal-doc-builder | required (write) | | | | |
+| client-proposal-doc-builder | optional (write, for a shareable Google Doc link) | | | | |
 | post-discovery-followup | required | | required | required | |
 | onboarding-kickoff | | | required | required | |
 | pre-brief | required (write) | | | | |
