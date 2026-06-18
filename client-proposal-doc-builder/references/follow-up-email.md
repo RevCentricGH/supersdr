@@ -6,8 +6,8 @@ After the doc is delivered, immediately draft the follow-up email you will send 
 
 #### Route selection
 
-- **Proposal-link route** — a Google Doc URL was produced in Step 5. Default route.
-- **Needs-followup route** — no proposal yet (e.g., pricing wasn't discussed on the call or the user indicated the proposal comes later). Use when `proposal_link` is null.
+- **Proposal-link route** — a proposal document was produced in Step 5 (a `.docx`, with or without a Google Doc link). Default route whenever a proposal exists. Share the Google Doc link if one was made; if only the `.docx` exists, say the proposal is attached.
+- **Needs-followup route** — no proposal document was produced (e.g., `needs_followup` outcome, or pricing wasn't discussed and the proposal comes later). Use only when no proposal exists — not merely when `proposal_link` is null.
 
 #### Context to pull from the prior steps
 
@@ -19,7 +19,7 @@ After the doc is delivered, immediately draft the follow-up email you will send 
 | `pricing_discussed` | Pricing covered on call, or "not discussed" |
 | `key_objections` | Objections raised on the call |
 | `next_steps` | Agreed next steps from the call |
-| `proposal_link` | Google Doc URL from Step 5, or null |
+| `proposal_link` | Google Doc URL if the optional import ran in Step 5; null when only the `.docx` was produced (then attach the `.docx`) |
 
 #### Voice rules
 
@@ -44,6 +44,7 @@ engagement we discussed." Infer scope from summary + pricing_discussed (e.g.,
 "3-month cold email + cold calling", "fractional SDR training build-out").
 
 Here's the proposal: {proposal_link}
+[If proposal_link is null — .docx only, no Google Doc link — replace the line above with "I've attached the proposal." and attach the .docx.]
 
 [Optional confidence line] — only if a concrete past campaign result from your agency was
 explicitly mentioned in the call summary. Never fabricate campaign names or numbers.
