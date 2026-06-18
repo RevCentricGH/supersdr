@@ -227,36 +227,29 @@ See `references/positioning_and_style.md` for objection-handling copy, channel v
 
 ### Step 5 — Build the proposal as a styled .docx
 
-Deliver the proposal as a fully formatted Word document (`.docx`), built with Claude's file-creation capability. This is the reliable way to ship a styled proposal in Cowork. **Do not** create the doc by typing into a blank Google Doc through the Google Drive connector: that path uploads plain text and cannot set fonts, heading color, alignment, or table shading, so it always comes out looking like a plain default document. A `.docx` carries real formatting.
+Deliver the proposal as a fully formatted Word document (`.docx`) using the bundled builder, `assets/build_proposal_docx.py`. The builder renders the gold-standard layout deterministically - centered title block, navy headings, two-column prepared-for/by, shaded table headers, green/red Appendix status cells, and a signature block - so the styling is identical every run instead of being re-improvised. **Do not** hand-format a doc through the Google Drive connector (it uploads plain text and can't set fonts, color, alignment, or table shading) and **do not** free-style the formatting yourself - run the builder.
 
-1. **Create one `.docx`** named `[Agency Name] Proposal — {Prospect}.docx` using the file-creation tooling (a python-docx style builder). Build the whole proposal in a single file, sections in the Step 4 order.
-2. **Apply the house style below** as you write each element. This is native Word formatting, fully under your control.
-3. **Deliver the file** to the user (it appears in the working folder / as a download). They can open it directly or in Google Docs via File → Open → Upload.
+1. **Serialize the Step 4 content into the builder's JSON schema.** The schema is documented at the top of `assets/build_proposal_docx.py`: a `title_block` plus an ordered list of `blocks` (`h1`, `h2`, `h3`, `p`, `bullets`, `table`, `status_table`, `signature`, `spacer`). Map each Step 4 section to blocks in order. `**bold**` spans inside `p` and cell text are honored. Render the T&Cs as `h2`/`p`/`bullets` blocks (verbatim asset wording) and Appendix A as `status_table` blocks (the Status column drives the green/red fill). Write this to `content.json`.
+2. **Run the builder:**
 
-#### House style (apply explicitly - this is what makes it look designed, not like a default doc)
+   ```
+   python3 assets/build_proposal_docx.py content.json "[Agency Name] Proposal — {Prospect}.docx"
+   ```
 
-- **Font:** a clean sans-serif throughout (Arial or Helvetica). Set it on the document's Normal style so body and headings inherit it.
-- **Headings:** bold, **navy blue** (hex `#1F4E79`). Section headings larger (Heading 1/2), subsections smaller (Heading 3). Set the color explicitly on each heading - don't rely on Word's default heading color.
-- **Title block, centered:**
-  - `PROPOSAL` eyebrow: all-caps, gray (`#666666`), small, centered.
-  - Engagement title: large bold, centered.
-  - Subtitle and tagline: italic, centered.
-  - `PREPARED FOR` / `PREPARED BY`: a two-column, borderless table - gray uppercase labels, bold names below each. Not stacked.
-- **Tables:** header row shaded light blue-gray (`#D9E1F2`) with bold header text and thin borders; shade any total or emphasis row (`#EFEFEF`).
-- **Appendix A status cells:** fill the Status cell green (`#D9EAD3`) for **Billable** and red/pink (`#F4CCCC`) for **Not Billable**, matching the disposition tables.
-- **Highlights (optional, sparing):** at most one or two of the sharpest callout sentences (e.g., the bottleneck line). Don't over-highlight.
+   If `python-docx` is missing, install it first (`pip install python-docx`).
+3. **Deliver the `.docx`** to the user. They can open it directly or in Google Docs via File → Open → Upload.
 
-**Translate the markdown:** the Step 4 markdown is a content spec, not literal text. Headings become real Word heading styles, `**bold**` becomes bold runs, markdown tables become native Word tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording - never literal `#`, `**`, or `|---|` characters in the document.
+**Customizing the look (tell the user this is how they rebrand):** edit the `CONFIG` block at the top of `assets/build_proposal_docx.py` to change the font, heading color (`navy`), table fills, and sizes. Reordering or dropping `blocks` in the JSON reorganizes the document. The default is tuned to match the gold-standard proposal.
 
-**Optional - also hand off a Google Doc.** If the user wants a shareable Google Doc link (e.g. for the follow-up email), upload the `.docx` to Google Drive with conversion to a native Doc. Cap this at ~60 seconds; if the upload stalls, abandon it and just deliver the `.docx` - never hang the run on the conversion. The `.docx` is the primary deliverable; the Google Doc link is a convenience.
+**Optional - also hand off a Google Doc.** If the user wants a shareable Google Doc link (e.g. for the follow-up email), upload the `.docx` to Google Drive with conversion to a native Doc. Cap this at ~60 seconds; if it stalls, just deliver the `.docx`. Custom fonts may substitute on conversion; navy headings, layout, and shaded tables survive.
 
-**If file creation isn't available** in this runtime, output the full proposal as formatted markdown and tell the user:
+**If the builder can't run** in this runtime, output the full proposal as formatted markdown and tell the user:
 
 > "Paste this into a new document titled '[Agency Name] Proposal — {Prospect}'. In Google Docs, right-click and choose Paste from Markdown so headings and tables convert cleanly."
 
 ### Step 6 — Validate
 
-Confirm the `.docx` contains these sections, in order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. Spot-check the house style: sans-serif font, navy headings, centered title block, shaded table header rows. Fix any missing section, contradictory billing language, or plain styling before delivering.
+Confirm the `.docx` contains these sections, in order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. The builder guarantees the styling (navy headings, sans-serif font, shaded table headers, green/red Appendix cells), so a plain-looking result means the builder didn't run - rerun it rather than hand-formatting. Fix any missing section or contradictory billing language before delivering.
 
 ### Step 7 — Deliver the doc
 
@@ -289,6 +282,7 @@ After the doc is delivered, immediately draft the follow-up email. Load `referen
 
 - `assets/terms_and_conditions.md` — T&Cs boilerplate. Replace `{AGENCY_LEGAL_NAME}` with your legal entity name once. Then per-proposal: swap `{COMPANY}`, `{ENGAGEMENT_DESCRIPTION}`, `{FEES_LANGUAGE}`, and optional §8 exclusivity addendum language.
 - `assets/appendix_a_completed_conversation_criteria.md` — Appendix A defining Completed Conversations + all billable / non-billable disposition criteria.
+- `assets/build_proposal_docx.py` — deterministic `.docx` builder that renders the gold-standard layout from a content JSON (see its docstring for the schema). Edit the `CONFIG` block at the top to rebrand (font, heading color, table fills, sizes); reorder the JSON `blocks` to reorganize sections.
 
 ## References
 
@@ -300,4 +294,4 @@ After the doc is delivered, immediately draft the follow-up email. Load `referen
 - **Pricing tiers track conversations, not meetings.** The completed-conversations model is the differentiator. Frame meetings as a *projected outcome* of conversation volume, not as the unit of commitment.
 - **Reflect their language back.** If the prospect named a specific bad experience or industry term, use it in the proposal. This is the single highest-signal thing you can do.
 - **Never fabricate prior campaign references.** Only cite a past client campaign by name if the user explicitly mentioned it in the call context. Making up campaign names or numbers destroys trust if the prospect asks.
-- **Build the .docx in one pass, then validate.** Assemble the whole document and check it before delivering. The `.docx` route is what carries styling - never fall back to typing into a blank Google Doc through the connector, which strips formatting (see Step 5).
+- **Render with the bundled builder, not by hand.** `assets/build_proposal_docx.py` is what guarantees the styling baseline. Never free-style the formatting or fall back to typing into a blank Google Doc through the connector, which strips formatting (see Step 5).
