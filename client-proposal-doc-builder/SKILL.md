@@ -112,6 +112,12 @@ If the user adjusts a parameter, update it and re-echo. Do not start the Step 4 
 
 ### Step 4 — Draft the markdown content
 
+**Asset guard - do this before anything else.** The Terms and Conditions and Appendix A are legal language that ships in the signed agreement. They come only from the bundled asset files, never from you. Before drafting, confirm you can read both `assets/terms_and_conditions.md` and `assets/appendix_a_completed_conversation_criteria.md` in full. If either file is missing, empty, or unreadable, STOP and tell the user:
+
+> "I can't find the canonical Terms & Conditions / Appendix A files in this skill upload, so I won't build the proposal. Improvising legal language into a contract isn't safe. Re-upload the complete skill ZIP (it must include the `assets/` folder), then tell me to continue."
+
+Never write, paraphrase, shorten, or placeholder-substitute your own T&C or Appendix A text, and never add a note like "replace with your canonical language." If you can't use the real assets verbatim, you halt - you do not generate a substitute.
+
 Build the proposal content as markdown first, in this order:
 
 1. **Title block** — Use this exact layout (plain text, no markdown headings):
@@ -196,10 +202,10 @@ Build the proposal content as markdown first, in this order:
    - *Scaling After the Pilot* (1–2 short paragraphs) — clients who continue frequently step up a tier once the economics are validated, because an established activated-lead pool makes each new conversation dollar more productive. Tier changes take effect the following month with 15 days' notice; no penalty for scaling up or down.
 
    For email-only proposals, adapt this section to the email asset (validated sequences, warmed domains, reply data) or omit if it does not fit.
-10. **Terms and Conditions** — read `assets/terms_and_conditions.md` and use verbatim. Update only: `{COMPANY}` → prospect's legal name, `{AGENCY_LEGAL_NAME}` → agency legal entity, `{ENGAGEMENT_DESCRIPTION}` in §1, `{FEES_LANGUAGE}` in §3(a) → the per-option total fee structure (e.g., "The total engagement fee shall be determined by the option selected at signing — Option A: $X total; Option B: $Y total; Option C: $Z total."), and any agreed-upon exclusivity language in §8. Keep all sections intact. §3(a) bills the full engagement fee upfront on execution — this must match the Payment Terms bullet in the Investment Summary, never contradict it.
+10. **Terms and Conditions** — read `assets/terms_and_conditions.md` and use verbatim. Update only: `{COMPANY}` → prospect's legal name, `{AGENCY_LEGAL_NAME}` → agency legal entity, `{ENGAGEMENT_DESCRIPTION}` in §1, `{FEES_LANGUAGE}` in §3(a) → the per-option total fee structure (e.g., "The total engagement fee shall be determined by the option selected at signing — Option A: $X total; Option B: $Y total; Option C: $Z total."), and any agreed-upon exclusivity language in §8. Keep all sections intact. §3(a) bills the full engagement fee upfront on execution — this must match the Payment Terms bullet in the Investment Summary, never contradict it. If the asset file is missing or unreadable, halt per the Asset guard above; never improvise, shorten, or substitute the T&Cs.
 11. **Next Steps** — 4 numbered items: (1) countersign and designate the selected option; (2) full engagement fee invoiced and paid, work begins the same day; (3) 60-minute kickoff within 3 business days of execution to finalize ICP, list parameters, and CRM routing; (4) calls live by end of Week 1, first completed conversations and activated leads into the CRM by end of Week 2.
 12. **Acceptance + signature block** — 1 acceptance paragraph stating both parties agree to be bound by the proposal, Investment Summary, and T&Cs, effective on the date of last signature; a **Selected Option:** line; then a 2-column signature table — *FOR THE COMPANY (Client)* with the prospect's legal name, and *FOR THE SERVICE PROVIDER* with the agency legal entity and state of incorporation. Each side: Signature, Name, Title, Date.
-13. **Appendix A — Completed Conversation Criteria** — read `assets/appendix_a_completed_conversation_criteria.md` and use verbatim.
+13. **Appendix A — Completed Conversation Criteria** — read `assets/appendix_a_completed_conversation_criteria.md` and use verbatim. If the asset file is missing or unreadable, halt per the Asset guard above; never improvise or shorten the disposition definitions.
 
 #### Voice and style
 
@@ -239,7 +245,7 @@ If the Google Drive connector is not connected or does not have write permission
 
 ### Step 6 — Validate
 
-Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. If any section is missing or the billing language contradicts itself, fix it using the connector before proceeding.
+Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. If any section is missing or the billing language contradicts itself, fix it using the connector before proceeding.
 
 ### Step 7 — Deliver the doc
 
