@@ -72,7 +72,7 @@ client signs and pays  ->  onboarding-kickoff  ->  client-spot (start fulfillmen
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page meeting brief so you walk in prepared. Pulls the concerns, objections, asks, and commitments, each anchored to the moment in the call, and returns a Google Doc. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
+| [pre-brief](pre-brief/) | Turn a booking-call transcript into a one-page meeting brief so you walk in prepared. Pulls the concerns, objections, asks, and commitments, each anchored to the moment in the call, and returns a styled Word document (.docx, opens in Google Docs), with an optional Google Doc link. | Tier 1 · Cowork | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/pre-brief.zip) |
 
 **Stage 2 - After the call**
 
@@ -202,7 +202,7 @@ Do this once before running skills that reach external systems.
 | client-proposal-doc-builder | required (write) | | | | |
 | post-discovery-followup | required | | required | required | |
 | onboarding-kickoff | | | required | required | |
-| pre-brief | required (write) | | | | |
+| pre-brief | optional (write, for a shareable Google Doc link) | | | | |
 
 **Optional MCPs for `list-builder`.** Each one unlocks a stage of the pipeline if connected, and the skill degrades gracefully without it. Connect whichever you have.
 
