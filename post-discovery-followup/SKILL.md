@@ -139,17 +139,18 @@ Pass three things to `client-proposal-doc-builder`:
 
 The confirmed outcome decides what comes back:
 
-- **`proposal`** - the builder runs its full workflow: it creates the proposal Google Doc and
-  gives you its URL, then drafts the follow-up email as plain-text subject and body on its
-  proposal-link route, so the email carries the Google Doc link.
+- **`proposal`** - the builder runs its full workflow: it creates the proposal as a styled
+  `.docx` (and a Google Doc link if it ran the optional import), then drafts the follow-up email
+  as plain-text subject and body, carrying the Google Doc link if one was made, otherwise noting
+  the attached `.docx`.
 - **`needs_followup`** - the builder skips the proposal document and drafts only the follow-up
   email as plain-text subject and body on its needs-followup route. No document, no link.
 
 The builder drafts only - it does not send anything and does not return structured fields. It
-hands back the doc URL (for `proposal`) and the drafted subject/body as text. This skill owns
+hands back the `.docx` (and a Google Doc link if one was made, for `proposal`) and the drafted subject/body as text. This skill owns
 the send (Step 5).
 
-When the builder returns, present the draft to the operator for review: the proposal doc link
+When the builder returns, present the draft to the operator for review: the proposal `.docx` (and its Google Doc link if one was made)
 plus the email for `proposal`, the email alone for `needs_followup`.
 
 After the operator has reviewed the draft, send the approved follow-up email (Step 5), then
@@ -230,15 +231,15 @@ email on this branch.
 For a draft-and-Apollo-write outcome (the two outcomes the taxonomy marks as such), the
 summary also reports:
 
-- **Draft** - for `proposal`, confirmation that the proposal Google Doc was created (with its
-  link) and the follow-up email was drafted. For `needs_followup`, confirmation that the
+- **Draft** - for `proposal`, confirmation that the proposal `.docx` was created (with its
+  Google Doc link if one was made) and the follow-up email was drafted. For `needs_followup`, confirmation that the
   follow-up email was drafted, with no proposal document.
 - **Email sent** - confirmation that the approved email was sent through Gmail, or the failure
   if it did not send.
 - **Apollo stage** - confirmation of the stage the deal was moved to, or that the write was
   skipped because the opportunity match was not confirmed.
 
-This summary is the operator's single record of the run: the outcome, the proposal doc link (if
+This summary is the operator's single record of the run: the outcome, the proposal `.docx` and its Google Doc link (if
 one was made), whether the email sent, and the Apollo stage set, or which of those was skipped
 and why.
 
