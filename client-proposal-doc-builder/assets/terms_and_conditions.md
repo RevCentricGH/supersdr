@@ -5,7 +5,7 @@
 > - `{COMPANY}` → the prospect's legal company name (e.g., "Bridgepointe Advisors", "Homegrown Ads")
 > - `{ENGAGEMENT_DESCRIPTION}` → short engagement label (e.g., "Done-For-You Calling engagement", "90-day outbound pilot")
 > - In §3(a), replace `{FEES_LANGUAGE}` with the agreed total fee structure for the engagement
-> - In §8, the final paragraph about exclusivity addendum is OPTIONAL — include only when exclusivity is being deferred to a follow-up addendum
+> - In §8, the final paragraph about exclusivity addendum is OPTIONAL: include only when exclusivity is being deferred to a follow-up addendum
 
 ---
 
@@ -70,9 +70,9 @@ Any methodology, software, tools, scripts, sequences, strategies, frameworks, or
 
 Intellectual property developed by either party prior to the Effective Date ("Pre-Existing IP") shall remain the sole property of that party and is not assigned or transferred by this Agreement.
 
-> [OPTIONAL — include only when exclusivity is being deferred to a follow-up addendum]
+> [OPTIONAL: include only when exclusivity is being deferred to a follow-up addendum]
 >
-> The specific exclusivity treatment of leads generated under this engagement — including any non-compete or territory provisions governing the cross-use of conversations or contact data across other partners — shall be finalized by mutual written agreement of the parties prior to the start of Week-1 Foundations, and incorporated as an addendum to this Agreement.
+> The specific exclusivity treatment of leads generated under this engagement, including any non-compete or territory provisions governing the cross-use of conversations or contact data across other partners, shall be finalized by mutual written agreement of the parties prior to the start of Week-1 Foundations, and incorporated as an addendum to this Agreement.
 
 **9. Remedies**
 

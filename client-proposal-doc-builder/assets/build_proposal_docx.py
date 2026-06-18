@@ -282,6 +282,29 @@ def _title_block(doc, tb):
 
 
 def build(content, out_path):
+    # Voice guard: em-dashes are banned in the proposal. Fail loudly so they get rewritten,
+    # rather than shipping them or blind-swapping to a hyphen.
+    hits = []
+
+    def _scan(v, where):
+        if isinstance(v, str):
+            if "—" in v:
+                hits.append(f"{where}: {v[:70]}")
+        elif isinstance(v, dict):
+            for k, x in v.items():
+                _scan(x, f"{where}.{k}")
+        elif isinstance(v, list):
+            for i, x in enumerate(v):
+                _scan(x, f"{where}[{i}]")
+
+    _scan(content, "content")
+    if hits:
+        raise ValueError(
+            "Em-dashes (—) are not allowed in the proposal. Rewrite each into separate "
+            "sentences or use a comma, colon, or parentheses (never a hyphen), then rebuild:\n  "
+            + "\n  ".join(hits)
+        )
+
     doc = Document()
     for section in doc.sections:
         section.left_margin = Inches(0.9)
