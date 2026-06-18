@@ -119,7 +119,7 @@ Deliver the brief as a styled Word document (`.docx`) using the bundled builder,
 
    Number points continuously across sections in priority order (the things most likely to come up first) so the anchors reference them. For `pre-disco`, write two sections: "What matters going in" (the Research finding, Concern, Objection, Ask, and Commitment points) and "Suggested agenda" (the Agenda item points). For `pre-onboarding` and `pre-closing`, write one section, "What matters going in", with all the points.
 
-   Each point is `{"n", "kind", "anchor", "text"}`. `anchor` is the timestamp for a transcript-grounded point, or a short source label ("prior brief", "proposal") for the artifact-grounded kinds (`pre-disco` Research finding; `pre-closing` Discovery takeaway and Proposal status). Each anchors entry is `{"n", "anchor", "quote"}` carrying the verbatim source line (quote, do not paraphrase). `**bold**` spans inside point text are honored. Write this to `content.json`.
+   Each point is `{"n", "kind", "anchor", "text"}`. `anchor` is the timestamp for a transcript-grounded point, or a short source label ("prior brief", "proposal") for the artifact-grounded kinds (`pre-disco` Research finding; `pre-closing` Discovery takeaway and Proposal status). Each anchors entry is `{"n", "anchor", "quote"}` carrying the verbatim source line (quote, do not paraphrase). Every point needs exactly one anchors entry with the same `n` and vice versa; the builder rejects a mismatch. `**bold**` spans inside point text are honored. Write this to `content.json`.
 
 2. **Run the builder:**
 

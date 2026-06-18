@@ -167,6 +167,25 @@ def build(content, out_path):
             + "\n  ".join(hits)
         )
 
+    # Cross-check: each point carries exactly one Transcript-anchors entry and vice versa
+    # (1:1 on `n`). A silent mismatch produces anchors pointing at the wrong points, which a
+    # reader cannot catch, so fail loudly here instead.
+    point_ns = [pt.get("n") for sec in content.get("sections", []) for pt in sec.get("points", [])]
+    anchor_ns = [a.get("n") for a in content.get("anchors", [])]
+    orphan_anchors = sorted(set(anchor_ns) - set(point_ns), key=str)
+    missing_anchors = sorted(set(point_ns) - set(anchor_ns), key=str)
+    if orphan_anchors or missing_anchors:
+        problems = []
+        if orphan_anchors:
+            problems.append(f"anchors with no matching point: {orphan_anchors}")
+        if missing_anchors:
+            problems.append(f"points with no Transcript-anchors entry: {missing_anchors}")
+        raise ValueError(
+            "Point and anchor numbers do not line up (each point needs exactly one matching "
+            "anchor entry, and each anchor one matching point). Fix the numbering, then rebuild:\n  "
+            + "\n  ".join(problems)
+        )
+
     doc = Document()
     for section in doc.sections:
         section.left_margin = Inches(0.9)
