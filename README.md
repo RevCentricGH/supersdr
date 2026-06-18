@@ -183,7 +183,7 @@ Do this once before running skills that reach external systems.
   Each skill embeds these rules too; this just applies them globally.
 
 - **Connect the connectors each skill needs.** A connector links Claude to an outside service.
-  - **Google Drive:** Settings, then Connectors, then Google Drive. Connect your account and enable edit access (read-only is not enough for list-builder; the proposal builder only needs Drive if you want a shareable Google Doc link, which is optional).
+  - **Google Drive:** Settings, then Connectors, then Google Drive. Connect your account and enable edit access (read-only is not enough for list-builder; the proposal builder and pre-brief only need Drive if you want a shareable Google Doc link, which is optional).
   - **Gmail:** Settings, then Connectors, then Gmail, with send access. Used by `post-discovery-followup` to send the approved follow-up and by `onboarding-kickoff` to send the welcome email, and only after you approve the recipient, subject, and body.
   - **Apollo MCP:** Settings, then MCP Servers, and connect Apollo (`apollo-io`). The skill calls Apollo through the connector, so no API key lives in the skill.
   - **Browser automation (Claude in Chrome):** Settings, then Computer Use, and enable browser control. Log into Apollo in Chrome and keep that tab open while running these skills.
