@@ -229,13 +229,29 @@ See `references/positioning_and_style.md` for objection-handling copy, channel v
 
 ### Step 5 — Create the Google Doc
 
-Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. Let the connector handle creation, formatting, and insertion — do not construct raw Docs/Drive API calls. The connector must have write permission enabled.
+Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. Do not construct raw Docs/Drive API calls. The connector must have write permission enabled.
 
 1. **Create a new Google Doc** titled `[Agency Name] Proposal — {Prospect}` using the connector.
-2. **Write the proposal content** from Step 4 into the doc section by section — title block first, then each named section in order.
-3. **Capture the doc URL** once creation is confirmed.
+2. **Write the proposal content** from Step 4 into the doc section by section: title block first, then each named section in order.
+3. **Apply the house style below.** A bare Google Doc defaults to near-black headings and a plain serif-ish layout, which reads like a default Word document. A styled proposal looks designed. You must set styling explicitly: applying a heading style alone does NOT make headings navy.
+4. **Capture the doc URL** once creation is confirmed.
 
-**Formatting:** the Step 4 markdown is a content spec, not literal text. Translate it when writing into the doc: section headings become Doc heading styles, `**bold**` becomes bold text, markdown tables become native Doc tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording — never literal `#`, `**`, or `|---|` characters in the doc.
+#### House style (apply explicitly - this is what separates a designed proposal from a plain Word-looking doc)
+
+- **Font:** a clean sans-serif throughout (Arial). Not the serif default.
+- **Section headings** (Heading 1/2) and **subsection headings** (Heading 3): bold, **navy blue** (hex ~`#1F4E79`; close is fine). Google Docs' default heading color is near-black, so you must override it to navy.
+- **Title block, centered:**
+  - `PROPOSAL` eyebrow: all-caps, gray (~`#666666`), centered, small.
+  - Engagement title: large bold (Heading 1), centered.
+  - Subtitle and tagline: italic, centered.
+  - `PREPARED FOR` / `PREPARED BY`: a two-column, borderless table - gray uppercase labels, bold names below each. Not stacked.
+- **Tables:** header row shaded light blue-gray (~`#D9E1F2`) with bold header text and thin borders; shade any total or emphasis row (~`#EFEFEF`).
+- **Appendix A status cells:** fill the Status cell green (~`#D9EAD3`) for **Billable** and red/pink (~`#F4CCCC`) for **Not Billable**, matching the disposition tables.
+- **Highlights (optional, sparing):** yellow text highlight on at most one or two of the sharpest callout sentences (e.g., the bottleneck line). Don't over-highlight.
+
+**Translate the markdown:** the Step 4 markdown is a content spec, not literal text. Section headings become styled Doc headings, `**bold**` becomes bold text, markdown tables become native Doc tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording - never literal `#`, `**`, or `|---|` characters in the doc.
+
+**Don't let styling stall the doc.** If the connector can't set a specific property (a cell fill, a highlight), apply what it can and move on - never fail or hang the whole doc over one style detail. If you reach for a convert-and-upload path (docx or HTML) to carry styling, cap it at ~60 seconds; if it stalls, abandon it and create the doc natively with the house style applied directly. A delivered, slightly-less-styled doc beats a run hung for ten minutes.
 
 If a section write fails partway, output the remaining sections as labeled text blocks in chat and tell the user which sections made it into the doc.
 
@@ -245,7 +261,7 @@ If the Google Drive connector is not connected or does not have write permission
 
 ### Step 6 — Validate
 
-Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. If any section is missing or the billing language contradicts itself, fix it using the connector before proceeding.
+Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. If any section is missing or the billing language contradicts itself, fix it using the connector before proceeding. Spot-check the house style from Step 5: navy headings, sans-serif font, centered title block, shaded table header rows. If the doc came out plain (black headings, serif font, left-aligned title), re-apply the house style before delivering.
 
 ### Step 7 — Deliver the doc
 
