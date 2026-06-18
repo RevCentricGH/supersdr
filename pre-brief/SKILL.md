@@ -1,15 +1,15 @@
 ---
 name: pre-brief
-description: Turn a sales-call transcript into a one-page Google Doc meeting brief, framed for the call type. Paste the transcript (and optionally prior artifacts like a proposal, a prior brief, or Apollo notes) or share a Drive, Fireflies, or Gemini link. pre-brief infers whether it is a discovery, onboarding, or closing call, confirms the type with you, then returns 5 to 8 points - each anchored to the transcript moment or pasted-artifact passage it came from - followed by a transcript-anchors section, as a Google Doc View link. Trigger this skill when the user says brief me on this call, prep me for this meeting, prep me for the kickoff, prep me for the closing or decision call, run pre-brief, what do I need to know going into this meeting or onboarding session, pastes a call transcript and wants meeting prep, or shares a Drive, Fireflies, or Gemini recording link and asks for a brief or a pre-read before a meeting.
+description: Turn a sales-call transcript into a one-page meeting brief, framed for the call type. Paste the transcript (and optionally prior artifacts like a proposal, a prior brief, or Apollo notes) or share a Drive, Fireflies, or Gemini link. pre-brief infers whether it is a discovery, onboarding, or closing call, confirms the type with you, then returns 5 to 8 points - each anchored to the transcript moment or pasted-artifact passage it came from - followed by a transcript-anchors section, rendered as a styled Word document (.docx, opens in Google Docs) with an optional Google Doc link. Trigger this skill when the user says brief me on this call, prep me for this meeting, prep me for the kickoff, prep me for the closing or decision call, run pre-brief, what do I need to know going into this meeting or onboarding session, pastes a call transcript and wants meeting prep, or shares a Drive, Fireflies, or Gemini recording link and asks for a brief or a pre-read before a meeting.
 ---
 
 # pre-brief
 
 ## Purpose
 
-Turn one sales-call transcript into a one-page Google Doc meeting brief and return the View link. The brief is framed for the call type: a discovery call brief covers what the seller needs to know to move the deal forward; an onboarding call brief covers what the new client needs and expects going into their first active session. Every point is anchored to the transcript moment it came from, so the reader can jump straight to it and verify it.
+Turn one sales-call transcript into a one-page meeting brief, rendered as a styled Word document (`.docx`, opens in Google Docs). The brief is framed for the call type: a discovery call brief covers what the seller needs to know to move the deal forward; an onboarding call brief covers what the new client needs and expects going into their first active session. Every point is anchored to the transcript moment it came from, so the reader can jump straight to it and verify it.
 
-Per-meeting and interactive. No dialer, no transcription, no sheet, no terminal. It reads a transcript and writes a Doc.
+Per-meeting and interactive. No dialer, no transcription, no sheet, no terminal. It reads a transcript and builds a styled `.docx`.
 
 ## Configuration
 
@@ -21,17 +21,17 @@ At each decision point below, emit one plain-text log line so a run can be audit
 
 `[pre-brief] event=<event> detail=<short detail>`
 
-Events: `type-inferred`, `operator-override`, `unsupported-type-refused`, `artifact-fetch-unavailable`, `artifact-too-large`, `connector-fallback`, `doc-created`, `doc-failed`, `reference-file-missing`. Each step says which event to emit.
+Events: `type-inferred`, `operator-override`, `unsupported-type-refused`, `artifact-fetch-unavailable`, `artifact-too-large`, `builder-fallback`, `docx-built`, `docx-failed`, `reference-file-missing`. Each step says which event to emit.
 
 ## Getting started
 
 When this skill loads, greet the user:
 
-> "I'm pre-brief. Paste a sales-call transcript or share a Drive, Fireflies, or Gemini link, and I'll turn it into a one-page meeting brief, framed for the call type. I'll figure out whether it's a discovery, onboarding, or closing call and confirm with you first. You can also paste any prior artifacts (a proposal, a prior brief, Apollo notes) and I'll use them to anchor the brief - for a closing call those artifacts are what ground the discovery recap and proposal status, so paste them if you have them. You get back a Google Doc View link."
+> "I'm pre-brief. Paste a sales-call transcript or share a Drive, Fireflies, or Gemini link, and I'll turn it into a one-page meeting brief, framed for the call type. I'll figure out whether it's a discovery, onboarding, or closing call and confirm with you first. You can also paste any prior artifacts (a proposal, a prior brief, Apollo notes) and I'll use them to anchor the brief - for a closing call those artifacts are what ground the discovery recap and proposal status, so paste them if you have them. You get back a styled .docx, and a Google Doc link too if you want one."
 
-Assume the Google Drive connector is connected with write access. Proceed once the user provides a transcript or a link.
+The brief is delivered as a `.docx`, which needs no connector to produce. Proceed once the user provides a transcript or a link. (A Drive-link transcript still uses the Google Drive connector to read it, per Step 1.) Google Drive write access is only needed if the user wants a shareable Google Doc link of the finished brief, which is optional (Step 3).
 
-**Only if creating the Doc fails:** "Looks like Google Drive is not connected with write access in Cowork. Go to Settings -> Connectors -> Google Drive, connect your account, and enable edit permission. Then tell me you're ready, or say the word and I'll hand you the brief as text to paste into a Doc yourself."
+**Only if the .docx can't be built** (the builder won't run in this runtime), tell the user you'll hand them the brief as formatted text to paste into a Doc instead. In Google Docs, right-click and choose Paste from Markdown so headings convert cleanly.
 
 ## What to give it
 
@@ -111,41 +111,40 @@ Pull the 5 to 8 substantive moments that fit the active framing. Rules for the p
 - Anchor each transcript-grounded point to its timestamp (or, if the transcript is unstamped, a short verbatim quote plus the speaker). Some point kinds are artifact-grounded and anchor to the pasted-artifact passage instead - `pre-disco` Research finding, and `pre-closing` Discovery takeaway and Proposal status. Use each type's anchor rules in `reference/call-type-templates.md`. For `pre-onboarding`, a point informed by a prior artifact still anchors to the transcript moment where the client referenced or relied on it; if a commitment lives only in an artifact and never surfaces in the transcript, leave it out.
 - Leave out small talk and filler. If you cannot ground a point in a specific moment, drop it rather than padding to hit a count.
 
-### Step 3 - Build the Google Doc
+### Step 3 - Build the styled .docx
 
-Create the brief with the Google Drive connector. The connector must have write permission.
+Deliver the brief as a styled Word document (`.docx`) using the bundled builder, `assets/build_brief_docx.py`. The builder renders the layout deterministically - titled header, navy section headings, numbered points that each carry a `[Kind, anchor]` label, and a bold-labeled "Transcript anchors" section - so the styling is identical every run instead of leaning on the Cowork Drive connector, which uploads plain text and cannot set fonts, color, or weight. Do not hand-format through the connector and do not free-style the formatting yourself, run the builder.
 
-1. **Create a Doc** titled with the active template's title pattern: `Pre-Brief (Discovery): {prospect or meeting name}` for `pre-disco`, `Pre-Brief (Onboarding): {client or account name}` for `pre-onboarding`, `Pre-Brief (Closing): {prospect or account name}` for `pre-closing`. Infer the name from the transcript; if it is unclear, ask the user in one line.
-2. **Write the point section(s)**, numbered continuously in priority order (the things most likely to come up first) so the anchors section can reference them. For `pre-disco`, write two sections: "What matters going in" (the Research finding, Concern, Objection, Ask, and Commitment points) and "Suggested agenda" (the Agenda item points). For `pre-onboarding` and `pre-closing`, write one section, "What matters going in", with all the points. Each line carries its kind tag and its anchor. Format a transcript-grounded point as:
+1. **Serialize the Step 2 points into the builder's JSON schema** (documented at the top of `assets/build_brief_docx.py`): a `title`, an optional `subtitle`, an ordered list of `sections` (each a `heading` plus its `points`), and an `anchors` list. Title patterns: `Pre-Brief (Discovery): {prospect or meeting name}` for `pre-disco`, `Pre-Brief (Onboarding): {client or account name}` for `pre-onboarding`, `Pre-Brief (Closing): {prospect or account name}` for `pre-closing`. Infer the name from the transcript; if it is unclear, ask the user in one line.
 
-   `1. [Concern, 00:14:32] One-sentence point grounded in that moment.`
+   Number points continuously across sections in priority order (the things most likely to come up first) so the anchors reference them. For `pre-disco`, write two sections: "What matters going in" (the Research finding, Concern, Objection, Ask, and Commitment points) and "Suggested agenda" (the Agenda item points). For `pre-onboarding` and `pre-closing`, write one section, "What matters going in", with all the points.
 
-   For an artifact-grounded point (`pre-disco` Research finding; `pre-closing` Discovery takeaway and Proposal status), the anchor is a short source label instead of a timestamp:
+   Each point is `{"n", "kind", "anchor", "text"}`. `anchor` is the timestamp for a transcript-grounded point, or a short source label ("prior brief", "proposal") for the artifact-grounded kinds (`pre-disco` Research finding; `pre-closing` Discovery takeaway and Proposal status). Each anchors entry is `{"n", "anchor", "quote"}` carrying the verbatim source line (quote, do not paraphrase). Every point needs exactly one anchors entry with the same `n` and vice versa; the builder rejects a mismatch. `**bold**` spans inside point text are honored. Write this to `content.json`.
 
-   `2. [Research finding, prior brief] One-sentence fact from the artifact.`
+2. **Run the builder:**
 
-3. **Write section "Transcript anchors"** - for each numbered point, the source it came from so the reader can verify without reopening the call or the artifact. For a transcript-grounded point, quote the source line. For an artifact-grounded point, cite the retained artifact passage and label its source. Label each with a bolded point number that matches the list above:
+   ```
+   python3 assets/build_brief_docx.py content.json "Pre-Brief (Discovery) - {name}.docx"
+   ```
 
-   `**Point 3** [00:14:32] "verbatim line or short exchange from the transcript"`
-   `**Point 5** [proposal] "retained snippet or cited passage from the artifact"`
+   If `python-docx` is missing, install it first (`pip install python-docx`). The builder refuses to render em-dashes; if it reports any, rewrite that point (two sentences, or a comma, colon, or parentheses, never a hyphen) and rerun. Emit `[pre-brief] event=docx-built detail=<active type>` on success, or `[pre-brief] event=docx-failed detail=<reason>` on failure.
+3. **Deliver the `.docx`** to the user. They can open it directly or in Google Docs via File -> Open -> Upload.
 
-4. **Capture the Doc URL** once creation is confirmed. Emit `[pre-brief] event=doc-created detail=<active type>`. If creation fails, emit `[pre-brief] event=doc-failed detail=<reason>` and fall back to text (below).
+Output is the `.docx` only. Do not build a styled-HTML one-pager or any other artifact.
 
-The templates above are content specs, not literal text. Apply bold through the connector's formatting, never literal `**` characters - the anchor labels read as bold "Point 3", not `**Point 3**` with asterisks in the Doc. If the connector cannot apply bold, write the label as plain text.
+**Optional - also hand off a Google Doc link.** If the user wants a shareable Google Doc (e.g. to open on a phone before the meeting), upload the `.docx` to Google Drive with conversion to a native Doc and return the View link. This needs the Drive connector with write access. Cap it at ~60 seconds; if it stalls, just deliver the `.docx`. Custom fonts may substitute on conversion; the navy headings, layout, and bold labels survive.
 
-Output is the structured Doc only. Do not build a styled-HTML one-pager or any other artifact.
+**If the builder can't run** in this runtime, output the full brief as formatted text instead, emit `[pre-brief] event=builder-fallback detail=<reason>`, and tell the user:
 
-If the connector is not connected or lacks write permission, output the full brief as formatted text instead, emit `[pre-brief] event=connector-fallback detail=<reason>`, and tell the user:
+> "Paste this into a new Google Doc titled '{active title pattern, e.g. Pre-Brief (Onboarding): {name}}'. In Google Docs, right-click and choose Paste from Markdown so headings convert cleanly."
 
-> "Paste this into a new Google Doc titled '{active title pattern, e.g. Pre-Brief (Onboarding): {name}}'."
+### Step 4 - Deliver the brief
 
-### Step 4 - Deliver the View link
-
-Give the user the Google Doc View link and a one-line summary of what is in it: how many points and the spread across the active template's point kinds (research-findings/concerns/objections/asks/commitments/agenda-items for `pre-disco`; expectations/concerns/commitments-from-sale/open-questions for `pre-onboarding`; discovery-takeaways/proposal-status/open-objections/agreed-next-steps for `pre-closing`). Do not re-list the points; the user can open the Doc.
+Give the user the finished `.docx` (and the Google Doc link, if you made one in Step 3) and a one-line summary of what is in it: how many points and the spread across the active template's point kinds (research-findings/concerns/objections/asks/commitments/agenda-items for `pre-disco`; expectations/concerns/commitments-from-sale/open-questions for `pre-onboarding`; discovery-takeaways/proposal-status/open-objections/agreed-next-steps for `pre-closing`). Do not re-list the points; the user can open the doc.
 
 ## Voice rules
 
-These apply to everything this skill produces - the Doc and Claude's own messages:
+These apply to everything this skill produces - the brief and Claude's own messages:
 
 - No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course".
 - No hedging: "I think", "it seems", "potentially", "it's worth noting".
@@ -153,6 +152,10 @@ These apply to everything this skill produces - the Doc and Claude's own message
 - No em-dashes. Use a hyphen or rewrite.
 - Each point in the brief is one sentence. Short. Direct. One idea per line.
 - If a point cannot be grounded in a specific transcript moment, leave it out.
+
+## Assets
+
+- `assets/build_brief_docx.py` - deterministic `.docx` builder that renders the brief layout from a content JSON (see its docstring for the schema). Step 3 writes the JSON and runs it. Edit the `CONFIG` block at the top to rebrand (font, heading color, sizes).
 
 ## Reference files
 
@@ -169,4 +172,4 @@ These apply to everything this skill produces - the Doc and Claude's own message
 - **Anchor everything.** A point with no anchor is an unverifiable claim. Transcript-grounded points anchor to a timestamp (or quote plus speaker on an unstamped transcript); artifact-grounded points anchor to the cited artifact passage. Every point gets an anchor or it does not ship.
 - **Do not pad to a number.** Five well-grounded points beat eight where three are filler. The range is 5 to 8, not a quota.
 - **Quote, do not paraphrase, in the anchors section.** The "Transcript anchors" lines are verbatim so the reader can trust them. Paraphrase belongs in the "What matters going in" points, not the anchors.
-- **One pass into the Doc.** If you write section by section and something lands out of order, re-read the Doc through the connector and fix it before handing over the link.
+- **Render with the builder, not by hand.** `assets/build_brief_docx.py` is what guarantees the styling. Build the JSON, run the builder, deliver the `.docx`. Never free-style the formatting or type the brief into a blank Doc through the connector, which strips it.
