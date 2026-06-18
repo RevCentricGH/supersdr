@@ -1,13 +1,13 @@
 ---
 name: client-proposal-doc-builder
-description: Build a send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a Google Doc, grounded in a discovery-call transcript or summary, then draft the follow-up email to send the prospect the proposal link. Trigger whenever the user mentions building a proposal, a DFY or Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect for outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. Bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, produces a complete Google Doc with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs, then drafts the follow-up email (proposal-link or soft follow-up route).
+description: Build a send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a fully formatted Word document (.docx, ready to open in Google Docs), grounded in a discovery-call transcript or summary, then draft the follow-up email. Trigger whenever the user mentions building a proposal, a DFY or Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect for outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. Bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, produces a complete formatted .docx with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs, then drafts the follow-up email (proposal-link or soft follow-up route).
 ---
 
 # Outbound Proposal Doc Builder
 
 ## Purpose
 
-Given a discovery-call transcript or summary, produces a complete send-ready outbound agency proposal as a Google Doc and drafts the follow-up email. The proposal includes a 4-paragraph executive summary, ICP + conversation math, the compounding value of activated leads, pricing tier(s), 90-day delivery phases, investment table with upfront payment terms, a "beyond the pilot" renewal section, T&Cs, Next Steps + signature block, and Appendix A (Completed Conversation Criteria). The boilerplate 70% comes from assets; the variable 30% is grounded in what this specific prospect said on this specific call.
+Given a discovery-call transcript or summary, produces a complete send-ready outbound agency proposal as a fully formatted Word document (`.docx`, ready to open in Google Docs) and drafts the follow-up email. The proposal includes a 4-paragraph executive summary, ICP + conversation math, the compounding value of activated leads, pricing tier(s), 90-day delivery phases, investment table with upfront payment terms, a "beyond the pilot" renewal section, T&Cs, Next Steps + signature block, and Appendix A (Completed Conversation Criteria). The boilerplate 70% comes from assets; the variable 30% is grounded in what this specific prospect said on this specific call.
 
 _Cowork skill - upload the ZIP and run from the Claude desktop app._
 
@@ -34,15 +34,13 @@ Cache the user's answers in the session and apply them. If the user says "use th
 
 When this skill is loaded, greet the user:
 
-> "I'm the Proposal Builder. I'll draft a complete, ready-to-send proposal for your prospect plus a follow-up email to send with the link.
+> "I'm the Proposal Builder. I'll draft a complete, ready-to-send proposal for your prospect as a formatted document, plus a follow-up email.
 >
 > Share what you have from the discovery call: paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works."
 
-Assume Google Drive is connected with edit access. Proceed straight to the Workflow once the user provides call material.
+The proposal is delivered as a `.docx`, which needs no connector. Proceed straight to the Workflow once the user provides call material. Google Drive is only needed if the user wants a shareable Google Doc link, which is optional (Step 5).
 
-**Only if doc creation fails**, walk the user through the fix:
-
-- **Google Drive write fails / unauthorized** → "Looks like Google Drive isn't connected with edit access in Cowork. Go to Settings → Connectors → Google Drive, connect your account, and make sure edit permission is enabled. Then tell me you're ready. Or let me know and I'll give you the proposal as formatted text to paste into a doc manually."
+**Only if file creation fails**, tell the user: "I can give you the full proposal as formatted text to paste into a document instead. In Google Docs, use right-click → Paste from Markdown so headings and tables convert cleanly."
 
 If the user describes what they want in plain English instead of providing a transcript (e.g., "I want to send a proposal to a SaaS company for cold calling"), work with it. Ask targeted follow-up questions to fill gaps rather than blocking on a missing transcript.
 
@@ -227,45 +225,42 @@ See `references/positioning_and_style.md` for objection-handling copy, channel v
 - No em-dashes in Claude's own messages (em-dashes in the proposal body are fine per the style guide above)
 - Short. Direct. One idea per sentence.
 
-### Step 5 — Create the Google Doc
+### Step 5 — Build the proposal as a styled .docx
 
-Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. Do not construct raw Docs/Drive API calls. The connector must have write permission enabled.
+Deliver the proposal as a fully formatted Word document (`.docx`), built with Claude's file-creation capability. This is the reliable way to ship a styled proposal in Cowork. **Do not** create the doc by typing into a blank Google Doc through the Google Drive connector: that path uploads plain text and cannot set fonts, heading color, alignment, or table shading, so it always comes out looking like a plain default document. A `.docx` carries real formatting.
 
-1. **Create a new Google Doc** titled `[Agency Name] Proposal — {Prospect}` using the connector.
-2. **Write the proposal content** from Step 4 into the doc section by section: title block first, then each named section in order.
-3. **Apply the house style below.** A bare Google Doc defaults to near-black headings and a plain serif-ish layout, which reads like a default Word document. A styled proposal looks designed. You must set styling explicitly: applying a heading style alone does NOT make headings navy.
-4. **Capture the doc URL** once creation is confirmed.
+1. **Create one `.docx`** named `[Agency Name] Proposal — {Prospect}.docx` using the file-creation tooling (a python-docx style builder). Build the whole proposal in a single file, sections in the Step 4 order.
+2. **Apply the house style below** as you write each element. This is native Word formatting, fully under your control.
+3. **Deliver the file** to the user (it appears in the working folder / as a download). They can open it directly or in Google Docs via File → Open → Upload.
 
-#### House style (apply explicitly - this is what separates a designed proposal from a plain Word-looking doc)
+#### House style (apply explicitly - this is what makes it look designed, not like a default doc)
 
-- **Font:** a clean sans-serif throughout (Arial). Not the serif default.
-- **Section headings** (Heading 1/2) and **subsection headings** (Heading 3): bold, **navy blue** (hex ~`#1F4E79`; close is fine). Google Docs' default heading color is near-black, so you must override it to navy.
+- **Font:** a clean sans-serif throughout (Arial or Helvetica). Set it on the document's Normal style so body and headings inherit it.
+- **Headings:** bold, **navy blue** (hex `#1F4E79`). Section headings larger (Heading 1/2), subsections smaller (Heading 3). Set the color explicitly on each heading - don't rely on Word's default heading color.
 - **Title block, centered:**
-  - `PROPOSAL` eyebrow: all-caps, gray (~`#666666`), centered, small.
-  - Engagement title: large bold (Heading 1), centered.
+  - `PROPOSAL` eyebrow: all-caps, gray (`#666666`), small, centered.
+  - Engagement title: large bold, centered.
   - Subtitle and tagline: italic, centered.
   - `PREPARED FOR` / `PREPARED BY`: a two-column, borderless table - gray uppercase labels, bold names below each. Not stacked.
-- **Tables:** header row shaded light blue-gray (~`#D9E1F2`) with bold header text and thin borders; shade any total or emphasis row (~`#EFEFEF`).
-- **Appendix A status cells:** fill the Status cell green (~`#D9EAD3`) for **Billable** and red/pink (~`#F4CCCC`) for **Not Billable**, matching the disposition tables.
-- **Highlights (optional, sparing):** yellow text highlight on at most one or two of the sharpest callout sentences (e.g., the bottleneck line). Don't over-highlight.
+- **Tables:** header row shaded light blue-gray (`#D9E1F2`) with bold header text and thin borders; shade any total or emphasis row (`#EFEFEF`).
+- **Appendix A status cells:** fill the Status cell green (`#D9EAD3`) for **Billable** and red/pink (`#F4CCCC`) for **Not Billable**, matching the disposition tables.
+- **Highlights (optional, sparing):** at most one or two of the sharpest callout sentences (e.g., the bottleneck line). Don't over-highlight.
 
-**Translate the markdown:** the Step 4 markdown is a content spec, not literal text. Section headings become styled Doc headings, `**bold**` becomes bold text, markdown tables become native Doc tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording - never literal `#`, `**`, or `|---|` characters in the doc.
+**Translate the markdown:** the Step 4 markdown is a content spec, not literal text. Headings become real Word heading styles, `**bold**` becomes bold runs, markdown tables become native Word tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording - never literal `#`, `**`, or `|---|` characters in the document.
 
-**Don't let styling stall the doc.** If the connector can't set a specific property (a cell fill, a highlight), apply what it can and move on - never fail or hang the whole doc over one style detail. If you reach for a convert-and-upload path (docx or HTML) to carry styling, cap it at ~60 seconds; if it stalls, abandon it and create the doc natively with the house style applied directly. A delivered, slightly-less-styled doc beats a run hung for ten minutes.
+**Optional - also hand off a Google Doc.** If the user wants a shareable Google Doc link (e.g. for the follow-up email), upload the `.docx` to Google Drive with conversion to a native Doc. Cap this at ~60 seconds; if the upload stalls, abandon it and just deliver the `.docx` - never hang the run on the conversion. The `.docx` is the primary deliverable; the Google Doc link is a convenience.
 
-If a section write fails partway, output the remaining sections as labeled text blocks in chat and tell the user which sections made it into the doc.
+**If file creation isn't available** in this runtime, output the full proposal as formatted markdown and tell the user:
 
-If the Google Drive connector is not connected or does not have write permission, output the full proposal as formatted markdown instead and tell the user:
-
-> "Paste this into a new Google Doc titled '[Agency Name] Proposal — {Prospect}'. Enable tabs in Google Docs if you want to keep T&Cs and Appendix A on separate tabs."
+> "Paste this into a new document titled '[Agency Name] Proposal — {Prospect}'. In Google Docs, right-click and choose Paste from Markdown so headings and tables convert cleanly."
 
 ### Step 6 — Validate
 
-Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. If any section is missing or the billing language contradicts itself, fix it using the connector before proceeding. Spot-check the house style from Step 5: navy headings, sans-serif font, centered title block, shaded table header rows. If the doc came out plain (black headings, serif font, left-aligned title), re-apply the house style before delivering.
+Confirm the `.docx` contains these sections, in order: title block, Executive Summary (4 paragraphs), Our Understanding (including *The Compounding Value of Activated Leads*), at least one Proposed Engagement pricing block, Investment Summary (with upfront Payment Terms), Why [Agency], Beyond the [N]-Day Pilot, Terms & Conditions, Next Steps + Acceptance/signature block, and Appendix A. Confirm the Payment Terms bullet and T&C §3(a) tell the same upfront billing story. Also confirm the Terms & Conditions and Appendix A are the verbatim canonical assets (full section set and full disposition tables), not a shortened or improvised substitute - if they read as improvised or carry a "replace with your canonical language" note, the Asset guard was missed: stop and tell the user to re-upload the full ZIP. Spot-check the house style: sans-serif font, navy headings, centered title block, shaded table header rows. Fix any missing section, contradictory billing language, or plain styling before delivering.
 
 ### Step 7 — Deliver the doc
 
-Give the user the Google Doc URL and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
+Give the user the finished `.docx` file (and the Google Doc link, if you created one in Step 5) plus a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
 
 Include a Mermaid timeline of the 90-day engagement so the user has a single visual to share with the prospect (or paste into a follow-up message). Cowork renders this natively.
 
@@ -305,4 +300,4 @@ After the doc is delivered, immediately draft the follow-up email. Load `referen
 - **Pricing tiers track conversations, not meetings.** The completed-conversations model is the differentiator. Frame meetings as a *projected outcome* of conversation volume, not as the unit of commitment.
 - **Reflect their language back.** If the prospect named a specific bad experience or industry term, use it in the proposal. This is the single highest-signal thing you can do.
 - **Never fabricate prior campaign references.** Only cite a past client campaign by name if the user explicitly mentioned it in the call context. Making up campaign names or numbers destroys trust if the prospect asks.
-- **Write the doc in one pass if possible.** If the connector supports overwrite, use it with the full content. If you write section by section and something gets out of order, re-read the doc and patch the affected section before delivering.
+- **Build the .docx in one pass, then validate.** Assemble the whole document and check it before delivering. The `.docx` route is what carries styling - never fall back to typing into a blank Google Doc through the connector, which strips formatting (see Step 5).
