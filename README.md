@@ -138,7 +138,7 @@ The fulfillment motion: the functional stages of running outbound for a signed c
 
 | Skill | What it does | Tier | |
 |-------|-------------|------|---|
-| [master-tracker](master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
+| [master-tracker](master-tracker/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Pulls each rep's Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to re-run. Reads campaign health at a glance. Master tracker template: https://docs.google.com/spreadsheets/d/1rOtk8wsbkv3cYTaqBZC4EKK92xBcaaTidocoZrpjaoQ/edit?gid=1494876923#gid=1494876923 | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/master-tracker.zip) |
 | [weekly-checkin](weekly-checkin/) | Terminal skill - runs in Claude Code, not Cowork (see [Claude Code path](#advanced-claude-code-path) below). Builds a weekly per-client digest from the master-tracker sheet and each client's SmartLead stats, then delivers it to a configured destination (a Google Doc, Slack, or email). Runs on a weekly cron or on demand. | Tier 2 · Claude Code | [Download ZIP](https://github.com/RevCentricGH/supersdr/releases/download/latest/weekly-checkin.zip) |
 
 ### Work smarter
