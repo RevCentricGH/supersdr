@@ -25,7 +25,7 @@ In order to allow the Service Provider to properly perform the Services, the Com
 
 **(a) Fees**
 
-In consideration of the performance of the Services, the Company shall pay to the Service Provider the fees set out in the "Investment Summary" section of this proposal (the "Fees"). {FEES_LANGUAGE} The Service Provider shall invoice the Company monthly in advance. Each invoice is due and payable upon receipt, with the first month's Fees due upon execution of this Agreement.
+In consideration of the performance of the Services, the Company shall pay to the Service Provider the fees set out in the "Investment Summary" section of this proposal (the "Fees"). {FEES_LANGUAGE} The total engagement fee is due and payable in full upon execution of this Agreement. The Service Provider shall invoice the Company for the full engagement fee on the Effective Date, and each invoice shall be due and payable upon receipt.
 
 **(b) Tax**
 

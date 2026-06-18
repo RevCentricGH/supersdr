@@ -21,18 +21,21 @@ Confident, founder-to-founder. The reader is usually a founder, head of growth, 
 - Avoid bullet lists where prose would work. Prose feels like a person; over-bulleted decks feel like a vendor.
 - Don't promise specific dollar revenue outcomes. Promise activity (conversations), pipeline (meetings, activated leads), and a validated playbook.
 
-## Three-paragraph executive-summary pattern
+## Four-paragraph executive-summary pattern
 
-This pattern works consistently across verticals. Use it unless you have a strong reason not to.
+This pattern works consistently across verticals. Use it unless you have a strong reason not to. The four-paragraph shape is the hard template — splitting the constraint (para 2) from the model-differentiator story (para 3) is what keeps the summary from reading like a generic agency pitch.
 
 **Paragraph 1 — Who they are, with one earned credibility marker.**
 Open with a one-sentence description of what they've built, then add one specific fact you found in research (recent funding, valuation, supplier count, ARR milestone). The fact tells them you did homework.
 
-**Paragraph 2 — Name the constraint, pivot to what this proposal does.**
-"The product works. The constraint is X." Where X is almost always: pipeline distribution / consistent top-of-funnel / qualified conversations. If they named a specific bad vendor experience on the call, reflect that here verbatim.
+**Paragraph 2 — The model works; name the constraint.**
+Restate their differentiator in one line, then: "The [product/platform/model] works. The constraint is X." Where X is almost always: pipeline distribution / consistent top-of-funnel / qualified conversations.
 
-**Paragraph 3 — Tier and outcome in one line.**
-"Two commitment levels are offered (50 or 100 completed conversations per month over 90 days), projecting 15–20 or 30–40 booked meetings respectively." Numbers, not adjectives.
+**Paragraph 3 — The model-differentiator story.**
+For calling, name why per-meeting vendors are structurally misaligned (the chop-shop pattern) and how the completed-conversations model inverts the incentive — meetings flow as a byproduct of quality dialogue. For email, this is the deliverability-and-volume story. If they named a specific bad vendor experience on the call, reflect it here verbatim.
+
+**Paragraph 4 — Commitment levels and outcome.**
+"Two commitment levels are offered — 50 or 100 completed conversations per month over 90 days — projecting 15–20 or 30–40 booked meetings respectively, plus a continuously growing activated-leads pool routed into the CRM." Numbers, not adjectives.
 
 ## Handling common prospect concerns
 
