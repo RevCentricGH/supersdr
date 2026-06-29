@@ -200,12 +200,16 @@ def _add_runs(paragraph, text, *, bold=False, italic=False, color=None, size=Non
         paragraph.add_run("")
 
 
-def _heading(doc, text, *, size, color, space_before=10, space_after=4):
+def _heading(doc, text, *, size, color, space_before=10, space_after=4, style=None):
     p = doc.add_paragraph()
+    if style:
+        p.style = doc.styles[style]  # real Word heading style -> navigable outline / jumpable
     p.paragraph_format.space_before = Pt(space_before)
     p.paragraph_format.space_after = Pt(space_after)
     p.paragraph_format.keep_with_next = True  # never strand a heading at a page bottom
     _add_runs(p, text, bold=True, color=color, size=size)
+    for r in p.runs:  # keep brand font/size/color over the heading style defaults
+        r.font.name = CONFIG["font"]
     return p
 
 
@@ -391,11 +395,11 @@ def build(content, out_path):
     for block in content.get("blocks", []):
         btype = block.get("type")
         if btype == "h1":
-            _heading(doc, block["text"], size=s["h1"], color=CONFIG["accent"], space_before=14)
+            _heading(doc, block["text"], size=s["h1"], color=CONFIG["accent"], space_before=14, style="Heading 1")
         elif btype == "h2":
-            _heading(doc, block["text"], size=s["h2"], color=CONFIG["navy"], space_before=10)
+            _heading(doc, block["text"], size=s["h2"], color=CONFIG["navy"], space_before=10, style="Heading 2")
         elif btype == "h3":
-            _heading(doc, block["text"], size=s["h3"], color=CONFIG["navy"], space_before=8)
+            _heading(doc, block["text"], size=s["h3"], color=CONFIG["navy"], space_before=8, style="Heading 3")
         elif btype == "p":
             _body(doc, block["text"])
         elif btype == "bullets":
