@@ -1,15 +1,15 @@
 ---
 name: client-spot
-description: Generate a client single point of truth (SPOT) document - multi-tab Google Doc covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Pulls from onboarding call transcripts, meeting summaries, Google form responses, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
+description: Generate a client single point of truth (SPOT) as a branded .docx covering campaign status, company overview, problem/solution, ICP, competitive landscape, objections, screenplay, and Apollo campaign setup. Pulls from onboarding call transcripts, meeting summaries, Google form responses, and web research. Use when user says "create SPOT doc for [client]", "build the client KB for [client]", "set up SPOT for [client]", "generate client brief for [client]", "onboard [client]", or pastes a client onboarding transcript / meeting notes and asks to turn it into a SPOT.
 ---
 
 # Client SPOT Skill
 
 ## Purpose
 
-Generates a complete single point of truth document for a new client, structured as 9 separate tabs in a Google Doc.
+Generates a complete single point of truth document for a new client, rendered as a branded .docx with 9 sections.
 
-The skill pulls from the trigger message, attached transcripts, Google form responses, and optionally web research, then generates all 9 tabs in one pass and creates the Google Doc via MCP.
+The skill pulls from the trigger message, attached transcripts, Google form responses, and optionally web research, generates all 9 sections in one pass, then renders them into a branded .docx with the bundled `assets/build_docx.py` and uploads the file to the client's Drive folder. It does NOT write Google Docs.
 
 **Runtime: Claude Cowork**
 
@@ -30,7 +30,7 @@ Treat both as the readers when generating. Don't write generic copy - make every
 
 When this skill is loaded, greet the user:
 
-> "I'm the Client SPOT skill. I'll build a complete knowledge base for your new client and create the Google Doc.
+> "I'm the Client SPOT skill. I'll build a complete knowledge base for your new client and deliver it as a branded .docx.
 >
 > Share what you have - onboarding call notes, a Google form response, a transcript, or just the client's name and website. Paste it in directly.
 >
@@ -90,32 +90,41 @@ Pull anything typed in: client name, website, campaign type, anything not in the
 
 Synthesize agent reports into the SPOT. If subagents aren't available in this runtime, run the four angles as sequential web searches instead.
 
-### Step 4 - Generate all 9 tabs in one pass
+### Step 4 - Generate all 9 sections in one pass
 
-Generate all 9 tabs in a single response. Output each as its own labeled block. Mark anything still unknown as `[TBD]`. Do not pause to confirm.
+Generate all 9 sections in a single response. Mark anything still unknown as `[TBD]`. Do not pause to confirm.
 
-When a transcript was provided, add a line at the top of Tab 1 (Campaign Status) under Key Direction:
+When a transcript was provided, add a line at the top of Section 1 (Campaign Status) under Key Direction:
 ```
 SOURCE: Onboarding call with [client contact name] on [date]
 ```
 
-The full field-by-field templates for all 9 tabs are in `reference/tab-templates.md`. Load this file when generating tab content.
+The full field-by-field templates for all 9 sections are in `reference/tab-templates.md`. Load this file when generating section content.
 
-### Step 5 - Create the Google Doc
+### Step 5 - Render the branded .docx
 
-Use the Google Drive MCP to create and populate the document. Do not construct raw API calls - let the MCP handle formatting and insertion.
+Map the generated content into the `build_docx.py` JSON schema, then render. Do NOT create a Google Doc.
 
-1. Create a new Google Doc titled "[Client Name] Single Point of Truth"
-2. Add 9 tabs with these exact names (in order): Campaign Status, Campaign Brief, Company Overview, Problem Solution, ICP & Buyer Persona, Competitor Overview, Objection Handling, Screenplay, Apollo Campaign Setup
-3. Write each tab's generated content into the matching tab via the MCP
+The full schema is documented in the docstring of `assets/build_docx.py`. Mapping:
+- `title_block`: eyebrow `CLIENT SPOT`, title `[Client] Single Point of Truth`, `columns` for Client / Campaign / Prepared by, optional `footer`.
+- Each of the 9 sections becomes an `h1` block (e.g. `1. Campaign Status`). Subsections become `h2` / `h3`.
+- Body copy becomes `p` blocks. Use `**bold**` for emphasis (verdicts, key numbers).
+- Lists become `bullets` (string items) or `numbered` (`{n, label, text}`).
+- Every table (ICP firmographics, competitor battlecards, objection to response, Apollo filters) becomes a `table` block with `header` + `rows`.
 
-If the MCP does not support tab creation, create the doc as a single document with each tab's content under a clear section heading and tell the user tabs must be added manually.
+Write the JSON to a temp file, then render through the bundled wrapper (not a bare `python3`, which may hit a Python without `python-docx`):
+```
+bash <skill_dir>/assets/render.sh content.json "[Client] Client SPOT.docx"
+```
+`render.sh` selects a Python that has `python-docx` (prefers `~/.venv`) and exits with an install hint if none does. This is how Cowork runs the styled-.docx builder; it is separate from the Drive connector (which only uploads plain text).
 
-**If Google Doc creation fails entirely:** output all 9 tab content blocks as labeled sections in the chat so the user can paste manually, and tell them what failed.
+No em dashes anywhere in the content. The builder hard-fails on `—`; rewrite into separate sentences or use a comma, colon, or parentheses (never a hyphen).
+
+**If no Python has python-docx:** render.sh prints the install command. If you cannot render or upload, say which capability is missing. Don't paste the sections into chat as a substitute. The .docx is the deliverable.
 
 ### Step 6 - Hand off
 
-After the Google Doc is created, share the link with the user. Then flag any `[TBD]` blockers:
+Upload the rendered .docx to the client's Drive folder, then share the link with the user. Then flag any `[TBD]` blockers:
 
 ```
 Blockers — fill these before running downstream skills:
@@ -135,9 +144,11 @@ Next steps:
 
 ---
 
-## Tab Structure (9 tabs)
+## Section Structure (9 sections)
 
-| # | Tab Name | Purpose | Downstream consumer |
+These render as nine numbered `h1` sections in the single .docx (no tabs). The numbers are stable identifiers the downstream skills key on.
+
+| # | Section Name | Purpose | Downstream consumer |
 |---|----------|---------|---------------------|
 | 1 | Campaign Status | Living tab - action items, open questions, call feedback, meetings booked | Operator |
 | 2 | Campaign Brief | Executive summary - snapshot + contents + version history | Operator |

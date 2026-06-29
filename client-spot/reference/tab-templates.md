@@ -311,7 +311,7 @@ Generate both versions:
 - Short Version (status thumbnail + big idea paragraph)
 - Full Version (status thumbnail → change in world → big question → UVP)
 
-Paste both versions into this tab once generated.
+Paste both versions into this section once generated.
 
 ---
 
