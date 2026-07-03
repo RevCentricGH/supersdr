@@ -21,7 +21,7 @@ When this skill loads, greet the user:
 
 Proceed once the user provides a transcript or a link. The .docx is rendered locally with the bundled builder; the Google Drive connector is used only to upload the finished file for a View link.
 
-**Only if rendering or upload fails:** if `render.sh` reports no Python with `python-docx`, say so and print the install hint it gives. If Drive upload fails, tell the user Google Drive is not connected with write access in Cowork (Settings -> Connectors -> Google Drive, enable edit permission), then hand them the rendered .docx directly. Do not fall back to pasting the brief as chat text unless the render itself cannot run.
+**Only if rendering or upload fails:** if `render.sh` reports no Python with `python-docx`, say so and print the install hint it gives. If Drive upload fails, tell the user Google Drive is not connected with write access in Cowork (Settings -> Connectors -> Google Drive, enable edit permission), then hand them the rendered .docx directly. Do not paste the brief into chat as a substitute; the .docx is the deliverable (matches Step 3).
 
 ## What to give it
 

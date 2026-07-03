@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
-build_docx.py - deterministic styled .docx builder for the pre-call-prep skill.
+build_docx.py - shared deterministic styled .docx builder.
+
+  Used by the client-spot, pre-brief, and client-proposal-doc-builder skills.
+  Each skill maps its own content into the generic block schema below; this file
+  is vendored byte-identical into each skill's assets/ and must stay identical
+  across copies.
 
 WHY THIS EXISTS
   The Cowork Google Drive connector uploads plain text only: no fonts, color,
-  weight, alignment, or table shading. To deliver a styled weekly check-in brief,
-  the model writes structured JSON (content only) and this script renders the
-  look. The styling lives in code, not in the model's per-run judgment, so every
-  brief comes out identical instead of drifting run to run. This is the same
-  proven pattern as the proposal builder and the SuperSDR pre-brief.
+  weight, alignment, or table shading. To deliver a styled document, the model
+  writes structured JSON (content only) and this script renders the look. The
+  styling lives in code, not in the model's per-run judgment, so every document
+  comes out identical instead of drifting run to run.
 
   CONFIG below is RevCentric's "Blue Professional" palette, orange-forward to match
   the disco-deck: orange section headings + eyebrow + accent rule, navy as the
@@ -16,12 +20,15 @@ WHY THIS EXISTS
   locators. The brief and the deck read as one brand.
 
 HOW THE SKILL USES IT
-  1. Write the brief content to a JSON file - see CONTENT SCHEMA below.
-  2. Run:  python3 build_docx.py content.json "RevCentric Weekly Check-in Brief - Acme (2026-06-17).docx"
+  1. Write the content to a JSON file - see CONTENT SCHEMA below.
+  2. Render through the bundled wrapper (never a bare python3, which may hit a
+     Python without python-docx):
+       bash render.sh content.json "Output Name.docx"
   3. Deliver the resulting .docx (upload to the client's Drive folder for a View link).
-  Needs python-docx (pip install python-docx if the runtime lacks it).
+  Needs python-docx (render.sh selects a Python that has it, or prints an install hint).
 
-CONTENT SCHEMA (the JSON the skill writes - the six-section weekly-checkin brief)
+CONTENT SCHEMA (example JSON; the block types are generic and each skill maps
+its own content into them - the example below is one skill's weekly check-in brief)
   {
     "title_block": {
       "eyebrow": "WEEKLY CHECK-IN",                       # small orange-accent caps line
