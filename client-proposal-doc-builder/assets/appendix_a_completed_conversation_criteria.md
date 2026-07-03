@@ -1,4 +1,4 @@
-# Appendix A — Completed Conversation Criteria
+# Appendix A: Completed Conversation Criteria
 
 > Use verbatim in every proposal that uses the completed-conversations billing model. Edit disposition definitions if your agency's billing rules differ.
 
@@ -36,8 +36,8 @@ A "Conversation" is an interaction where the prospect and the representative eng
 | **Connect Incomplete** | **Not Billable** | The call ended before the pitch could be delivered. The prospect did not fully hear or understand what the Service Provider does (e.g., dropped call, early hang-up, interruption). **Requirements:** The prospect did not hear enough of the pitch to understand what the Service Provider does. |
 | **Left Voicemail** | **Not Billable** | The call reached voicemail and a message was left. No live conversation occurred. **Requirements:** A voicemail was left for the prospect. |
 | **Wrong Number** | **Not Billable** | The phone number is incorrect or no longer belongs to the intended person or company. **Requirements:** The number called was completely wrong. |
-| **Bad Data** | **Not Billable** | The information in the system is wrong — wrong name, title, company, or industry. The lead itself is inaccurate. **Requirements:** The prospect's data is so incorrect that the representative cannot pitch or retrieve value. |
+| **Bad Data** | **Not Billable** | The information in the system is wrong: wrong name, title, company, or industry. The lead itself is inaccurate. **Requirements:** The prospect's data is so incorrect that the representative cannot pitch or retrieve value. |
 | **Not In Swimlane** | **Not Billable** | Right person, wrong business for what the Service Provider has to offer. **Requirements:** The prospect's data is correct, but the prospect would be of no use to the offer. |
-| **No Answer** | **Not Billable** | No real person answered the call — it may ring with no response, go to an automated system, or connect to a robot or incorrect line. **Requirements:** The call was picked up, but no one was on the other line. |
+| **No Answer** | **Not Billable** | No real person answered the call. It may ring with no response, go to an automated system, or connect to a robot or incorrect line. **Requirements:** The call was picked up, but no one was on the other line. |
 | **Gatekeeper** | **Not Billable** | Someone who controls access to the decision-maker answered and blocked the call. The pitch did not reach the intended prospect. **Requirements:** A gatekeeper picked up instead and the representative cannot pitch or retrieve value. |
 | **DNC** | **Not Billable** | The person clearly asked to be removed from calling. This must be respected by law; no further calls are allowed under any circumstance. **Requirements:** The prospect did not want to learn more and asked to not be called again. |

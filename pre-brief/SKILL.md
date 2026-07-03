@@ -1,25 +1,27 @@
 ---
 name: pre-brief
-description: Turn a booking-call transcript into a one-page Google Doc meeting brief. Paste the transcript or share a Drive, Fireflies, or Gemini link, and get back 5 to 8 bullets covering the concerns, objections, asks, and commitments from the call, each anchored to the transcript timestamp it came from, followed by a transcript-anchors section, returned as a View link. Trigger this skill when the user says brief me on this call, prep me for this meeting, run pre-brief, what do I need to know going into this meeting, pastes a call transcript and wants meeting prep, or shares a Drive, Fireflies, or Gemini recording link and asks for a brief or a pre-read before a meeting.
+description: Turn a booking-call transcript into a one-page branded .docx meeting brief. Paste the transcript or share a Drive, Fireflies, or Gemini link, and get back 5 to 8 bullets covering the concerns, objections, asks, and commitments from the call, each anchored to the transcript timestamp it came from, followed by a transcript-anchors section, delivered as a branded .docx. Trigger this skill when the user says brief me on this call, prep me for this meeting, run pre-brief, what do I need to know going into this meeting, pastes a call transcript and wants meeting prep, or shares a Drive, Fireflies, or Gemini recording link and asks for a brief or a pre-read before a meeting.
 ---
 
 # pre-brief
 
 ## Purpose
 
-Turn one booking-call transcript into a one-page Google Doc meeting brief and return the View link. The brief covers what matters going into the next meeting: the concerns raised, the objections, the asks, and the commitments made. Every point is anchored to the transcript timestamp it came from, so the reader can jump straight to the moment and verify it.
+Turn one booking-call transcript into a one-page branded .docx meeting brief and deliver the file. The brief covers what matters going into the next meeting: the concerns raised, the objections, the asks, and the commitments made. Every point is anchored to the transcript timestamp it came from, so the reader can jump straight to the moment and verify it.
 
-Per-meeting and interactive. No dialer, no transcription, no sheet, no terminal. It reads a transcript and writes a Doc.
+Per-meeting and interactive. No dialer, no transcription, no sheet. It reads a transcript and renders a branded .docx with the bundled `assets/build_docx.py`. It does NOT write Google Docs.
+
+**Runtime: Claude Cowork**
 
 ## Getting started
 
 When this skill loads, greet the user:
 
-> "I'm pre-brief. Paste a booking-call transcript or share a Drive, Fireflies, or Gemini link, and I'll turn it into a one-page meeting brief: the concerns, objections, asks, and commitments, each anchored to the moment in the call it came from. You get back a Google Doc View link."
+> "I'm pre-brief. Paste a booking-call transcript or share a Drive, Fireflies, or Gemini link, and I'll turn it into a one-page meeting brief: the concerns, objections, asks, and commitments, each anchored to the moment in the call it came from. You get back a branded .docx."
 
-Assume the Google Drive connector is connected with write access. Proceed once the user provides a transcript or a link.
+Proceed once the user provides a transcript or a link. The .docx is rendered locally with the bundled builder; the Google Drive connector is used only to upload the finished file for a View link.
 
-**Only if creating the Doc fails:** "Looks like Google Drive is not connected with write access in Cowork. Go to Settings -> Connectors -> Google Drive, connect your account, and enable edit permission. Then tell me you're ready, or say the word and I'll hand you the brief as text to paste into a Doc yourself."
+**Only if rendering or upload fails:** if `render.sh` reports no Python with `python-docx`, say so and print the install hint it gives. If Drive upload fails, tell the user Google Drive is not connected with write access in Cowork (Settings -> Connectors -> Google Drive, enable edit permission), then hand them the rendered .docx directly. Do not fall back to pasting the brief as chat text unless the render itself cannot run.
 
 ## What to give it
 
@@ -57,36 +59,37 @@ Rules for the points:
 - Anchor each point to its timestamp (or, if the transcript is unstamped, a short verbatim quote plus the speaker).
 - Leave out small talk and filler. If you cannot ground a point in a specific moment, drop it rather than padding to hit a count.
 
-### Step 3 - Build the Google Doc
+### Step 3 - Render the branded .docx
 
-Create the brief with the Google Drive connector. The connector must have write permission.
+Map the brief into the `build_docx.py` JSON schema, then render. Do NOT create a Google Doc. The full schema is documented in the docstring of `assets/build_docx.py`. Mapping:
 
-1. **Create a Doc** titled `Pre-Brief: {prospect or meeting name}`. Infer the name from the transcript; if it is unclear, ask the user in one line.
-2. **Write section "What matters going in"** - a numbered list of the 5 to 8 points in priority order (the things most likely to come up first). Each line carries its kind tag and its anchor. Format each as:
+- `title_block`: eyebrow `PRE-BRIEF`, title `Pre-Brief: {prospect or meeting name}`, `columns` for Meeting / Date / Prepared by (infer the name from the transcript; if unclear, ask the user in one line), optional `footer` like "Read before the call. Every point is anchored in Transcript anchors."
+- An `h1` block `What matters going in`, then a `numbered` block: one `{n, label, text}` item per point, in priority order (the things most likely to come up first). `label` carries the kind tag and anchor (e.g. `Concern, 00:14:32`); `text` is the one-sentence point grounded in that moment.
+- An `h1` block `Transcript anchors`, then one `p` block per point with the verbatim source line so the reader can verify without reopening the call. Lead each with a bold point number that matches the list above:
 
-   `1. [Concern, 00:14:32] One-sentence point grounded in that moment.`
+  `**Point 3** [00:14:32] "verbatim line or short exchange from the transcript"`
 
-3. **Write section "Transcript anchors"** - for each point, the source line pulled from the transcript so the reader can verify without reopening the call. Label each with a bolded point number that matches the list above:
+Use `**bold**` inside strings for emphasis; the builder converts it to real bold, so never leave literal asterisks in the output text. On an unstamped transcript, use the short verbatim quote plus speaker label in place of the timestamp anchor.
 
-   `**Point 3** [00:14:32] "verbatim line or short exchange from the transcript"`
+Write the JSON to a temp file, then render through the bundled wrapper (not a bare `python3`, which may hit a Python without `python-docx`):
 
-4. **Capture the Doc URL** once creation is confirmed.
+```
+bash <skill_dir>/assets/render.sh content.json "Pre-Brief - {name}.docx"
+```
 
-The templates above are content specs, not literal text. Apply bold through the connector's formatting, never literal `**` characters - the anchor labels read as bold "Point 3", not `**Point 3**` with asterisks in the Doc. If the connector cannot apply bold, write the label as plain text.
+`render.sh` selects a Python that has `python-docx` (prefers `~/.venv`) and exits with an install hint if none does. This is how Cowork runs the styled-.docx builder; it is separate from the Drive connector (which only uploads plain text).
 
-Output is the structured Doc only. Do not build a styled-HTML one-pager or any other artifact.
+No em dashes anywhere in the content. The builder hard-fails on `—`; rewrite into separate sentences or use a comma, colon, or parentheses (never a hyphen).
 
-If the connector is not connected or lacks write permission, output the full brief as formatted text instead and tell the user:
+**If no Python has python-docx:** render.sh prints the install command. If you cannot render, say which capability is missing. Don't paste the brief into chat as a substitute. The .docx is the deliverable.
 
-> "Paste this into a new Google Doc titled 'Pre-Brief: {name}'."
+### Step 4 - Deliver the .docx
 
-### Step 4 - Deliver the View link
-
-Give the user the Google Doc View link and a one-line summary of what is in it (how many points, the spread across concerns/objections/asks/commitments). Do not re-list the points; the user can open the Doc.
+Upload the rendered .docx through the Google Drive connector and share the View link, or hand the user the file directly if Drive is not connected. Add a one-line summary of what is in it (how many points, the spread across concerns/objections/asks/commitments). Do not re-list the points; the user can open the file.
 
 ## Voice rules
 
-These apply to everything this skill produces - the Doc and Claude's own messages:
+These apply to everything this skill produces - the .docx and Claude's own messages:
 
 - No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course".
 - No hedging: "I think", "it seems", "potentially", "it's worth noting".
@@ -101,4 +104,5 @@ These apply to everything this skill produces - the Doc and Claude's own message
 - **Anchor everything.** A bullet with no timestamp (or no quote, on an unstamped transcript) is an unverifiable claim. Every point gets an anchor or it does not ship.
 - **Do not pad to a number.** Five well-grounded points beat eight where three are filler. The range is 5 to 8, not a quota.
 - **Quote, do not paraphrase, in the anchors section.** The "Transcript anchors" lines are verbatim so the reader can trust them. Paraphrase belongs in the "What matters going in" points, not the anchors.
-- **One pass into the Doc.** If you write section by section and something lands out of order, re-read the Doc through the connector and fix it before handing over the link.
+- **Build the full JSON before rendering.** Assemble the whole `content.json` in one pass, then render once. If a point lands out of order, fix the JSON and re-render; do not patch the .docx by hand.
+- **No em dashes.** The builder hard-fails on `—`. Keep every point and anchor em-dash-free; use a comma, colon, or parentheses, never a hyphen.

@@ -6,7 +6,7 @@ After the doc is delivered, immediately draft the follow-up email you will send 
 
 #### Route selection
 
-- **Proposal-link route** — a Google Doc URL was produced in Step 5. Default route.
+- **Proposal-link route** — a .docx proposal was rendered and uploaded in Step 5, giving a shareable View link. Default route.
 - **Needs-followup route** — no proposal yet (e.g., pricing wasn't discussed on the call or the user indicated the proposal comes later). Use when `proposal_link` is null.
 
 #### Context to pull from the prior steps
@@ -19,7 +19,7 @@ After the doc is delivered, immediately draft the follow-up email you will send 
 | `pricing_discussed` | Pricing covered on call, or "not discussed" |
 | `key_objections` | Objections raised on the call |
 | `next_steps` | Agreed next steps from the call |
-| `proposal_link` | Google Doc URL from Step 5, or null |
+| `proposal_link` | .docx View link from Step 5, or null |
 
 #### Voice rules
 

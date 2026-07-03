@@ -1,13 +1,13 @@
 ---
 name: client-proposal-doc-builder
-description: Build a polished, send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a Google Doc, grounded in a discovery-call transcript or summary, then draft the follow-up email to send the prospect the proposal link. Trigger this skill aggressively whenever the user mentions building a proposal, a DFY calling proposal, a Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect in any context involving outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. The skill bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, produces a complete Google Doc with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs, and then drafts the follow-up email (proposal-link or soft follow-up route).
+description: Build a polished, send-ready outbound agency proposal (Done-For-You Calling, cold email, or combined outbound) as a branded .docx, grounded in a discovery-call transcript or summary, then draft the follow-up email to send the prospect the proposal link. Trigger this skill aggressively whenever the user mentions building a proposal, a DFY calling proposal, a Done-For-You Calling proposal, an outbound proposal, a cold email proposal, or asks to draft, create, or build a proposal for a prospect in any context involving outbound sales services. Also trigger when the user has just attached a discovery-call transcript or call summary and wants the next document. The skill bakes in your agency's Terms & Conditions and Appendix A (Completed Conversation Criteria), web-researches the prospect, asks the right clarifying questions, produces a complete branded .docx with executive summary, pricing tiers, completed-conversations model, signature block, and full T&Cs, and then drafts the follow-up email (proposal-link or soft follow-up route).
 ---
 
 # Outbound Proposal Doc Builder
 
 ## Purpose
 
-Given a discovery-call transcript or summary, produces a complete send-ready outbound agency proposal as a Google Doc and drafts the follow-up email. The proposal includes an executive summary, ICP + conversation math, pricing tier(s), 90-day delivery phases, investment table, T&Cs, signature block, and Appendix A (Completed Conversation Criteria). The boilerplate 70% comes from assets; the variable 30% is grounded in what this specific prospect said on this specific call.
+Given a discovery-call transcript or summary, produces a complete send-ready outbound agency proposal as a branded .docx and drafts the follow-up email. The proposal includes an executive summary, ICP + conversation math, pricing tier(s), 90-day delivery phases, investment table, T&Cs, signature block, and Appendix A (Completed Conversation Criteria). The boilerplate 70% comes from assets; the variable 30% is grounded in what this specific prospect said on this specific call. The .docx is rendered with the bundled `assets/build_docx.py` and does NOT write a Google Doc.
 
 _Cowork skill - upload the ZIP and run from the Claude desktop app._
 
@@ -38,11 +38,12 @@ When this skill is loaded, greet the user:
 >
 > Share what you have from the discovery call: paste the transcript, a call summary, meeting notes, or share a doc link. Whatever format you have works."
 
-Assume Google Drive is connected with edit access. Proceed straight to the Workflow once the user provides call material.
+Proceed straight to the Workflow once the user provides call material. The proposal is rendered locally as a branded .docx with the bundled builder; the Google Drive connector is used only to upload the finished file for a View link.
 
-**Only if doc creation fails**, walk the user through the fix:
+**Only if rendering or upload fails**, walk the user through the fix:
 
-- **Google Drive write fails / unauthorized** → "Looks like Google Drive isn't connected with edit access in Cowork. Go to Settings → Connectors → Google Drive, connect your account, and make sure edit permission is enabled. Then tell me you're ready. Or let me know and I'll give you the proposal as formatted text to paste into a doc manually."
+- **Render fails (no python-docx)** → `render.sh` prints the install command. Say which capability is missing; do not paste the proposal into chat as a substitute.
+- **Google Drive upload fails / unauthorized** → "Looks like Google Drive isn't connected with edit access in Cowork. Go to Settings → Connectors → Google Drive, connect your account, and make sure edit permission is enabled. Then tell me you're ready. Or let me know and I'll hand you the rendered .docx directly."
 
 If the user describes what they want in plain English instead of providing a transcript (e.g., "I want to send a proposal to a SaaS company for cold calling"), work with it. Ask targeted follow-up questions to fill gaps rather than blocking on a missing transcript.
 
@@ -114,25 +115,18 @@ If the user adjusts a parameter, update it and re-echo. Do not start the Step 4 
 
 Build the proposal content as markdown first, in this order:
 
-1. **Title block** — Use this exact layout (plain text, no markdown headings):
+1. **Title block** — this maps to the builder's `title_block` (rendered in Step 5), not markdown headings. Fill these fields:
 
-   ```
-   [Agency Name] Proposal — {Company}
-   PROPOSAL
-   {Engagement Subtitle}
-   {Engagement Tagline}
-   PREPARED FOR
-   {Company}
-   {Contact Full Name}, {Contact Title}
-   PREPARED BY
-   {Agency Name}
-   {Agent Name} — {agent@agency.com}
-   {Date}
-   ```
+   - `eyebrow`: `PROPOSAL`
+   - `title`: `[Agency Name] Proposal: {Company}`
+   - `subtitle`: `{Engagement Subtitle}: {Engagement Tagline}`
+   - `columns`: two borderless columns:
+     - `PREPARED FOR` → `{Company}`, then `{Contact Full Name}, {Contact Title}`
+     - `PREPARED BY` → `{Agency Name}`, then `{Agent Name}, {agent@agency.com}`, then `{Date}`
 
    Subtitle examples: "Outbound Lead Generation Engagement", "Fractional SDR Training Engagement"
    Tagline examples: "Cold Calling + Cold Email Pilot", "90-Day Outbound Build-Out"
-   Infer contact name and title from the call transcript if not stated directly.
+   Infer contact name and title from the call transcript if not stated directly. No em-dashes in any field; the builder hard-fails on `—`.
 2. **Executive Summary** — Exactly 3 paragraphs:
    - Para 1 (3–5 sentences): What the prospect has built — product, market position, one traction signal. Anchor with **one specific fact from your web research** (recent funding, supplier count, ARR milestone, customer reference). This fact signals you did homework; omitting it signals a template.
    - Para 2 (3–5 sentences): The constraint — almost always pipeline distribution, not the offer. Lead with: *"The product works. The constraint is X."* If they named a specific bad vendor experience on the call, echo it verbatim here.
@@ -164,18 +158,18 @@ Build the proposal content as markdown first, in this order:
      - Month-to-month after the initial {N}-day pilot, cancelable with 30 days' notice.
 8. **Why [Agency Name]** — 1 paragraph (3–4 sentences) + 4 bullets. The paragraph is nearly verbatim across proposals — adapt only the final clause to the prospect's segment:
 
-   > "[Agency Name] is a revenue-ops and outbound firm focused specifically on founder-led and early-stage B2B sales motions. We run outbound the way top-tier operators run it in-house — with senior callers, infrastructure ownership, and obsessive iteration on what's working in-market this week, not last quarter."
+   > "[Agency Name] is a revenue-ops and outbound firm focused specifically on founder-led and early-stage B2B sales motions. We run outbound the way top-tier operators run it in-house, with senior callers, infrastructure ownership, and obsessive iteration on what's working in-market this week, not last quarter."
 
    Then lead with whatever operator credibility is most relevant to this prospect's world before the standard bullets. Standard bullets:
    - **Senior operators.** Callers and GTM operators who have run outbound at scale.
    - **Custom dialing infrastructure.** AI-powered calling produces 8–10x the conversation volume of traditional single-line SDR teams.
    - **Deliverability-first email.** Purpose-built sending domains protect {Company Domain} so your marketing and transactional email stays in the inbox. (Substitute the prospect's domain if you can infer it; otherwise drop the parenthetical.)
-   - **Meeting quality > meeting quantity.** We qualify against ICP and intent before booking — no tire-kickers on your calendar.
+   - **Meeting quality > meeting quantity.** We qualify against ICP and intent before booking, so no tire-kickers land on your calendar.
 
    See `references/positioning_and_style.md` for proof points and vertical-specific credibility openers.
 9. **Terms and Conditions** — read `assets/terms_and_conditions.md` and use verbatim. Update only: `{COMPANY}` → prospect's legal name, `{ENGAGEMENT_DESCRIPTION}` in §1, any agreed-upon exclusivity language in §8. Keep all sections intact.
 10. **Next Steps + Acceptance + signature block.**
-11. **Appendix A — Completed Conversation Criteria** — read `assets/appendix_a_completed_conversation_criteria.md` and use verbatim.
+11. **Appendix A: Completed Conversation Criteria** (renders as an `h1` heading) — read `assets/appendix_a_completed_conversation_criteria.md` and use verbatim.
 
 #### Voice and style
 
@@ -184,7 +178,7 @@ Confident, founder-to-founder, not corporate. Anchored in what this prospect sai
 - Refer to the prospect by company name throughout. Never "you" or "your company."
 - When the prospect named a problem ("chop-shop", "tire-kickers", "creative fatigue"), use that word in the proposal. This is the single highest-signal move.
 - Every industry observation must tie back to something they said on the call. No generic market takes.
-- Em-dashes for emphasis and parenthetical asides (—). No hedging ("we believe", "potentially", "we hope"). No fluffy marketing ("world-class", "industry-leading", "synergy", "best-in-class").
+- No em-dashes anywhere in the proposal. The builder hard-fails on `—`; for emphasis or an aside use a comma, colon, or parentheses (never a hyphen), or split into two sentences. No hedging ("we believe", "potentially", "we hope"). No fluffy marketing ("world-class", "industry-leading", "synergy", "best-in-class").
 - Short paragraphs: 2–4 sentences. Use bullets only when there are 3+ parallel items — prose feels like a person, over-bulleted decks feel like a vendor.
 - Target: 1,500–2,500 words for the dynamic portion (everything before Terms and Conditions).
 
@@ -194,39 +188,48 @@ See `references/positioning_and_style.md` for objection-handling copy, channel v
 - No AI-tell openers: "Great question", "Absolutely", "Certainly", "Of course"
 - No hedging: "I think", "it seems", "potentially", "it's worth noting"
 - No AI vocabulary: "delve", "leverage", "utilize", "robust", "seamless", "comprehensive"
-- No em-dashes in Claude's own messages (em-dashes in the proposal body are fine per the style guide above)
+- No em-dashes anywhere, including the proposal body and Claude's own messages (the builder hard-fails on `—`)
 - Short. Direct. One idea per sentence.
 
-### Step 5 — Create the Google Doc
+### Step 5 — Render the branded .docx
 
-Use the Google Drive connector (Settings → Connectors → Google Drive in Cowork) to create and populate the proposal doc. Let the connector handle creation, formatting, and insertion — do not construct raw Docs/Drive API calls. The connector must have write permission enabled.
+Map the Step 4 content into the `build_docx.py` JSON schema, then render. Do NOT create a Google Doc. The full schema is documented in the docstring of `assets/build_docx.py`. Mapping:
 
-1. **Create a new Google Doc** titled `[Agency Name] Proposal — {Prospect}` using the connector.
-2. **Write the proposal content** from Step 4 into the doc section by section — title block first, then each named section in order.
-3. **Capture the doc URL** once creation is confirmed.
+- `title_block`: the Step 4 title block (eyebrow, title, subtitle, `columns` for Prepared For / Prepared By).
+- Each named section (Executive Summary, Our Understanding, Proposed Engagement, How We Operate, Investment Summary, Why [Agency], Terms and Conditions, Next Steps, Appendix A) becomes an `h1` block. Sub-sections (What [Prospect] Sells, the four phases, individual T&C clauses) become `h2` / `h3`.
+- Body copy becomes `p` blocks. Use `**bold**` for emphasis (verdicts, key numbers); the builder converts it to real bold, so never leave literal asterisks in the text.
+- Bullet lists become `bullets` (string items). ICP filters and Projected Outcomes are bullets.
+- The Conversation Math table, each per-tier label-value block (Duration / Investment / Projected Meetings / Activated Leads / What's Included), and the Investment Summary table each become a `table` block with `header` + `rows`. The Appendix A billable and non-billable disposition tables become `status_table` blocks (`header`, `rows`, `status_col` pointing at the Status column) so Billable renders green and Not Billable renders red.
+- The Next Steps + Acceptance signature block becomes a `signature` block with one party per signer (`title`, `org`, `signer`, `role`).
 
-**Formatting:** the Step 4 markdown is a content spec, not literal text. Translate it when writing into the doc: section headings become Doc heading styles, `**bold**` becomes bold text, markdown tables become native Doc tables. "Verbatim" for the T&Cs and Appendix A assets means verbatim wording — never literal `#`, `**`, or `|---|` characters in the doc.
+"Verbatim" for the T&Cs and Appendix A assets means verbatim wording carried into the `p` / `table` text, never literal `#`, `|---|`, or asterisk characters.
 
-If a section write fails partway, output the remaining sections as labeled text blocks in chat and tell the user which sections made it into the doc.
+Write the JSON to a temp file, then render through the bundled wrapper (not a bare `python3`, which may hit a Python without `python-docx`):
 
-If the Google Drive connector is not connected or does not have write permission, output the full proposal as formatted markdown instead and tell the user:
+```
+bash <skill_dir>/assets/render.sh content.json "[Agency Name] Proposal - {Prospect}.docx"
+```
 
-> "Paste this into a new Google Doc titled '[Agency Name] Proposal — {Prospect}'. Enable tabs in Google Docs if you want to keep T&Cs and Appendix A on separate tabs."
+`render.sh` selects a Python that has `python-docx` (prefers `~/.venv`) and exits with an install hint if none does. This is how Cowork runs the styled-.docx builder; it is separate from the Drive connector (which only uploads plain text).
+
+No em dashes anywhere in the content. The builder hard-fails on `—`; rewrite into separate sentences or use a comma, colon, or parentheses (never a hyphen). The T&Cs and Appendix A assets are already em-dash-free, so carry them through unchanged.
+
+**If no Python has python-docx:** render.sh prints the install command. If you cannot render, say which capability is missing. Don't paste the proposal into chat as a substitute. The .docx is the deliverable.
 
 ### Step 6 — Validate
 
-Read back the doc using the connector and confirm these sections are present and in the right order: title block, Executive Summary, at least one Proposed Engagement pricing block, Investment Summary, Terms & Conditions, and Appendix A. If any section is missing, write it using the connector before proceeding.
+Before rendering, confirm the content JSON has these blocks present and in the right order: title block, Executive Summary, at least one Proposed Engagement pricing block, Investment Summary, Terms & Conditions, and Appendix A. If any is missing, add it before rendering. If `render.sh` exits non-zero on an em-dash, it names the offending strings; rewrite them and re-render.
 
-### Step 7 — Deliver the doc
+### Step 7 — Deliver the .docx
 
-Give the user the Google Doc URL and a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents — the user can read it.
+Upload the rendered .docx through the Google Drive connector and share the View link (or hand the user the file directly if Drive is not connected). Add a short prose summary of the structural choices made (which pricing tier(s), how exclusivity was handled, what positioning hook was used). Do not re-summarize the proposal contents; the user can read it.
 
 Include a Mermaid timeline of the 90-day engagement so the user has a single visual to share with the prospect (or paste into a follow-up message). Cowork renders this natively.
 
 ````
 ```mermaid
 timeline
-    title 90-Day Engagement — {Client}
+    title 90-Day Engagement: {Client}
     Week 1            : Foundations
                       : ICP refinement, infrastructure setup, copy & list prep
     Weeks 2-3         : Launch & Calibrate
@@ -246,6 +249,8 @@ After the doc is delivered, immediately draft the follow-up email. Load `referen
 
 ## Assets
 
+- `assets/build_docx.py` — deterministic branded .docx builder. Renders the content JSON into the styled proposal. Same builder used by client-spot and pre-brief; do not edit per-proposal.
+- `assets/render.sh` — wrapper that picks a Python with `python-docx` and runs the builder. Always render through this, never a bare `python3`.
 - `assets/terms_and_conditions.md` — T&Cs boilerplate. Replace `{AGENCY_LEGAL_NAME}` with your legal entity name once. Then per-proposal: swap `{COMPANY}`, `{ENGAGEMENT_DESCRIPTION}`, `{FEES_LANGUAGE}`, and optional §8 exclusivity addendum language.
 - `assets/appendix_a_completed_conversation_criteria.md` — Appendix A defining Completed Conversations + all billable / non-billable disposition criteria.
 
@@ -259,4 +264,5 @@ After the doc is delivered, immediately draft the follow-up email. Load `referen
 - **Pricing tiers track conversations, not meetings.** The completed-conversations model is the differentiator. Frame meetings as a *projected outcome* of conversation volume, not as the unit of commitment.
 - **Reflect their language back.** If the prospect named a specific bad experience or industry term, use it in the proposal. This is the single highest-signal thing you can do.
 - **Never fabricate prior campaign references.** Only cite a past client campaign by name if the user explicitly mentioned it in the call context. Making up campaign names or numbers destroys trust if the prospect asks.
-- **Write the doc in one pass if possible.** If the connector supports overwrite, use it with the full content. If you write section by section and something gets out of order, re-read the doc and patch the affected section before delivering.
+- **Build the full JSON, then render once.** Assemble the whole `content.json` (title block through Appendix A) before calling `render.sh`. If a section lands out of order, fix the JSON and re-render; do not patch the .docx by hand.
+- **No em-dashes anywhere.** The builder hard-fails on `—`, including inside T&Cs and Appendix A text. Keep every field em-dash-free; use a comma, colon, or parentheses, never a hyphen.
