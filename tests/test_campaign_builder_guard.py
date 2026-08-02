@@ -37,7 +37,7 @@ STAGE_NAMES = set(stages_builder.STAGES)
 
 def collect_action_types():
     """Every action["type"] across all WORKFLOWS[*]["actions"] lists, first-seen
-    order. The top-level "Disposition Change" trigger lives in trigger["type"],
+    order. The top-level "Call Logged" trigger lives in trigger["type"],
     not in an actions list, so it is excluded by construction."""
     types = []
     for workflow in workflow_builder.WORKFLOWS.values():

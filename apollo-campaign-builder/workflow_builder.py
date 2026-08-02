@@ -147,7 +147,7 @@ For EACH workflow in WORKFLOWS (1–4):
        a. Click the "Event *" dropdown → select "Call logged"
        b. Set the source sequence filter: "in sequence(s)" → select
           trigger["source_sequence"], i.e. "{client} - Call Only".
-          This scopes the workflow to calls dialled out of THIS client's
+          This scopes the workflow to calls dialed out of THIS client's
           call sequence. Without it the workflow fires on every logged call
           in the whole workspace, including other clients'.
        c. Set the disposition filter to trigger["disposition"]:
