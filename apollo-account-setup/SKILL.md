@@ -97,7 +97,13 @@ If browser automation is unavailable, or a step fails against the Apollo UI (but
 
 ## Step 3 — Dispositions Setup (Browser Automation)
 
-Issue this warning before doing anything else:
+First, check whether the account already has workflows: go to app.apollo.io/#/workflows. If any exist, STOP and tell the user:
+
+> "This account already has workflows. Deleting dispositions orphans the disposition each workflow filters on - the workflow stays Active but silently matches nobody. Don't run this step here. If you need it, we fix the workflows afterwards by re-selecting the disposition in each one."
+
+Do not proceed past this without the user explicitly accepting that consequence.
+
+Then issue this warning:
 
 > "This will delete all existing dispositions in your Apollo account and replace them with 19 custom entries. Type 'yes' to continue."
 
@@ -124,7 +130,9 @@ If the count is not 19, stop and flag it before moving on.
 
 Execute using `STAGES` and `EXECUTION_GUIDE` from `stages_builder.py`. Add all 11 stages in order, Approaching first through Social/Email Only last.
 
-Four of these stages (Meeting Pending, Activated Lead, Approaching, Nurture) are required by the `apollo-campaign-builder` workflow plays. If any are missing, workflows fail to configure later.
+Every stage here is the target of at least one trigger in Step 5. If a stage is missing, its trigger cannot be saved and the contacts on that disposition never move.
+
+Stages are not used by the `apollo-campaign-builder` workflow plays. Those filter on dispositions, and they move sequences only. Stages move via the Step 5 triggers.
 
 After completion, report:
 
