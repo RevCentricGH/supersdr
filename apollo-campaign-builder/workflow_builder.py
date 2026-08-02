@@ -4,25 +4,32 @@ Apollo Workflow Builder — DATA FILE
 Read by the apollo-campaign-builder skill. Contains the 4 workflow definitions
 and browser execution guide. This file is not executed — there is no CLI.
 
-Workflows in Apollo trigger automatic actions when a contact's disposition
-changes. They must be created AFTER sequences — each play references a
-specific client sequence by name.
+Workflows in Apollo route a contact into a follow-up sequence after a call is
+logged with a given disposition. They must be created AFTER sequences — each
+play references a specific client sequence by name.
+
+SCOPE: workflows handle SEQUENCE routing only. Contact STAGE changes are handled
+by the disposition→stage Triggers built in apollo-account-setup (triggers_builder.py).
+Do not add an "Update Contact Stage" action here — it duplicates the trigger and,
+when the stage it sets is the same one the workflow watches, re-fires the workflow
+against its own output.
 """
 
 # ------------------------------------------------------------------
 # Data model
 # ------------------------------------------------------------------
 # Each workflow:
-#   trigger: the Apollo disposition that fires the workflow
+#   trigger: the "Call logged" event, filtered by source sequence + disposition
 #   actions: ordered list of steps Apollo takes automatically
 
 WORKFLOWS = {
     1: {
         "name": "{client} - Disposition: Meeting Scheduled",
         "trigger": {
-            "type": "Disposition Change",
+            "type": "Call Logged",
+            "source_sequence": "{client} - Call Only",
             "disposition": "Meeting Scheduled",
-            "description": "Fires when an SDR marks a contact as 'Meeting Scheduled' after booking on a call"
+            "description": "Fires when an SDR logs a call as 'Meeting Scheduled' after booking on a call"
         },
         "actions": [
             {
@@ -35,19 +42,15 @@ WORKFLOWS = {
                 "sequence": "{client} - Pending Meeting",
                 "note": "CRITICAL: must point to THIS client's Pending Meeting sequence"
             },
-            {
-                "type": "Update Contact Stage",
-                "stage": "Meeting Pending",
-                "note": "Meeting is booked — objective is now show-up and confirmation"
-            },
         ]
     },
     2: {
         "name": "{client} - Disposition: Activated Lead",
         "trigger": {
-            "type": "Disposition Change",
+            "type": "Call Logged",
+            "source_sequence": "{client} - Call Only",
             "disposition": "Activated Lead",
-            "description": "Fires when an SDR marks a contact as 'Activated Lead' after speaking with them"
+            "description": "Fires when an SDR logs a call as 'Activated Lead' after speaking with them"
         },
         "actions": [
             {
@@ -64,19 +67,15 @@ WORKFLOWS = {
                 "type": "Associate Contact to Deal",
                 "note": "Links the contact to the deal just created"
             },
-            {
-                "type": "Update Contact Stage",
-                "stage": "Activated Lead",
-                "note": "Interested but no meeting yet — follow-up sequence takes over"
-            },
         ]
     },
     3: {
         "name": "{client} - Disposition: Connect Incomplete",
         "trigger": {
-            "type": "Disposition Change",
+            "type": "Call Logged",
+            "source_sequence": "{client} - Call Only",
             "disposition": "Connect Incomplete",
-            "description": "Fires when an SDR marks a contact as 'Connect Incomplete' — reached but call dropped or cut short"
+            "description": "Fires when an SDR logs a call as 'Connect Incomplete' — reached but call dropped or cut short"
         },
         "actions": [
             {
@@ -84,30 +83,21 @@ WORKFLOWS = {
                 "sequence": "{client} - Cold Follow-Up",
                 "note": "CRITICAL: must point to THIS client's Cold Follow-Up sequence"
             },
-            {
-                "type": "Update Contact Stage",
-                "stage": "Approaching",
-                "note": "Still in the dialing/cadence world — stage stays Approaching"
-            },
         ]
     },
     4: {
         "name": "{client} - Disposition: Nurture",
         "trigger": {
-            "type": "Disposition Change",
+            "type": "Call Logged",
+            "source_sequence": "{client} - Call Only",
             "disposition": "Nurture",
-            "description": "Fires when an SDR marks a contact as 'Nurture' — good fit but timing is later (30+ days)"
+            "description": "Fires when an SDR logs a call as 'Nurture' — good fit but timing is later (30+ days)"
         },
         "actions": [
             {
                 "type": "Add to Sequence",
                 "sequence": "{client} - Nurture",
                 "note": "CRITICAL: must point to THIS client's Nurture sequence"
-            },
-            {
-                "type": "Update Contact Stage",
-                "stage": "Nurture",
-                "note": "Good fit, timing is later — sets stage for long-term follow-up visibility"
             },
         ]
     },
@@ -126,9 +116,10 @@ Prerequisites:
   - All 7 sequences must already be created for this client
   - You need the exact sequence names (e.g. "Acme Corp - Activated Lead")
   - Substitute {client} with the actual client name throughout
-  - The following contact stages must exist in the Apollo account:
-      "Meeting Pending", "Activated Lead", "Approaching", "Nurture"
-    (These are set up during apollo-account-setup — confirm before building workflows)
+  - The following dispositions must exist in the Apollo account:
+      "Meeting Scheduled", "Activated Lead", "Connect Incomplete", "Nurture"
+    (These are set up during apollo-account-setup Step 3 — confirm before
+    building workflows. They are dispositions, not contact stages.)
   - The deal pipeline must have an "Activated Lead" deal stage — Workflow 2's
     Create Deal action sets it. This is a custom pipeline stage (not an Apollo
     default, not created by apollo-account-setup). If it's missing, the deal
@@ -153,16 +144,28 @@ For EACH workflow in WORKFLOWS (1–4):
     1. Select "Based on a trigger event" radio button
     2. "This workflow will target" — leave as "People" (default)
     3. Under "Trigger when":
-       a. Click the "Event *" dropdown → select "Contact updated"
-       b. A "Field" dropdown appears → click it → search "stage" → select "Contact stage"
-       c. A "New value" row appears with "is any of" + a stage picker
-       d. Click the stage picker → search or scroll to find the disposition value:
+       a. Click the "Event *" dropdown → select "Call logged"
+       b. Set the source sequence filter: "in sequence(s)" → select
+          trigger["source_sequence"], i.e. "{client} - Call Only".
+          This scopes the workflow to calls dialed out of THIS client's
+          call sequence. Without it the workflow fires on every logged call
+          in the whole workspace, including other clients'.
+       c. Set the disposition filter to trigger["disposition"]:
             Workflow 1 → "Meeting Scheduled"
             Workflow 2 → "Activated Lead"
             Workflow 3 → "Connect Incomplete"
             Workflow 4 → "Nurture"
-       e. Click the stage name to select it (it appears as a tag in the picker)
+          These are DISPOSITION names, from apollo-account-setup's
+          dispositions_builder.DISPOSITIONS. They are not contact stages.
     4. Click "Done" (bottom-right of the Trigger panel)
+
+    VERIFY THE TRIGGER READS BACK CORRECTLY. Switch the canvas to "Detail" view
+    and read the "When this happens" card. It must say:
+      Call logged with these attributes: in sequence(s) <client> Call Only
+      sequence, the disposition <Disposition>
+    If the disposition renders as "undefined", the workflow's disposition
+    reference is dangling and the workflow will never match. See
+    "DANGLING DISPOSITION REFERENCES" below.
 
   STEP D — Add actions (in order)
     Right panel now shows an "Actions" palette:
@@ -199,13 +202,11 @@ For EACH workflow in WORKFLOWS (1–4):
       - Enter or select list name from action["list_name"]
       - If the list doesn't exist yet, it will be created on first enrollment
 
-    "Update Contact Stage":
-      - Click "Update contact/account" in the Actions palette
-      - Block auto-appends onto canvas
-      - Click block → config panel
-      - Select "Contact" as the object type (if prompted)
-      - Find "Contact Stage" field → set value to action["stage"]
-      - Confirm and close
+    NOTE — there is deliberately no "Update Contact Stage" action here.
+    Contact stages are moved by the disposition→stage Triggers built in
+    apollo-account-setup. Adding a stage action to these workflows duplicates
+    that, and re-fires the workflow on its own output when the stage it writes
+    is one the workflow watches.
 
   STEP E — Save and activate
     - Click "Launch workflow" button (top-right, yellow/green)
@@ -213,21 +214,46 @@ For EACH workflow in WORKFLOWS (1–4):
     - Confirm it shows as active at app.apollo.io/#/workflows
 
   STEP F — Verify
-    After creating all 4, spot-check each workflow:
-    - Correct trigger disposition
+    After creating all 4, switch each workflow's canvas to "Detail" view and
+    spot-check:
+    - Trigger event is "Call logged"
+    - Trigger card names the correct disposition (not "undefined")
+    - Trigger card names this client's Call Only sequence
     - Sequence name in "Add contacts to sequence" block contains the client name
-    - Contact stage value matches workflow["actions"] stage entry
 
 KNOWN UI DETAILS:
-  - "Contact updated" is the trigger event (NOT "Disposition changed")
-  - Apollo calls it "Contact stage", not "Disposition" — they mean the same thing in the trigger
+  - "Call logged" is the trigger event. There is no "Disposition changed" event.
+  - Do NOT use "Contact updated" → "Contact stage". A contact stage is not a
+    disposition. Two of the four dispositions these workflows watch
+    ("Meeting Scheduled", "Connect Incomplete") do not exist as stages at all,
+    so the picker comes up empty and the workflow can never leave Draft.
+  - The trigger's disposition list and the Settings → Team dialer → Dispositions
+    list are the same objects. The stage list is separate.
   - "Manage Sequences" and "Manage lists" auto-append blocks
   - "Manage deals" uses placement mode (click + to insert)
-  - Available stages depend on what's configured in the Apollo account — run apollo-account-setup first
+  - Available dispositions depend on what's configured in the Apollo account —
+    run apollo-account-setup first
+
+DANGLING DISPOSITION REFERENCES:
+  A workflow stores a reference to the disposition, not its name. Deleting and
+  re-creating a disposition (which is exactly what apollo-account-setup Step 3
+  does) orphans that reference in every workflow that used it. The workflow
+  stays Active, silently matches nothing, and its trigger card renders as
+  "the disposition undefined".
+  - Run apollo-account-setup ONCE, BEFORE any workflows exist.
+  - Never re-run its disposition step on an account that already has workflows.
+  - If a workflow shows "undefined", open it, re-select the disposition, save.
+
+WHEN CONTACTS FAIL TO ENROLL:
+  "Contact owner does not have email account" on a failed enrollment means the
+  contact's owner has no mailbox linked, so a sequence with email steps cannot
+  send for them. Link the owner's mailbox (apollo-account-setup Step 1), or
+  reassign the contact to an owner who has one.
 
 CRITICAL CHECKS BEFORE ACTIVATING:
-  - Workflow 1: sequence shows "{client} - Pending Meeting", stage = "Meeting Pending"
-  - Workflow 2: sequence shows "{client} - Activated Lead", stage = "Activated Lead"
-  - Workflow 3: sequence shows "{client} - Cold Follow-Up", stage = "Approaching"
-  - Workflow 4: sequence shows "{client} - Nurture", stage = "Nurture"
+  - Workflow 1: disposition "Meeting Scheduled" → sequence "{client} - Pending Meeting"
+  - Workflow 2: disposition "Activated Lead"    → sequence "{client} - Activated Lead"
+  - Workflow 3: disposition "Connect Incomplete" → sequence "{client} - Cold Follow-Up"
+  - Workflow 4: disposition "Nurture"           → sequence "{client} - Nurture"
+  - No workflow contains an "Update Contact Stage" action.
 """

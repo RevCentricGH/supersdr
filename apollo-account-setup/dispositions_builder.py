@@ -95,4 +95,9 @@ CRITICAL RULES:
   - "Left Voicemail" must be Not Connected — it must keep advancing the sequence
   - Do NOT add any dispositions beyond the 19 listed
   - Do NOT rename dispositions after SDRs start using them
+  - ONE-TIME AND DESTRUCTIVE. Apollo workflows store a reference to a
+    disposition, not its name. Deleting and re-creating the dispositions orphans
+    that reference in every existing workflow: the workflow stays Active, matches
+    nobody, and its trigger card reads "the disposition undefined". Run this step
+    before any workflows exist. Never re-run it on a live account.
 """

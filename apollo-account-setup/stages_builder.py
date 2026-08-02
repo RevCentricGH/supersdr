@@ -65,9 +65,12 @@ STEP 3 — Verify
   - Order matches STAGES list
 
 CRITICAL RULES:
-  - Four stages are required before Apollo Campaign Builder workflows will work:
-      "Meeting Pending", "Activated Lead", "Approaching", "Nurture"
-    All four are in the STAGES list above. If any are missing, workflows will
-    fail to configure correctly.
+  - Every stage above is the target of at least one trigger in triggers_builder.
+    A trigger cannot be saved against a stage that does not exist, so build all
+    11 before Step 5.
+  - Stages are NOT referenced by apollo-campaign-builder's workflow plays. Those
+    filter on DISPOSITIONS and route sequences only. Stage movement is entirely
+    the job of the triggers. Do not conflate the two lists — "Meeting Scheduled"
+    and "Connect Incomplete" are dispositions and are deliberately absent here.
   - Do NOT delete or rename stages after SDRs start using them — breaks reporting
 """

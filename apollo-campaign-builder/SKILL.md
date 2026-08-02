@@ -26,7 +26,7 @@ Both `.py` files are data the skill reads at runtime - not scripts to run, not d
 
 - Client name confirmed - all sequences/workflows will be prefixed with it
 - Apollo open and logged in at app.apollo.io in Chrome
-- `apollo-account-setup` run once on this Apollo account - the workflow plays reference contact stages it creates, and they will not save without them
+- `apollo-account-setup` run once on this Apollo account - the workflow plays filter on the dispositions it creates, and the trigger cannot be set without them. Run it once, before any workflows exist; re-running its disposition step later orphans the disposition reference in every workflow already built
 - Deal pipeline has an "Activated Lead" stage - Workflow 2's Create Deal action targets it. This is a custom pipeline stage, not an Apollo default and not created by `apollo-account-setup`; add it in Settings → Deals → Pipeline before building workflows, or Workflow 2 stays stuck in Draft
 
 ---
@@ -114,18 +114,21 @@ Read `workflow_builder.py` - it contains the full workflow definitions and execu
 
 1. Click "New Workflow" / "Create Workflow"
 2. Enter the name: `{client} - Disposition: {disposition}`
-3. Set the trigger: disposition change → the value from `workflow["trigger"]["disposition"]`
+3. Set the trigger event to **Call logged**, then set its two filters:
+   - in sequence(s) → `workflow["trigger"]["source_sequence"]` (this client's Call Only sequence)
+   - disposition → `workflow["trigger"]["disposition"]`
 4. Add each action in order per `workflow["actions"]`:
    - **Add to Sequence**: search and select the exact client sequence by name
    - **Create Deal**: set the deal stage from `action["deal_stage"]`
    - **Associate Contact to Deal**: link contact to the deal above
    - **Add to List**: enter the list name from `action["list_name"]`
-   - **Update Contact Stage**: set the stage from `action["stage"]`
 5. **Before saving**: if the action is "Add to Sequence", confirm the selected sequence
    name contains the client name - wrong sequence is the #1 setup error
 6. Save and activate
 
-**Trigger vocabulary:** Apollo's trigger event is "Contact updated", not "Disposition changed". The "Contact stage" field in the trigger holds the stage value the workflow definitions set. This naming is maintained by hand; the guard test only checks that every action type is documented above.
+**Trigger vocabulary:** Apollo's trigger event is **"Call logged"**. There is no "Disposition changed" event, and "Contact updated → Contact stage" is the wrong path - a contact stage is not a disposition. "Meeting Scheduled" and "Connect Incomplete" are dispositions that do not exist as stages, so picking them from a stage field is impossible and the workflow never leaves Draft.
+
+**Stages are not set here.** These workflows only route sequences. Contact stages are moved by the disposition-to-stage triggers built in `apollo-account-setup`. That is why no workflow has an "Update Contact Stage" action - it would duplicate the trigger and re-fire the workflow on its own output.
 
 After all 4:
 ```
@@ -152,11 +155,13 @@ SEQUENCES
 [ ] Reschedule         - 10 steps, active
 [ ] Referred To        - 10 steps, active
 
-WORKFLOWS
-[ ] Disposition: Meeting Scheduled  - active, sequence + list names show [client]
-[ ] Disposition: Activated Lead     - active, sequence name shows [client]
-[ ] Disposition: Connect Incomplete - active, sequence name shows [client]
-[ ] Disposition: Nurture            - active, sequence name shows [client]
+WORKFLOWS  (check each in the canvas "Detail" view)
+[ ] Disposition: Meeting Scheduled  - active, trigger "Call logged", sequence + list names show [client]
+[ ] Disposition: Activated Lead     - active, trigger "Call logged", sequence name shows [client]
+[ ] Disposition: Connect Incomplete - active, trigger "Call logged", sequence name shows [client]
+[ ] Disposition: Nurture            - active, trigger "Call logged", sequence name shows [client]
+[ ] No trigger card reads "the disposition undefined"
+[ ] No workflow has an "Update Contact Stage" action
 ```
 
 ## Step 5 - Visual campaign map
@@ -166,7 +171,7 @@ After verification, output a Mermaid diagram showing how the 4 workflows route S
 ````
 ```mermaid
 flowchart TD
-    SDR[SDR sets contact disposition]
+    SDR[SDR logs a call on<br/>{client} - Call Only]
     SDR --> MS{Meeting Scheduled}
     SDR --> AL{Activated Lead}
     SDR --> CI{Connect Incomplete}
@@ -174,31 +179,32 @@ flowchart TD
 
     MS --> MS_LIST[Add to List:<br/>{client} - Meetings Booked]
     MS --> MS_SEQ[Sequence:<br/>{client} - Pending Meeting<br/>2 steps]
-    MS --> MS_STAGE[Stage: Meeting Pending]
 
     AL --> AL_SEQ[Sequence:<br/>{client} - Activated Lead<br/>7 steps]
     AL --> AL_DEAL[Create Deal<br/>stage: Activated Lead]
     AL --> AL_LINK[Associate Contact to Deal]
-    AL --> AL_STAGE[Stage: Activated Lead]
 
     CI --> CI_SEQ[Sequence:<br/>{client} - Cold Follow-Up<br/>14 steps]
-    CI --> CI_STAGE[Stage: Approaching]
 
     NT --> NT_SEQ[Sequence:<br/>{client} - Nurture<br/>7 steps]
-    NT --> NT_STAGE[Stage: Nurture]
 
-    OTHER[Manual entry points] -.-> CO[{client} - Call Only<br/>10 steps]
-    OTHER -.-> RS[{client} - Reschedule<br/>10 steps]
+    MS -.-> TRG[Contact stage moved by the<br/>disposition triggers from<br/>apollo-account-setup]
+    AL -.-> TRG
+    CI -.-> TRG
+    NT -.-> TRG
+
+    OTHER[Manual entry points] -.-> RS[{client} - Reschedule<br/>10 steps]
     OTHER -.-> RF[{client} - Referred To<br/>10 steps]
 
     style MS fill:#e3f2fd
     style AL fill:#fff3e0
     style CI fill:#fce4ec
     style NT fill:#e8f5e9
+    style TRG fill:#eeeeee
 ```
 ````
 
-Substitute `{client}` with the actual client name. The dotted lines from "Other entry points" represent the 4 sequences that aren't workflow-triggered - SDRs add contacts to those manually.
+Substitute `{client}` with the actual client name. The dotted lines from "Manual entry points" represent the sequences that aren't workflow-triggered - SDRs add contacts to those manually. The dotted lines into the grey box are a reminder that stages move via the account-level triggers, not via these workflows.
 
 When all boxes are checked and the visual map is rendered, the client is fully set up in Apollo and ready to run.
 
@@ -212,7 +218,10 @@ One issue at a time. Walk the user through the fix, then retry the step.
 | --- | --- |
 | A sequence will not save | A step is half-finished. Apollo blocks "Save changes" until every step has a type and timing set. Finish or delete the incomplete step, then click "Save changes" (top-right) again. |
 | "Add to Sequence" picker shows no match | The sequence does not exist yet, or the typed name is off. Build all 7 sequences in Step 2 first, then build the workflows. In the picker, search the exact prefixed name ("{client} - ..."); the picker matches the saved sequence name. |
-| Workflow stays in "Draft" after clicking Launch | A block is incomplete, so Apollo refuses to activate it. The usual culprits: the trigger has no Contact stage selected, or an action block (sequence, deal, list, or contact stage) has no value set. Open the workflow, fix the flagged block, then click "Launch workflow" again; the status flips from Draft to Active. |
+| Workflow stays in "Draft" after clicking Launch | A block is incomplete, so Apollo refuses to activate it. The usual culprits: the trigger has no disposition selected, or an action block (sequence, deal, or list) has no value set. Open the workflow, fix the flagged block, then click "Launch workflow" again; the status flips from Draft to Active. |
+| Trigger dropdown has no "Disposition changed" option, and the disposition names are missing from the stage picker | Correct, and expected. The event is "Call logged", and the disposition is a filter on that event, not a contact-stage value. "Meeting Scheduled" and "Connect Incomplete" are dispositions only - they are not stages and will never appear in a stage picker. |
+| Workflow is Active but never enrolls anyone; trigger card reads "the disposition undefined" | The disposition it points at was deleted and re-created, so the stored reference is dangling. This happens if `apollo-account-setup`'s disposition step is re-run on an account that already has workflows. Open the workflow, re-select the disposition, save, and relaunch. |
+| Enrollment fails with "Contact owner does not have email account" | The contact's owner has no mailbox linked, so a sequence with email steps cannot send on their behalf. Link that owner's mailbox, or reassign the contact to an owner who has one. |
 
 ---
 
