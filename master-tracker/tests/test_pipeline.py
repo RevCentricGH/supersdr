@@ -113,6 +113,46 @@ def test_manual_column_value_survives_a_rerun(tmp_path):
     assert rows[0]["Notes"] == "called back, hot lead"
 
 
+def test_double_logged_call_writes_the_row_with_the_recording(tmp_path):
+    # same conversation logged twice, recording on the second entry: one row is
+    # written and it is the recorded one, not the first-seen blank
+    from mastertracker.recording_source import ApolloRecordingSource
+
+    d = _deps(tmp_path)
+    sheet = FakeSheet()
+    calls = [
+        make_call(id="c1", date="2026-05-20", prospect="Jane Doe", disposition="Interested"),
+        make_call(
+            id="c2", date="2026-05-20", prospect="Jane Doe", disposition="Interested",
+            recording_url="https://rec.example/c2",
+        ),
+    ]
+    written = ingest_rep_calls(
+        calls=calls, tab="Rep A", sheet=sheet,
+        recording_source=ApolloRecordingSource(), **d
+    )
+    assert written == 1
+    rows = sheet.tabs["Rep A"]["rows"]
+    assert len(rows) == 1
+    assert rows[0]["Call ID"] == "c2"
+    assert rows[0]["Recording URL"] == "https://rec.example/c2"
+    # the losing duplicate can never be written (its row is settled in the sheet), so it
+    # is marked ingested too rather than being re-fetched and re-mapped forever
+    assert d["ingest_state"].is_ingested("c1") is True
+
+
+def test_duplicate_dropped_against_the_sheet_is_marked_ingested(tmp_path):
+    d = _deps(tmp_path)
+    sheet = FakeSheet()
+    first = [make_call(id="c1", date="2026-05-20", prospect="Jane Doe", disposition="Interested")]
+    ingest_rep_calls(calls=first, tab="Rep A", sheet=sheet, **d)
+
+    dupe = [make_call(id="c9", date="2026-05-20", prospect="Jane Doe", disposition="Interested")]
+    written = ingest_rep_calls(calls=dupe, tab="Rep A", sheet=sheet, **d)
+    assert written == 0
+    assert d["ingest_state"].is_ingested("c9") is True  # settled key: never writable
+
+
 def test_disposition_tagged_after_first_run_is_picked_up_later(tmp_path):
     # contract 16 - same call id, untagged then tagged
     d = _deps(tmp_path)

@@ -1,6 +1,6 @@
 ---
 name: master-tracker
-description: Claude Code skill - runs in a terminal with real Python and local credentials, not in Cowork. Pull one or more reps' Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to run on a schedule. Trigger when the user wants to sync Apollo calls into a tracking sheet, build a per-rep outbound activity tracker, or says things like "pull my Apollo calls into the sheet", "update the call tracker", "run master-tracker", or "sync the dialer calls". It pulls each configured rep's calls with paged, 429-aware Apollo search, keeps only the configured dispositions, writes rows deduped by date and prospect, never overwrites manual columns, and marks a call ingested only after its row is written so a call tagged after the dialer logged it is still picked up on a later run.
+description: Claude Code skill - runs in a terminal with real Python and local credentials, not in Cowork. Pull one or more reps' Apollo dialer calls into per-rep tabs of a Google Sheet, filtered to the dispositions you care about, deduped, and safe to run on a schedule. Trigger when the user wants to sync Apollo calls into a tracking sheet, build a per-rep outbound activity tracker, or says things like "pull my Apollo calls into the sheet", "update the call tracker", "run master-tracker", or "sync the dialer calls". It pulls each configured rep's calls with paged, 429-aware Apollo search, keeps only the configured dispositions, writes rows deduped by call ID and then by date and prospect (keeping the row with a recording when the dialer logs one conversation twice), never overwrites manual columns, and marks a call ingested only after its row is written so a call tagged after the dialer logged it is still picked up on a later run.
 ---
 
 # master-tracker
@@ -23,14 +23,25 @@ For every rep in your config:
 2. Keeps only calls whose disposition is in your keep list or starts with a keep prefix. Every
    other call is skipped before any per-call work, so a skipped call costs nothing and is
    re-evaluated on the next run.
-3. Maps each kept call to a row and dedupes by (date, lowercased prospect) against the rows
-   already in the sheet, so no duplicates.
+3. Maps each kept call to a row and dedupes it: the dialer's call ID is the primary
+   identity, then (date, lowercased prospect) against the rows already in the sheet. When
+   one conversation is logged twice - same prospect, same day, same disposition, one
+   entry with a recording and one without - the row with the recording is the one
+   written, so a real interaction is never merged away and duplicates never inflate
+   counts. Two caveats: the preference decides between entries seen in the same run
+   (once a row is in the sheet it is never rewritten, so a recorded twin that only
+   appears on a later run cannot fill the blank), and it needs a configured
+   `recording_source` (with none, every row resolves blank and the first entry wins).
+   Same-day calls with different dispositions are different conversations; the first
+   one keeps the row.
 4. Appends new rows to the rep's tab, resolving the Recording URL column through the configured
    recording source (Apollo, Trellus, or a manually attached URL) when one resolves. It only
    appends, so the manual columns you added (Notes, Next Step, and so on) are never overwritten.
 5. Marks a call ingested only after its row is written. If a write fails, the call is retried
    next run. If a rep tags a call with a kept disposition after the dialer first logged it, the
-   next run picks it up.
+   next run picks it up. A duplicate whose (date, prospect) row is already settled in the sheet
+   is marked too - append-only means it can never be written, so re-fetching it every run would
+   be waste.
 6. Rebuilds the summary tab from the live rep tabs: an ICP breakdown (counts per ICP category),
    meeting trends (booked meetings bucketed by week), conversion rates (meeting rate and
    conversation-to-meeting rate, per rep and overall), and a rep leaderboard ranked by rate.
@@ -139,7 +150,8 @@ The logic lives in the `mastertracker` package and is unit-tested:
 
 - `disposition_filter.py` - `DispositionFilter`: pure keep-set + prefix match.
 - `call_row_mapper.py` - `CallRowMapper`: normalized call record to a sheet row.
-- `deduper.py` - `Deduper`: dedup by (date, lowercased prospect).
+- `deduper.py` - `Deduper`: dedup by call ID, then (date, lowercased prospect), preferring
+  the row with a recording on a same-day, same-disposition collision.
 - `ingest_state.py` - `IngestState`: the ingested-call ledger, marked only after a write.
 - `recording_source.py` - `RecordingSource`: pluggable `resolve(call)` with `apollo`, `trellus`,
   and `manual-url` adapters selected by config; the single authority for the Recording URL column.
