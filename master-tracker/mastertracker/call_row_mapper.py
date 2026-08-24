@@ -25,6 +25,18 @@ class MappedRow:
         self.values = values
         self.key = key
 
+    @property
+    def call_id(self):
+        return self.values.get("Call ID") or ""
+
+    @property
+    def disposition(self):
+        return self.values.get("Disposition") or ""
+
+    @property
+    def has_recording(self):
+        return bool(self.values.get(RECORDING_COLUMN))
+
     def as_list(self, header):
         return [self.values.get(col, "") for col in header]
 
@@ -43,7 +55,9 @@ class CallRowMapper:
             "Phone": call.get("phone") or "",
             "Duration (sec)": call.get("duration_sec"),
             "Call ID": call.get("id") or "",
-            "Recording URL": call.get("recording_url") or "",
+            # The recording source is the column's sole writer (pipeline resolves it);
+            # populating it here too would give the column two diverging authorities.
+            "Recording URL": "",
         }
         for col in self.manual_columns:
             values[col] = ""

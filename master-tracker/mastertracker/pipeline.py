@@ -6,8 +6,13 @@ each rep's calls to its own tab. The ordering that matters:
   1. skip calls already in the ledger (fast path; the sheet is still the dedup authority)
   2. drop calls whose disposition is not kept - never recorded, so a later run re-evaluates
   3. drop calls before the backfill window
-  4. map to rows, then dedup against the sheet's existing keys and within the batch
+  4. map to rows (resolving the recording link first, so dedup can prefer the recorded
+     copy of a double-logged call), then dedup against the sheet's existing keys and
+     within the batch
   5. append each new row, and only on a successful append mark the call ingested
+  6. after all appends succeed, also mark the dropped duplicates whose (date, prospect)
+     row is already settled in the sheet - append-only means they can never be written,
+     and without the mark they would be re-fetched and re-mapped on every future run
 
 Step 5 is the v2 fix: marking after the write means a failed write leaves the call out of
 the ledger, so the next run retries it.
@@ -43,23 +48,32 @@ def ingest_rep_calls(
             continue
         kept.append(call)
 
-    rows = [(call, mapper.to_row(call)) for call in kept]
-    existing_keys = sheet.existing_keys(tab)
-    new_rows = deduper.new_rows([r for _, r in rows], existing_keys)
-    new_keys = {r.key for r in new_rows}
-
-    written = 0
-    for call, row in rows:
-        if row.key not in new_keys:
-            continue
-        new_keys.discard(row.key)  # one write per dedup key, even on intra-batch dupes
+    rows = []
+    for call in kept:
+        row = mapper.to_row(call)
         # The recording source is the sole authority for the recording-link column. With no
         # source, a non-resolving source, or one that raises, safe_resolve yields "" so the
-        # column is left blank rather than crashing the run.
+        # column is left blank rather than crashing the run. Resolved before dedup so a
+        # same-day duplicate pair collapses onto the row that actually has a recording.
         row.values[RECORDING_COLUMN] = safe_resolve(recording_source, call)
+        rows.append(row)
+    existing_keys = sheet.existing_keys(tab)
+    new_rows = deduper.new_rows(rows, existing_keys)
+
+    written = 0
+    settled_keys = set(existing_keys)
+    for row in new_rows:
         sheet.append_row(tab, row.as_list(header))  # may raise; mark only if it does not
-        ingest_state.mark_ingested(call.get("id"))
+        ingest_state.mark_ingested(row.call_id)
+        settled_keys.add(row.key)
         written += 1
+    # A dropped row whose key is settled (already in the sheet, or written by this run)
+    # can never be written on any future run - the sheet is append-only - so mark it
+    # ingested too, or every double-logged call is re-fetched and re-mapped forever. On a
+    # mid-loop write failure this never runs, so nothing unwritten gets marked.
+    for row in rows:
+        if row.key in settled_keys:
+            ingest_state.mark_ingested(row.call_id)
     return written
 
 

@@ -21,7 +21,9 @@ def test_each_field_maps_to_its_column():
     assert row.values["Phone"] == "+15551230001"
     assert row.values["Duration (sec)"] == 142
     assert row.values["Call ID"] == "call_99"
-    assert row.values["Recording URL"] == "https://rec/99"
+    # blank even when the call carries a URL: the recording source resolved in the
+    # pipeline is the column's sole writer
+    assert row.values["Recording URL"] == ""
 
 
 def test_row_exposes_dedup_key_of_date_and_lowercased_prospect():
