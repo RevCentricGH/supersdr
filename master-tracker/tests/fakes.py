@@ -14,7 +14,11 @@ class FakeSheet:
         self.cleared = []  # tabs clear_tab was called on, in order
 
     def ensure_header(self, tab, header):
-        self.tabs.setdefault(tab, {"header": list(header), "rows": []})
+        """Create the tab if missing and, like the real writer, fill the header only
+        when row 1 is still empty."""
+        t = self.tabs.setdefault(tab, {"header": [], "rows": []})
+        if not t["header"]:
+            t["header"] = list(header)
 
     def existing_keys(self, tab):
         t = self.tabs.get(tab)
@@ -51,6 +55,11 @@ class FakeSheet:
         """Record scaffold styling calls; formatting itself is not modeled."""
         self.styled = getattr(self, "styled", [])
         self.styled.append(tab)
+
+    def percent_format_columns_once(self, tab, first_col_index, last_col_index):
+        """Record scaffold percent-format calls; formatting itself is not modeled."""
+        self.percent_formatted = getattr(self, "percent_formatted", [])
+        self.percent_formatted.append((tab, first_col_index, last_col_index))
 
     def clear_tab(self, tab):
         self.cleared.append(tab)

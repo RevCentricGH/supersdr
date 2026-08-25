@@ -125,9 +125,10 @@ def test_rates_rows_are_formulas_with_row_relative_rate_cells():
     sheet_row = next(i for i, r in enumerate(grid) if r and r[0] == "Rep A") + 1
     assert rep_row[1] == "=COUNTA('Rep A'!C2:C)"
     assert rep_row[3] == '=COUNTIF(\'Rep A\'!C2:C,"Meeting Booked")'
-    assert f"D{sheet_row}/B{sheet_row}" in rep_row[4]
-    assert f"D{sheet_row}/C{sheet_row}" in rep_row[5]
-    assert rep_row[4].startswith("=IF(B")  # zero-denominator guard
+    # real numbers with a zero-denominator guard, not TEXT() strings, so the operator
+    # can chart, sort, and percent-format them
+    assert rep_row[4] == f"=IF(B{sheet_row}=0,0,D{sheet_row}/B{sheet_row})"
+    assert rep_row[5] == f"=IF(C{sheet_row}=0,0,D{sheet_row}/C{sheet_row})"
 
 
 def test_overall_row_sums_the_per_rep_cells_not_the_rates():
@@ -167,9 +168,12 @@ def test_leaderboard_metric_formulas_per_mode():
     rate = _builder().build_grid(layouts, {"Rep A": []})
     meetings = _builder(leaderboard_metric="meetings").build_grid(layouts, {"Rep A": []})
     calls = _builder(leaderboard_metric="calls").build_grid(layouts, {"Rep A": []})
-    assert 'TEXT((' in _section(rate, "Rep Leaderboard")[1][1]
+    rate_value = _section(rate, "Rep Leaderboard")[1][1]
+    assert rate_value.startswith("=IF((") and "TEXT" not in rate_value  # a real number
     assert _section(meetings, "Rep Leaderboard")[1][1] == '=COUNTIF(\'Rep A\'!C2:C,"Meeting Booked")'
-    assert _section(calls, "Rep Leaderboard")[1][1] == "=COUNTA('Rep A'!C2:C)"
+    # calls = ALL tracked rows: counted on the always-populated Date column so the display
+    # agrees with the ranking, which counts rows whether or not they have a disposition yet
+    assert _section(calls, "Rep Leaderboard")[1][1] == "=COUNTA('Rep A'!A2:A)"
 
 
 def test_unknown_leaderboard_metric_fails_fast():
@@ -177,7 +181,7 @@ def test_unknown_leaderboard_metric_fails_fast():
         _builder(leaderboard_metric="wins")
 
 
-# ---- formula escaping ----------------------------------------------------------------
+# ---- formula escaping and label safety ----------------------------------------------
 
 def test_rep_names_with_apostrophes_and_quoted_dispositions_are_escaped():
     b = _builder(meeting_dispositions=['She said "yes"'])
@@ -186,6 +190,58 @@ def test_rep_names_with_apostrophes_and_quoted_dispositions_are_escaped():
     rep_row = _section(grid, "Conversion Rates")[1]
     assert "'O''Brien'!" in rep_row[1]
     assert '"She said ""yes"""' in rep_row[3]
+
+
+def test_countif_wildcards_in_labels_are_escaped_to_match_literally():
+    b = _builder(meeting_dispositions=["Meet?ng*"], icp_categories=["VP*Sales"])
+    grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
+    assert '"Meet~?ng~*"' in _section(grid, "Conversion Rates")[1][3]
+    assert '"VP~*Sales"' in _section(grid, "ICP Breakdown")[1][1]
+
+
+def test_discovered_category_labels_cannot_execute_as_formulas():
+    # the label cell is apostrophe-guarded so USER_ENTERED writes it as text; the
+    # COUNTIF criteria still quotes the original value
+    b = _builder()
+    rep_rows = {"Rep A": [_row(icp="=IMPORTRANGE(evil)"), _row(icp="1-10")]}
+    grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
+    labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
+    assert "'=IMPORTRANGE(evil)" in labels
+    assert "'1-10" in labels
+
+
+def test_discovered_case_variants_merge_into_one_category():
+    # COUNTIF matches case-insensitively, so "SaaS" + "Saas" rows would each double-count
+    b = _builder()
+    rep_rows = {"Rep A": [_row(icp="SaaS"), _row(icp="SaaS"), _row(icp="Saas")]}
+    grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
+    labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
+    assert labels == ["SaaS"]
+
+
+# ---- config validation ---------------------------------------------------------------
+
+def test_string_list_fields_are_rejected_with_a_clear_error():
+    with pytest.raises(ValueError, match="icp_categories"):
+        _builder(icp_categories="Founder")
+
+
+def test_trend_weeks_accepts_digit_strings_and_rejects_garbage():
+    assert _builder(trend_weeks="4").trend_weeks == 4
+    with pytest.raises(ValueError, match="trend_weeks"):
+        _builder(trend_weeks="ten")
+    with pytest.raises(ValueError, match="trend_weeks"):
+        _builder(trend_weeks=-4)
+
+
+def test_monday_safe_week_base():
+    # WEEKDAY(TODAY(),3) maps Monday to 0; the WEEKDAY(TODAY()-1,2) idiom shifts the
+    # whole trend window back a week whenever today is Monday
+    b = _builder(trend_weeks=1)
+    grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
+    label = _section(grid, "Meeting Trends")[1][0]
+    assert "WEEKDAY(TODAY(),3)" in label
+    assert "WEEKDAY(TODAY()-1,2)" not in label
 
 
 # ---- rebuild_summary -----------------------------------------------------------------
@@ -240,3 +296,29 @@ def test_rebuild_proceeds_on_a_genuinely_fresh_sheet():
     grid = rebuild_summary(_config(), sheet=sheet)
     assert grid is not None
     assert sheet.grid("Overall Statistics")
+
+
+def test_force_bypasses_the_all_empty_guard():
+    # --stats-only: the operator is present, and the grid is rebuilt from config
+    sheet = FakeSheet()
+    sheet.ensure_header("Rep A", REP_HEADER)
+    sheet.grids["Overall Statistics"] = [["ICP Breakdown"]]
+    grid = rebuild_summary(_config(), sheet=sheet, force=True)
+    assert grid is not None
+    assert sheet.cleared == ["Overall Statistics"]
+
+
+def test_rep_with_no_tab_yet_is_created_and_included_with_zeros():
+    # a rep added to config before their first pull must not block the whole team's
+    # summary, and their tab must exist so the formulas do not render #REF!
+    sheet = FakeSheet()
+    sheet.seed_row("Rep A", REP_HEADER, {"Date": "2026-05-20", "Prospect": "Jane",
+                                         "Disposition": "Meeting Booked"})
+    config = _config()
+    config["reps"]["Rep C"] = {"apollo_user_id": "u3"}
+    config["manual_columns"] = ["ICP"]
+    grid = rebuild_summary(config, sheet=sheet)
+    assert grid is not None
+    assert sheet.header_row("Rep C")  # tab created with the pipeline's default header
+    joined = "\n".join(str(c) for r in grid for c in r)
+    assert "'Rep C'!" in joined  # included in the formulas, showing zeros until rows land

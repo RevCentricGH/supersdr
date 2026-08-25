@@ -47,7 +47,9 @@ For every rep in your config:
    rep leaderboard. Because the cells are formulas, the summary keeps itself current as rep
    tabs change between runs; a rebuild only refreshes the shape (rep order, discovered ICP
    categories). It never runs when every rep tab reads back empty while the summary has
-   content - that is almost always a failed read, not an empty tracker.
+   content - that is almost always a failed read, not an empty tracker - and a scheduled
+   run that hits this guard exits nonzero so monitoring sees it. `--stats-only`, run by
+   hand, overrides the guard.
 
 ## The summary tab: live formulas, your formatting
 
@@ -57,10 +59,12 @@ live spreadsheet formulas that reference the rep tabs. The cells are `COUNTIF`, 
 moment a rep tab changes - between runs, with the script not even running.
 
 **The script writes values only. Formatting is yours.** Run `python3 run.py --scaffold` once
-to bold and freeze the header rows, then style anything - colors, borders, widths, conditional
-formats, chart tabs - however you like, by hand or with Claude Cowork or ChatGPT. No refresh
-ever touches formatting, so restyling can never be undone by the tracker and restyling can
-never break the tracker. What a rebuild does rewrite is the summary grid's cell values, so
+to bold and freeze the header rows and percent-format the summary's rate columns, then style
+anything - colors, borders, widths, conditional formats, chart tabs - however you like, by
+hand or with Claude Cowork or ChatGPT. No refresh ever touches formatting, so restyling can
+never be undone by the tracker and restyling can never break the tracker. Rates are written
+as plain numbers (0 to 1), so they stay chartable and sortable; the percent look comes from
+the one-time format, not from the values. What a rebuild does rewrite is the summary grid's cell values, so
 keep manual columns and notes off the summary tab; they belong on the rep tabs. Adding your
 own extra tabs with your own formulas or charts over the rep tabs is always safe.
 
@@ -68,8 +72,9 @@ A rebuild is only needed when the SHAPE changes: a rep added or renamed, a new I
 to discover, changed dispositions or labels. Trigger it with `python3 run.py --stats-only`
 (no Apollo pull). It reads each rep tab's actual header row first and builds formulas from
 the columns' real positions, so an operator who moved or added columns still gets correct
-counts - and it refuses to rebuild against a rep tab missing the Date or disposition column
-rather than silently counting the wrong one.
+counts. A rep tab whose header exists but lost its Date or disposition column stops the
+rebuild rather than silently counting the wrong one; a rep with no tab yet (added to config
+before their first pull) just gets their tab created and shows zeros.
 
 The summary holds:
 

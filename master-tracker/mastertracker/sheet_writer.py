@@ -79,21 +79,21 @@ class SheetWriter:
         return first_row[0] if first_row else []
 
     def has_content(self, tab):
-        """True when the tab holds any value at all. The summary rebuild's anti-wipe
-        guard: never clear a populated summary on an all-empty rep read."""
+        """True when the tab exists and holds any value at all. The summary rebuild's
+        anti-wipe guard: never clear a populated summary on an all-empty rep read. A tab
+        that does not exist yet has no content - checked via metadata first, because a
+        values read on a nonexistent tab raises instead of returning empty."""
+        if self._sheet_id(tab) is None:
+            return False
         return bool(self._get_values(f"{tab}!A1:ZZ"))
 
     def style_header_once(self, tab):
-        """One-time scaffold styling: bold and freeze the header row. Never called on the
-        recurring path - formatting is the operator's after this."""
-        meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
-        sheet_id = None
-        for s in meta.get("sheets", []):
-            if s["properties"]["title"] == tab:
-                sheet_id = s["properties"]["sheetId"]
-                break
-        if sheet_id is None:
-            return
+        """One-time scaffold styling: bold and freeze the header row, creating the tab
+        first if needed so a scaffold on a fresh spreadsheet styles real tabs instead of
+        silently doing nothing. Never called on the recurring path - formatting is the
+        operator's after this."""
+        self._add_tab_if_missing(tab)
+        sheet_id = self._sheet_id(tab)
         self.service.batchUpdate(
             spreadsheetId=self.spreadsheet_id,
             body={"requests": [
@@ -108,6 +108,36 @@ class SheetWriter:
                 }},
             ]},
         ).execute()
+
+    def percent_format_columns_once(self, tab, first_col_index, last_col_index):
+        """One-time scaffold styling: a percent number format on whole columns (0-indexed,
+        end exclusive). The rebuild writes rates as plain numbers; this makes them display
+        as percentages without the recurring path ever touching formatting."""
+        self._add_tab_if_missing(tab)
+        sheet_id = self._sheet_id(tab)
+        self.service.batchUpdate(
+            spreadsheetId=self.spreadsheet_id,
+            body={"requests": [
+                {"repeatCell": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "startColumnIndex": first_col_index,
+                        "endColumnIndex": last_col_index,
+                    },
+                    "cell": {"userEnteredFormat": {
+                        "numberFormat": {"type": "PERCENT", "pattern": "0.0%"},
+                    }},
+                    "fields": "userEnteredFormat.numberFormat",
+                }},
+            ]},
+        ).execute()
+
+    def _sheet_id(self, tab):
+        meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
+        for s in meta.get("sheets", []):
+            if s["properties"]["title"] == tab:
+                return s["properties"]["sheetId"]
+        return None
 
     def clear_tab(self, tab):
         """Clear every value in a tab. Called before writing the summary so stale rows from

@@ -71,12 +71,16 @@ def main(argv=None):
     sheet = SheetWriter(service, config["google_sheet_id"])
 
     if args.scaffold:
-        tabs = list(config["reps"]) + [
-            t for t in [(config.get("stats") or {}).get("summary_tab")] if t
-        ]
+        summary_tab = (config.get("stats") or {}).get("summary_tab")
+        tabs = list(config["reps"]) + ([summary_tab] if summary_tab else [])
         for tab in tabs:
             sheet.style_header_once(tab)
             print(f"  styled: {tab}")
+        if summary_tab:
+            # Columns E:F of the summary hold only the rate cells (written as plain
+            # numbers); the percent format lives here in the one-time step.
+            sheet.percent_format_columns_once(summary_tab, 4, 6)
+            print(f"  percent format: {summary_tab}!E:F")
         print("Scaffold done. Restyle anything freely; runs only ever rewrite values.")
         return
 
@@ -91,7 +95,10 @@ def main(argv=None):
         print(f"Done. {total} new row(s) across {len(results)} rep tab(s).")
 
     if config.get("stats"):
-        grid = rebuild_summary(config, sheet=sheet)
+        # An operator running --stats-only by hand may bypass the all-empty anti-wipe
+        # guard: they are present to judge the result, and the grid is rebuilt from
+        # config, so nothing is lost that the next rebuild cannot re-derive.
+        grid = rebuild_summary(config, sheet=sheet, force=args.stats_only)
         if grid is None:
             print(
                 "Summary rebuild SKIPPED: every rep tab read back empty but the summary "
@@ -99,10 +106,10 @@ def main(argv=None):
                 "tracker; the existing summary was left untouched.",
                 file=sys.stderr,
             )
-        else:
-            print(
-                f"Summary tab '{config['stats']['summary_tab']}' rebuilt as live formulas."
-            )
+            sys.exit(2)  # cron and monitoring must see the suspicious read, not success
+        print(
+            f"Summary tab '{config['stats']['summary_tab']}' rebuilt as live formulas."
+        )
     elif args.stats_only:
         print(
             "--stats-only was passed but config has no 'stats' block; nothing to rebuild.",
