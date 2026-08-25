@@ -74,7 +74,11 @@ class SheetWriter:
     def header_row(self, tab):
         """The tab's live header row (empty list for a missing or blank tab). StatsBuilder
         derives each rep tab's column letters from this, so formulas stay correct for an
-        operator who moved or added columns."""
+        operator who moved or added columns. Checked via metadata first: a values read on
+        a nonexistent tab raises instead of returning empty, and the missing-tab case must
+        reach the caller's create-with-default-header fallback, not crash."""
+        if self._sheet_id(tab) is None:
+            return []
         first_row = self._get_values(f"{tab}!1:1")
         return first_row[0] if first_row else []
 
@@ -94,6 +98,10 @@ class SheetWriter:
         operator's after this."""
         self._add_tab_if_missing(tab)
         sheet_id = self._sheet_id(tab)
+        if sheet_id is None:
+            # Tab vanished between the two metadata reads. A null sheetId would silently
+            # format the spreadsheet's FIRST sheet; failing loudly is the only safe move.
+            raise RuntimeError(f"tab {tab!r} disappeared while styling it; rerun --scaffold")
         self.service.batchUpdate(
             spreadsheetId=self.spreadsheet_id,
             body={"requests": [
@@ -115,6 +123,8 @@ class SheetWriter:
         as percentages without the recurring path ever touching formatting."""
         self._add_tab_if_missing(tab)
         sheet_id = self._sheet_id(tab)
+        if sheet_id is None:
+            raise RuntimeError(f"tab {tab!r} disappeared while styling it; rerun --scaffold")
         self.service.batchUpdate(
             spreadsheetId=self.spreadsheet_id,
             body={"requests": [
@@ -133,9 +143,11 @@ class SheetWriter:
         ).execute()
 
     def _sheet_id(self, tab):
+        # Case-insensitive to match how Sheets treats tab names in A1 ranges, so a
+        # config name differing only in case still finds the real tab.
         meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
         for s in meta.get("sheets", []):
-            if s["properties"]["title"] == tab:
+            if s["properties"]["title"].casefold() == tab.casefold():
                 return s["properties"]["sheetId"]
         return None
 
@@ -170,9 +182,11 @@ class SheetWriter:
         return resp.get("values", [])
 
     def _add_tab_if_missing(self, tab):
+        # Sheets tab names are unique case-insensitively, so the existence check must be
+        # too: an exact-case check misses 'REP A' vs 'Rep A' and the addSheet then 400s.
         meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
-        titles = {s["properties"]["title"] for s in meta.get("sheets", [])}
-        if tab in titles:
+        titles = {s["properties"]["title"].casefold() for s in meta.get("sheets", [])}
+        if tab.casefold() in titles:
             return
         self.service.batchUpdate(
             spreadsheetId=self.spreadsheet_id,

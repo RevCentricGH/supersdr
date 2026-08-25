@@ -91,7 +91,8 @@ The summary holds:
   skew it.
 - **Rep leaderboard** - reps ordered by `stats.leaderboard_metric`: `rate`, `meetings`, or
   `calls`. The ordering is frozen at rebuild time (a sheet cannot sort itself); the values
-  are live formulas.
+  are live formulas. With the `rate` metric, the value sits in column E so the one-time
+  percent format covers it; count metrics sit next to the name in column B.
 
 Tab names, the ICP column and categories, the trend window, the dispositions, the metric, and
 every label are config (`stats` block), so nothing about the summary is hardcoded to one team.
@@ -115,9 +116,11 @@ this contract - no Python runtime needed:
 - **Claude Cowork or ChatGPT** can read the rep tabs to build custom views, charts, or a
   restyled summary on their own tabs.
 
-Two rules keep that safe. Never rewrite an existing row (the tracker's dedup and the
-operator's manual columns both depend on append-only), and never let an interactive session
-write the summary grid (the next rebuild rewrites it). The scheduled Python pipeline stays
+Three rules keep that safe. Never rewrite an existing row (the tracker's dedup and the
+operator's manual columns both depend on append-only). Never let an interactive session
+write the summary grid (the next rebuild rewrites it). And write disposition and ICP values
+exactly - no stray leading or trailing spaces - because the summary's formulas match labels
+whitespace-exactly (case does not matter). The scheduled Python pipeline stays
 the source of truth for bulk ingestion because it carries the hardening - dedup, backoff,
 mark-after-write, the anti-wipe guard - that an ad-hoc session does not.
 

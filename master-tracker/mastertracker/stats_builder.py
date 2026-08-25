@@ -9,7 +9,6 @@ The writer only ever touches cell VALUES in the summary grid. Formatting - color
 fonts, borders, widths, conditional formats - is set up once by ``--scaffold`` and then
 owned by the operator, so anyone can restyle the tracker without a refresh undoing it.
 """
-import re
 from collections import namedtuple
 
 from .call_row_mapper import AUTO_COLUMNS
@@ -73,25 +72,23 @@ def _quote(text):
 
 
 def _criteria(text):
-    """Double-quote a COUNTIF criteria literal. COUNTIF treats * ? ~ as wildcards, so a
-    label containing them would silently become a pattern match; escape them so the
-    criteria matches the label literally, like the SUMPRODUCT comparisons do."""
+    """A COUNTIF criteria that matches the label LITERALLY, exactly like the SUMPRODUCT
+    `=` comparisons. Two traps: COUNTIF treats * ? ~ as wildcards (escaped with ~), and a
+    label starting with > < or = would parse as a comparison operator with no tilde-style
+    escape - so the criteria is emitted as `"="&"label"`, which forces equality against
+    the whole string no matter what it starts with."""
     escaped = str(text).replace("~", "~~").replace("*", "~*").replace("?", "~?")
-    return _quote(escaped)
-
-
-# Strings Sheets would coerce or execute if entered as USER_ENTERED: formula openers,
-# pure numbers, date-ish digit pairs, and booleans.
-_COERCIBLE_RE = re.compile(r"^[=+\-@]|^\d+([./-]\d+)*$|^(?i:true|false)$")
+    return '"="&' + _quote(escaped)
 
 
 def _literal(text):
     """Guard a label cell so USER_ENTERED cannot coerce or execute it. Discovered ICP
-    categories come from rep-tab cells the data contract invites anyone to write; a value
-    like '=IMPORTRANGE(...)' or '1-10' must land as text, not as a formula or a date. The
-    leading apostrophe is Sheets' own text-escape and does not display."""
-    s = str(text)
-    return "'" + s if _COERCIBLE_RE.match(s) else s
+    categories come from rep-tab cells the data contract invites anyone to write, and
+    Sheets coerces far more shapes than are worth enumerating (formulas, numbers, dates,
+    times, percents, currency, booleans), so EVERY label gets the apostrophe guard -
+    Sheets' own text-escape, invisible on plain text, and it round-trips a label that
+    itself starts with an apostrophe."""
+    return "'" + str(text)
 
 
 class StatsBuilder:
@@ -116,14 +113,23 @@ class StatsBuilder:
             ("stats.meeting_dispositions", meeting_dispositions),
             ("stats.qualified_dispositions", qualified_dispositions),
         ):
-            if value is not None and not isinstance(value, (list, tuple)):
+            if value is None:
+                continue
+            if not isinstance(value, (list, tuple)) or any(
+                not isinstance(item, str) for item in value
+            ):
                 raise ValueError(f"{name} must be a list of strings, got {value!r}")
         if trend_weeks is not None:
-            try:
-                trend_weeks = int(trend_weeks)
-            except (TypeError, ValueError):
-                raise ValueError(f"stats.trend_weeks must be a positive integer, got {trend_weeks!r}")
-            if trend_weeks < 1:
+            # bool is an int subclass and int() truncates floats; both would silently
+            # reshape the trends section, so only ints and digit strings are accepted.
+            ok = isinstance(trend_weeks, int) and not isinstance(trend_weeks, bool)
+            if not ok and isinstance(trend_weeks, str):
+                try:
+                    trend_weeks = int(trend_weeks)
+                    ok = True
+                except ValueError:
+                    pass
+            if not ok or trend_weeks < 1:
                 raise ValueError(f"stats.trend_weeks must be a positive integer, got {trend_weeks!r}")
         self.icp_column = icp_column
         self.disposition_column = disposition_column or self.DEFAULT_DISPOSITION_COLUMN
@@ -221,7 +227,11 @@ class StatsBuilder:
     # ---- live-read helpers (ordering + ICP discovery only) --------------------------
 
     def _disposition(self, row):
-        return (row.get(self.disposition_column) or "").strip().lower()
+        # Lowercased but NOT stripped: the sheet formulas (COUNTIF equality, SUMPRODUCT
+        # `=`) are case-insensitive and whitespace-exact, and the Python-side ordering
+        # must classify rows exactly as the displayed formulas will count them - a
+        # stripped match here once ranked a rep first while their row displayed 0.
+        return (row.get(self.disposition_column) or "").lower()
 
     def _is_meeting(self, row):
         return self._disposition(row) in self.meeting_dispositions
@@ -260,9 +270,16 @@ class StatsBuilder:
         """The configured category list, or categories discovered from the live rows
         (by descending count) when none is configured. Case variants ("SaaS"/"Saas")
         merge into one category - COUNTIF matches case-insensitively, so writing both
-        would double-count every row into each - keeping the most common spelling."""
+        would double-count every row into each. A configured list keeps its first
+        spelling; discovery keeps the most common."""
         if self.icp_categories:
-            return list(self.icp_categories)
+            seen, unique = set(), []
+            for cat in self.icp_categories:
+                if cat.casefold() in seen:
+                    continue
+                seen.add(cat.casefold())
+                unique.append(cat)
+            return unique
         counts = {}  # casefolded -> {spelling -> count}
         for rows in rep_rows.values():
             for row in rows:
@@ -352,9 +369,19 @@ class StatsBuilder:
 
         grid.append([])
         grid.append([labels["leaderboard_header"]])
-        grid.append([labels["leaderboard_rep_col"], labels["leaderboard_metric_col"]])
-        for rep in ranked:
-            grid.append([_literal(rep), self._leaderboard_value(rep, layouts[rep])])
+        # The rate metric writes a real 0..1 number, so its value lives in column E,
+        # which --scaffold percent-formats (column B holds integer counts elsewhere in
+        # the grid and cannot carry a percent format). Count metrics stay in column B.
+        if self.leaderboard_metric == "rate":
+            grid.append([labels["leaderboard_rep_col"], "", "", "",
+                         labels["leaderboard_metric_col"]])
+            for rep in ranked:
+                grid.append([_literal(rep), "", "", "",
+                             self._leaderboard_value(rep, layouts[rep])])
+        else:
+            grid.append([labels["leaderboard_rep_col"], labels["leaderboard_metric_col"]])
+            for rep in ranked:
+                grid.append([_literal(rep), self._leaderboard_value(rep, layouts[rep])])
         return grid
 
 

@@ -72,8 +72,9 @@ def test_configured_icp_categories_write_countif_formulas_across_reps():
     layouts = {"Rep A": LAYOUT, "Rep B": LAYOUT}
     grid = b.build_grid(layouts, {"Rep A": [], "Rep B": []})
     rows = _section(grid, "ICP Breakdown")[1:]  # skip column headers
-    assert [r[0] for r in rows] == ["Founder", "VP Sales"]
-    assert rows[0][1] == '=COUNTIF(\'Rep A\'!F2:F,"Founder")+COUNTIF(\'Rep B\'!F2:F,"Founder")'
+    # labels carry the invisible apostrophe text-guard; criteria force equality with "="&
+    assert [r[0] for r in rows] == ["'Founder", "'VP Sales"]
+    assert rows[0][1] == '=COUNTIF(\'Rep A\'!F2:F,"="&"Founder")+COUNTIF(\'Rep B\'!F2:F,"="&"Founder")'
 
 
 def test_unconfigured_icp_categories_are_discovered_from_live_rows_by_count():
@@ -81,8 +82,23 @@ def test_unconfigured_icp_categories_are_discovered_from_live_rows_by_count():
     rep_rows = {"Rep A": [_row(icp="Founder"), _row(icp="Founder"), _row(icp="CEO")]}
     grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
     rows = _section(grid, "ICP Breakdown")[1:]
-    assert [r[0] for r in rows] == ["Founder", "CEO"]
+    assert [r[0] for r in rows] == ["'Founder", "'CEO"]
     assert rows[0][1].startswith("=COUNTIF")
+
+
+def test_configured_case_variant_categories_are_deduped():
+    # COUNTIF is case-insensitive: two case variants would each count the union
+    b = _builder(icp_categories=["SaaS", "Saas", "CEO"])
+    grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
+    labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
+    assert labels == ["'SaaS", "'CEO"]
+
+
+def test_operator_leading_labels_match_literally_not_as_comparisons():
+    # a label starting with > < or = would otherwise parse as a COUNTIF comparison
+    b = _builder(icp_categories=[">$1M ARR"])
+    grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
+    assert '"="&">$1M ARR"' in _section(grid, "ICP Breakdown")[1][1]
 
 
 def test_rep_tab_without_an_icp_column_is_excluded_from_icp_formulas():
@@ -122,9 +138,9 @@ def test_rates_rows_are_formulas_with_row_relative_rate_cells():
     grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
     rows = _section(grid, "Conversion Rates")
     rep_row = rows[1]  # after the column-header row
-    sheet_row = next(i for i, r in enumerate(grid) if r and r[0] == "Rep A") + 1
+    sheet_row = next(i for i, r in enumerate(grid) if r and r[0] == "'Rep A") + 1
     assert rep_row[1] == "=COUNTA('Rep A'!C2:C)"
-    assert rep_row[3] == '=COUNTIF(\'Rep A\'!C2:C,"Meeting Booked")'
+    assert rep_row[3] == '=COUNTIF(\'Rep A\'!C2:C,"="&"Meeting Booked")'
     # real numbers with a zero-denominator guard, not TEXT() strings, so the operator
     # can chart, sort, and percent-format them
     assert rep_row[4] == f"=IF(B{sheet_row}=0,0,D{sheet_row}/B{sheet_row})"
@@ -158,7 +174,7 @@ def test_reps_are_ranked_by_live_conversion_rate():
     layouts = {"Low": LAYOUT, "High": LAYOUT}
     grid = b.build_grid(layouts, rep_rows)
     rows = _section(grid, "Conversion Rates")[1:]
-    assert [r[0] for r in rows][:2] == ["High", "Low"]
+    assert [r[0] for r in rows][:2] == ["'High", "'Low"]  # labels carry the text-guard
 
 
 # ---- leaderboard ---------------------------------------------------------------------
@@ -168,9 +184,14 @@ def test_leaderboard_metric_formulas_per_mode():
     rate = _builder().build_grid(layouts, {"Rep A": []})
     meetings = _builder(leaderboard_metric="meetings").build_grid(layouts, {"Rep A": []})
     calls = _builder(leaderboard_metric="calls").build_grid(layouts, {"Rep A": []})
-    rate_value = _section(rate, "Rep Leaderboard")[1][1]
+    # the rate value lives in column E, which --scaffold percent-formats; column B holds
+    # integer counts elsewhere in the grid and cannot carry a percent format
+    rate_rows = _section(rate, "Rep Leaderboard")
+    assert rate_rows[0][4] == "Activity" and rate_rows[0][1] == ""  # metric label in col E
+    rate_value = rate_rows[1][4]
     assert rate_value.startswith("=IF((") and "TEXT" not in rate_value  # a real number
-    assert _section(meetings, "Rep Leaderboard")[1][1] == '=COUNTIF(\'Rep A\'!C2:C,"Meeting Booked")'
+    assert rate_rows[1][1] == ""
+    assert _section(meetings, "Rep Leaderboard")[1][1] == '=COUNTIF(\'Rep A\'!C2:C,"="&"Meeting Booked")'
     # calls = ALL tracked rows: counted on the always-populated Date column so the display
     # agrees with the ranking, which counts rows whether or not they have a disposition yet
     assert _section(calls, "Rep Leaderboard")[1][1] == "=COUNTA('Rep A'!A2:A)"
@@ -195,8 +216,8 @@ def test_rep_names_with_apostrophes_and_quoted_dispositions_are_escaped():
 def test_countif_wildcards_in_labels_are_escaped_to_match_literally():
     b = _builder(meeting_dispositions=["Meet?ng*"], icp_categories=["VP*Sales"])
     grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
-    assert '"Meet~?ng~*"' in _section(grid, "Conversion Rates")[1][3]
-    assert '"VP~*Sales"' in _section(grid, "ICP Breakdown")[1][1]
+    assert '"="&"Meet~?ng~*"' in _section(grid, "Conversion Rates")[1][3]
+    assert '"="&"VP~*Sales"' in _section(grid, "ICP Breakdown")[1][1]
 
 
 def test_discovered_category_labels_cannot_execute_as_formulas():
@@ -216,7 +237,7 @@ def test_discovered_case_variants_merge_into_one_category():
     rep_rows = {"Rep A": [_row(icp="SaaS"), _row(icp="SaaS"), _row(icp="Saas")]}
     grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
     labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
-    assert labels == ["SaaS"]
+    assert labels == ["'SaaS"]
 
 
 # ---- config validation ---------------------------------------------------------------
@@ -226,12 +247,23 @@ def test_string_list_fields_are_rejected_with_a_clear_error():
         _builder(icp_categories="Founder")
 
 
+def test_non_string_list_elements_are_rejected_with_a_clear_error():
+    with pytest.raises(ValueError, match="icp_categories"):
+        _builder(icp_categories=[1, 2])
+    with pytest.raises(ValueError, match="meeting_dispositions"):
+        _builder(meeting_dispositions=["Meeting Booked", 5])
+
+
 def test_trend_weeks_accepts_digit_strings_and_rejects_garbage():
     assert _builder(trend_weeks="4").trend_weeks == 4
     with pytest.raises(ValueError, match="trend_weeks"):
         _builder(trend_weeks="ten")
     with pytest.raises(ValueError, match="trend_weeks"):
         _builder(trend_weeks=-4)
+    with pytest.raises(ValueError, match="trend_weeks"):
+        _builder(trend_weeks=True)  # a misplaced flag must not become 1 trend week
+    with pytest.raises(ValueError, match="trend_weeks"):
+        _builder(trend_weeks=10.9)  # must not silently truncate
 
 
 def test_monday_safe_week_base():
