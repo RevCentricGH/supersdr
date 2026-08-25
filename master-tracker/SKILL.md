@@ -80,7 +80,9 @@ The summary holds:
 
 - **ICP breakdown** - one `COUNTIF` row per category against your ICP column across all rep
   tabs. Set `stats.icp_categories` for a fixed list (stable formulas); leave it unset and
-  categories are discovered from the live rows at each rebuild instead.
+  categories are discovered from the live rows at each rebuild instead. The section is
+  padded to a fixed `stats.icp_rows` height (default 12); more categories than fit shows
+  an on-sheet "(+N more)" note rather than a silent cap.
 - **Meeting trends** - a rolling window of `stats.trend_weeks` weeks (default 10), oldest
   first, counting `stats.meeting_dispositions` rows per week. Week boundaries come from
   `TODAY()` in the sheet, so the window slides by itself.
@@ -93,6 +95,14 @@ The summary holds:
   `calls`. The ordering is frozen at rebuild time (a sheet cannot sort itself); the values
   are live formulas. With the `rate` metric, the value sits in column E so the one-time
   percent format covers it; count metrics sit next to the name in column B.
+
+**The grid's shape is fixed for a given config.** Sections sit at the same rows on every
+rebuild (the ICP section is padded to `stats.icp_rows`; the rest is sized by config), because
+Sheets strips a cell's number format whenever a text value lands in it - if sections shifted
+with the data, every rebuild would march labels through formula cells and eat formats one at
+a time. With a fixed shape, formatting set once survives indefinitely. If you change the
+shape in config (reps, `trend_weeks`, `icp_rows`), rerun `--scaffold` once afterward to
+re-apply the percent format.
 
 Tab names, the ICP column and categories, the trend window, the dispositions, the metric, and
 every label are config (`stats` block), so nothing about the summary is hardcoded to one team.
@@ -116,11 +126,13 @@ this contract - no Python runtime needed:
 - **Claude Cowork or ChatGPT** can read the rep tabs to build custom views, charts, or a
   restyled summary on their own tabs.
 
-Three rules keep that safe. Never rewrite an existing row (the tracker's dedup and the
+Four rules keep that safe. Never rewrite an existing row (the tracker's dedup and the
 operator's manual columns both depend on append-only). Never let an interactive session
-write the summary grid (the next rebuild rewrites it). And write disposition and ICP values
+write the summary grid (the next rebuild rewrites it). Write disposition and ICP values
 exactly - no stray leading or trailing spaces - because the summary's formulas match labels
-whitespace-exactly (case does not matter). The scheduled Python pipeline stays
+whitespace-exactly (case does not matter). And when appending via the Sheets API, use
+`insertDataOption=OVERWRITE`, never `INSERT_ROWS`: inserting grid rows makes Sheets shift
+the summary's live `C2:C`-style references so they silently stop counting new rows. The scheduled Python pipeline stays
 the source of truth for bulk ingestion because it carries the hardening - dedup, backoff,
 mark-after-write, the anti-wipe guard - that an ad-hoc session does not.
 

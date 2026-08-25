@@ -13,6 +13,14 @@ the OAuth flow and hands in a built ``spreadsheets()`` service.
 """
 
 
+class Formula(str):
+    """Marks a grid cell that must be ENTERED as a formula (USER_ENTERED). Every other
+    cell is written RAW, which stores the exact string: labels can never execute, never
+    coerce into dates or numbers, and never clobber a cell's number format the way
+    USER_ENTERED text entry does. Formulas are distinguished by this type, not by
+    startswith('='), so a discovered label that happens to begin with '=' stays text."""
+
+
 class SheetWriter:
     def __init__(self, service, spreadsheet_id):
         self.service = service
@@ -51,11 +59,16 @@ class SheetWriter:
         return keys
 
     def append_row(self, tab, values_list):
+        # OVERWRITE, never INSERT_ROWS: inserting grid rows makes Sheets shift every
+        # existing formula reference that spans them, so the summary's live 'Rep'!C2:C
+        # ranges would silently become C5:C after three appends and count nothing.
+        # OVERWRITE fills empty rows below the table (growing the grid only at the very
+        # bottom, which shifts no references) and still never rewrites existing rows.
         self.service.values().append(
             spreadsheetId=self.spreadsheet_id,
             range=f"{tab}!A1",
             valueInputOption="USER_ENTERED",
-            insertDataOption="INSERT_ROWS",
+            insertDataOption="OVERWRITE",
             body={"values": [values_list]},
         ).execute()
 
@@ -162,16 +175,23 @@ class SheetWriter:
         ).execute()
 
     def write_grid(self, tab, values_2d):
-        """Write a 2D block starting at A1. USER_ENTERED so the summary's live formulas
-        are entered as formulas; values.update touches cell values only, never
-        formatting, so the operator's styling survives every rebuild."""
+        """Write a 2D block starting at A1, in two passes over disjoint cells: plain
+        cells RAW (exact text, no coercion, no execution, number formats untouched) and
+        ``Formula`` cells USER_ENTERED (entered as live formulas). A None cell in an
+        update is skipped, which is what keeps the two passes disjoint. Values only,
+        never formatting, so the operator's styling survives every rebuild."""
         self._add_tab_if_missing(tab)
-        self.service.values().update(
-            spreadsheetId=self.spreadsheet_id,
-            range=f"{tab}!A1",
-            valueInputOption="USER_ENTERED",
-            body={"values": values_2d},
-        ).execute()
+        raw = [[None if isinstance(c, Formula) else c for c in row] for row in values_2d]
+        formulas = [[str(c) if isinstance(c, Formula) else None for c in row] for row in values_2d]
+        for grid, mode in ((raw, "RAW"), (formulas, "USER_ENTERED")):
+            if not any(c is not None for row in grid for c in row):
+                continue
+            self.service.values().update(
+                spreadsheetId=self.spreadsheet_id,
+                range=f"{tab}!A1",
+                valueInputOption=mode,
+                body={"values": grid},
+            ).execute()
 
     def _get_values(self, rng):
         resp = (

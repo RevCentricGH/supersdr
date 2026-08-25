@@ -2,6 +2,7 @@
 live-read rows only order the sections and discover ICP categories (contract 20, 21, 22)."""
 import pytest
 
+from mastertracker.sheet_writer import Formula
 from mastertracker.stats_builder import (
     RepLayout,
     StatsBuilder,
@@ -40,6 +41,11 @@ def _section(grid, header):
     return rows
 
 
+def _data_rows(section_rows):
+    """Section rows with the fixed-shape blank padding stripped."""
+    return [r for r in section_rows if any(str(c) != "" for c in r)]
+
+
 # ---- column-letter and layout discovery ---------------------------------------------
 
 def test_col_letter_covers_single_and_double_letters():
@@ -71,9 +77,9 @@ def test_configured_icp_categories_write_countif_formulas_across_reps():
     b = _builder(icp_categories=["Founder", "VP Sales"])
     layouts = {"Rep A": LAYOUT, "Rep B": LAYOUT}
     grid = b.build_grid(layouts, {"Rep A": [], "Rep B": []})
-    rows = _section(grid, "ICP Breakdown")[1:]  # skip column headers
-    # labels carry the invisible apostrophe text-guard; criteria force equality with "="&
-    assert [r[0] for r in rows] == ["'Founder", "'VP Sales"]
+    rows = _data_rows(_section(grid, "ICP Breakdown")[1:])  # skip headers + padding
+    # labels are plain text (written RAW); criteria force equality with "="&
+    assert [r[0] for r in rows] == ["Founder", "VP Sales"]
     assert rows[0][1] == '=COUNTIF(\'Rep A\'!F2:F,"="&"Founder")+COUNTIF(\'Rep B\'!F2:F,"="&"Founder")'
 
 
@@ -81,8 +87,8 @@ def test_unconfigured_icp_categories_are_discovered_from_live_rows_by_count():
     b = _builder()
     rep_rows = {"Rep A": [_row(icp="Founder"), _row(icp="Founder"), _row(icp="CEO")]}
     grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
-    rows = _section(grid, "ICP Breakdown")[1:]
-    assert [r[0] for r in rows] == ["'Founder", "'CEO"]
+    rows = _data_rows(_section(grid, "ICP Breakdown")[1:])
+    assert [r[0] for r in rows] == ["Founder", "CEO"]
     assert rows[0][1].startswith("=COUNTIF")
 
 
@@ -90,8 +96,8 @@ def test_configured_case_variant_categories_are_deduped():
     # COUNTIF is case-insensitive: two case variants would each count the union
     b = _builder(icp_categories=["SaaS", "Saas", "CEO"])
     grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
-    labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
-    assert labels == ["'SaaS", "'CEO"]
+    labels = [r[0] for r in _data_rows(_section(grid, "ICP Breakdown")[1:])]
+    assert labels == ["SaaS", "CEO"]
 
 
 def test_operator_leading_labels_match_literally_not_as_comparisons():
@@ -99,6 +105,32 @@ def test_operator_leading_labels_match_literally_not_as_comparisons():
     b = _builder(icp_categories=[">$1M ARR"])
     grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
     assert '"="&">$1M ARR"' in _section(grid, "ICP Breakdown")[1][1]
+
+
+def test_grid_shape_is_fixed_regardless_of_discovered_category_count():
+    # Sheets strips number formats when text lands in a formatted cell, so section
+    # positions must not move with the data: 0 vs 3 discovered categories, same shape
+    b = _builder()
+    none = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
+    three = b.build_grid({"Rep A": LAYOUT}, {"Rep A": [
+        _row(icp="Founder"), _row(icp="CEO"), _row(icp="CRO")]})
+    assert len(none) == len(three)
+    assert [i for i, r in enumerate(none) if r and r[0] == "Conversion Rates"] == \
+           [i for i, r in enumerate(three) if r and r[0] == "Conversion Rates"]
+
+
+def test_icp_overflow_is_stated_on_the_sheet_not_silently_capped():
+    b = _builder(icp_rows=3)
+    rep_rows = {"Rep A": [_row(icp=c) for c in ["A1", "B2", "C3", "D4", "E5"]]}
+    grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
+    rows = _data_rows(_section(grid, "ICP Breakdown")[1:])
+    assert len(rows) == 3  # capacity holds
+    assert "(+3 more - raise stats.icp_rows)" in [r[0] for r in rows]
+
+
+def test_icp_rows_defaults_grow_to_fit_the_configured_list():
+    b = _builder(icp_categories=[f"cat{i}" for i in range(15)])
+    assert b.icp_rows == 15
 
 
 def test_rep_tab_without_an_icp_column_is_excluded_from_icp_formulas():
@@ -138,7 +170,7 @@ def test_rates_rows_are_formulas_with_row_relative_rate_cells():
     grid = b.build_grid({"Rep A": LAYOUT}, {"Rep A": []})
     rows = _section(grid, "Conversion Rates")
     rep_row = rows[1]  # after the column-header row
-    sheet_row = next(i for i, r in enumerate(grid) if r and r[0] == "'Rep A") + 1
+    sheet_row = next(i for i, r in enumerate(grid) if r and r[0] == "Rep A") + 1
     assert rep_row[1] == "=COUNTA('Rep A'!C2:C)"
     assert rep_row[3] == '=COUNTIF(\'Rep A\'!C2:C,"="&"Meeting Booked")'
     # real numbers with a zero-denominator guard, not TEXT() strings, so the operator
@@ -174,7 +206,7 @@ def test_reps_are_ranked_by_live_conversion_rate():
     layouts = {"Low": LAYOUT, "High": LAYOUT}
     grid = b.build_grid(layouts, rep_rows)
     rows = _section(grid, "Conversion Rates")[1:]
-    assert [r[0] for r in rows][:2] == ["'High", "'Low"]  # labels carry the text-guard
+    assert [r[0] for r in rows][:2] == ["High", "Low"]
 
 
 # ---- leaderboard ---------------------------------------------------------------------
@@ -221,14 +253,16 @@ def test_countif_wildcards_in_labels_are_escaped_to_match_literally():
 
 
 def test_discovered_category_labels_cannot_execute_as_formulas():
-    # the label cell is apostrophe-guarded so USER_ENTERED writes it as text; the
-    # COUNTIF criteria still quotes the original value
+    # only cells marked Formula are entered as formulas (USER_ENTERED); every label is
+    # written RAW, so a discovered value that LOOKS like a formula stays inert text
     b = _builder()
     rep_rows = {"Rep A": [_row(icp="=IMPORTRANGE(evil)"), _row(icp="1-10")]}
     grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
-    labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
-    assert "'=IMPORTRANGE(evil)" in labels
-    assert "'1-10" in labels
+    rows = _data_rows(_section(grid, "ICP Breakdown")[1:])
+    labels = [r[0] for r in rows]
+    assert "=IMPORTRANGE(evil)" in labels and "1-10" in labels
+    assert all(not isinstance(label, Formula) for label in labels)
+    assert all(isinstance(r[1], Formula) for r in rows)  # the counts ARE formulas
 
 
 def test_discovered_case_variants_merge_into_one_category():
@@ -236,8 +270,8 @@ def test_discovered_case_variants_merge_into_one_category():
     b = _builder()
     rep_rows = {"Rep A": [_row(icp="SaaS"), _row(icp="SaaS"), _row(icp="Saas")]}
     grid = b.build_grid({"Rep A": LAYOUT}, rep_rows)
-    labels = [r[0] for r in _section(grid, "ICP Breakdown")[1:]]
-    assert labels == ["'SaaS"]
+    labels = [r[0] for r in _data_rows(_section(grid, "ICP Breakdown")[1:])]
+    assert labels == ["SaaS"]
 
 
 # ---- config validation ---------------------------------------------------------------

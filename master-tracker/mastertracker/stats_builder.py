@@ -12,6 +12,7 @@ owned by the operator, so anyone can restyle the tracker without a refresh undoi
 from collections import namedtuple
 
 from .call_row_mapper import AUTO_COLUMNS
+from .sheet_writer import Formula
 
 # Generic English fallbacks. Every label is overridable from config; none names a specific
 # organization, team, or rep, so the skill works unchanged for any operator.
@@ -71,6 +72,23 @@ def _quote(text):
     return '"' + str(text).replace('"', '""') + '"'
 
 
+def _positive_int(name, value):
+    """Validate a config int. bool is an int subclass and int() truncates floats; both
+    would silently reshape a summary section, so only ints and digit strings pass."""
+    if value is None:
+        return None
+    ok = isinstance(value, int) and not isinstance(value, bool)
+    if not ok and isinstance(value, str):
+        try:
+            value = int(value)
+            ok = True
+        except ValueError:
+            pass
+    if not ok or value < 1:
+        raise ValueError(f"{name} must be a positive integer, got {value!r}")
+    return value
+
+
 def _criteria(text):
     """A COUNTIF criteria that matches the label LITERALLY, exactly like the SUMPRODUCT
     `=` comparisons. Two traps: COUNTIF treats * ? ~ as wildcards (escaped with ~), and a
@@ -81,24 +99,15 @@ def _criteria(text):
     return '"="&' + _quote(escaped)
 
 
-def _literal(text):
-    """Guard a label cell so USER_ENTERED cannot coerce or execute it. Discovered ICP
-    categories come from rep-tab cells the data contract invites anyone to write, and
-    Sheets coerces far more shapes than are worth enumerating (formulas, numbers, dates,
-    times, percents, currency, booleans), so EVERY label gets the apostrophe guard -
-    Sheets' own text-escape, invisible on plain text, and it round-trips a label that
-    itself starts with an apostrophe."""
-    return "'" + str(text)
-
-
 class StatsBuilder:
     LEADERBOARD_METRICS = ("calls", "meetings", "rate")
     DEFAULT_DISPOSITION_COLUMN = "Disposition"
     DEFAULT_TREND_WEEKS = 10
+    DEFAULT_ICP_ROWS = 12
 
     def __init__(self, *, icp_column, meeting_dispositions, leaderboard_metric="calls",
                  disposition_column=None, labels=None, qualified_dispositions=None,
-                 icp_categories=None, trend_weeks=None):
+                 icp_categories=None, trend_weeks=None, icp_rows=None):
         if leaderboard_metric not in self.LEADERBOARD_METRICS:
             raise ValueError(
                 f"unknown leaderboard_metric {leaderboard_metric!r}; "
@@ -119,18 +128,8 @@ class StatsBuilder:
                 not isinstance(item, str) for item in value
             ):
                 raise ValueError(f"{name} must be a list of strings, got {value!r}")
-        if trend_weeks is not None:
-            # bool is an int subclass and int() truncates floats; both would silently
-            # reshape the trends section, so only ints and digit strings are accepted.
-            ok = isinstance(trend_weeks, int) and not isinstance(trend_weeks, bool)
-            if not ok and isinstance(trend_weeks, str):
-                try:
-                    trend_weeks = int(trend_weeks)
-                    ok = True
-                except ValueError:
-                    pass
-            if not ok or trend_weeks < 1:
-                raise ValueError(f"stats.trend_weeks must be a positive integer, got {trend_weeks!r}")
+        trend_weeks = _positive_int("stats.trend_weeks", trend_weeks)
+        icp_rows = _positive_int("stats.icp_rows", icp_rows)
         self.icp_column = icp_column
         self.disposition_column = disposition_column or self.DEFAULT_DISPOSITION_COLUMN
         # Preserve configured order and casing for the formulas; the lowercased sets are
@@ -147,6 +146,7 @@ class StatsBuilder:
         # next rebuild rather than live).
         self.icp_categories = [c.strip() for c in (icp_categories or []) if c and c.strip()]
         self.trend_weeks = trend_weeks or self.DEFAULT_TREND_WEEKS
+        self.icp_rows = icp_rows or max(self.DEFAULT_ICP_ROWS, len(self.icp_categories))
         self.labels = {**DEFAULT_LABELS, **(labels or {})}
 
     @classmethod
@@ -161,6 +161,7 @@ class StatsBuilder:
             labels=stats.get("labels"),
             icp_categories=stats.get("icp_categories"),
             trend_weeks=stats.get("trend_weeks"),
+            icp_rows=stats.get("icp_rows"),
         )
 
     # ---- formula fragments (no leading =) ------------------------------------------
@@ -197,7 +198,7 @@ class StatsBuilder:
                 continue
             col = layout.icp
             parts.append(f"COUNTIF({_tab_ref(rep)}!{col}2:{col},{_criteria(category)})")
-        return "=" + "+".join(parts) if parts else "0"
+        return Formula("=" + "+".join(parts)) if parts else 0
 
     def _week_base(self, weeks_ago):
         # Monday of the current week, minus N weeks. WEEKDAY(x,3) maps Monday to 0, so
@@ -208,11 +209,11 @@ class StatsBuilder:
 
     def _week_label(self, weeks_ago):
         base = self._week_base(weeks_ago)
-        return f'=TEXT({base},"M/D")&" - "&TEXT({base}+6,"M/D")'
+        return Formula(f'=TEXT({base},"M/D")&" - "&TEXT({base}+6,"M/D")')
 
     def _week_meetings(self, weeks_ago, layouts):
         if not self.meeting_disposition_list:
-            return "0"
+            return 0
         base = self._week_base(weeks_ago)
         parts = []
         for rep, layout in layouts.items():
@@ -222,7 +223,7 @@ class StatsBuilder:
                 f"({dispo}={_quote(d)})" for d in self.meeting_disposition_list
             )
             parts.append(f"SUMPRODUCT(({dates}>={base})*({dates}<={base}+6)*({is_meeting}))")
-        return "=" + "+".join(parts)
+        return Formula("=" + "+".join(parts))
 
     # ---- live-read helpers (ordering + ICP discovery only) --------------------------
 
@@ -297,17 +298,17 @@ class StatsBuilder:
 
     def _leaderboard_value(self, rep, layout):
         if self.leaderboard_metric == "meetings":
-            return "=" + self._meetings(rep, layout)
+            return Formula("=" + self._meetings(rep, layout))
         if self.leaderboard_metric == "calls":
             # All tracked rows, counted on the always-populated Date column so the
             # display agrees with the ranking - COUNTA of the disposition column would
             # silently exclude rows still awaiting a disposition.
-            return f"=COUNTA({self._date_range(rep, layout)})"
+            return Formula(f"=COUNTA({self._date_range(rep, layout)})")
         # A real number (0..1), not a TEXT() string: values stay chartable and sortable,
         # and presentation belongs to the operator's formatting layer.
         meetings = self._meetings(rep, layout)
         qualified = self._qualified(rep, layout)
-        return f"=IF(({qualified})=0,0,({meetings})/({qualified}))"
+        return Formula(f"=IF(({qualified})=0,0,({meetings})/({qualified}))")
 
     # ---- grid assembly ---------------------------------------------------------------
 
@@ -317,14 +318,34 @@ class StatsBuilder:
         ``layouts`` maps rep name -> RepLayout (that tab's live column letters);
         ``rep_rows`` maps rep name -> rows read at rebuild time, used only to order
         sections and (without a configured list) discover ICP categories.
+
+        The grid's SHAPE is fixed for a given config: the ICP section is padded (or
+        truncated with an on-sheet note) to exactly ``icp_rows`` rows, trends to
+        ``trend_weeks``, and the rates/leaderboard sections are sized by the config rep
+        list. Sheets strips a cell's number format whenever a text value lands in it, so
+        if sections shifted with the data, each rebuild would march labels through
+        formula cells and eat the operator's formats one rebuild at a time. With a fixed
+        shape, every cell holds the same KIND of content on every rebuild, and
+        formatting set once survives indefinitely.
         """
         labels = self.labels
         grid = []
 
         grid.append([labels["icp_header"]])
         grid.append([labels["icp_category_col"], labels["icp_count_col"]])
-        for category in self.icp_category_list(rep_rows):
-            grid.append([_literal(category), self._icp_count(category, layouts)])
+        categories = self.icp_category_list(rep_rows)
+        if len(categories) > self.icp_rows:
+            overflow = len(categories) - (self.icp_rows - 1)
+            categories = categories[: self.icp_rows - 1]
+        else:
+            overflow = 0
+        for category in categories:
+            grid.append([category, self._icp_count(category, layouts)])
+        if overflow:
+            # Never a silent cap: the overflow is stated on the sheet itself.
+            grid.append([f"(+{overflow} more - raise stats.icp_rows)", ""])
+        for _ in range(self.icp_rows - len(categories) - (1 if overflow else 0)):
+            grid.append(["", ""])
 
         grid.append([])
         grid.append([labels["trends_header"]])
@@ -346,12 +367,12 @@ class StatsBuilder:
             row_num = first_data_row + offset
             layout = layouts[rep]
             grid.append([
-                _literal(rep),
-                "=" + self._conversations(rep, layout),
-                "=" + self._qualified(rep, layout),
-                "=" + self._meetings(rep, layout),
-                f"=IF(B{row_num}=0,0,D{row_num}/B{row_num})",
-                f"=IF(C{row_num}=0,0,D{row_num}/C{row_num})",
+                rep,
+                Formula("=" + self._conversations(rep, layout)),
+                Formula("=" + self._qualified(rep, layout)),
+                Formula("=" + self._meetings(rep, layout)),
+                Formula(f"=IF(B{row_num}=0,0,D{row_num}/B{row_num})"),
+                Formula(f"=IF(C{row_num}=0,0,D{row_num}/C{row_num})"),
             ])
         # Overall row: summed numerators over summed denominators via the cells above,
         # NOT the mean of per-rep rates, so a low-volume rep cannot skew it.
@@ -360,11 +381,11 @@ class StatsBuilder:
         if ranked:
             grid.append([
                 labels["rates_overall_row"],
-                f"=SUM(B{first_data_row}:B{last_data_row})",
-                f"=SUM(C{first_data_row}:C{last_data_row})",
-                f"=SUM(D{first_data_row}:D{last_data_row})",
-                f"=IF(B{overall_row}=0,0,D{overall_row}/B{overall_row})",
-                f"=IF(C{overall_row}=0,0,D{overall_row}/C{overall_row})",
+                Formula(f"=SUM(B{first_data_row}:B{last_data_row})"),
+                Formula(f"=SUM(C{first_data_row}:C{last_data_row})"),
+                Formula(f"=SUM(D{first_data_row}:D{last_data_row})"),
+                Formula(f"=IF(B{overall_row}=0,0,D{overall_row}/B{overall_row})"),
+                Formula(f"=IF(C{overall_row}=0,0,D{overall_row}/C{overall_row})"),
             ])
 
         grid.append([])
@@ -376,12 +397,12 @@ class StatsBuilder:
             grid.append([labels["leaderboard_rep_col"], "", "", "",
                          labels["leaderboard_metric_col"]])
             for rep in ranked:
-                grid.append([_literal(rep), "", "", "",
+                grid.append([rep, "", "", "",
                              self._leaderboard_value(rep, layouts[rep])])
         else:
             grid.append([labels["leaderboard_rep_col"], labels["leaderboard_metric_col"]])
             for rep in ranked:
-                grid.append([_literal(rep), self._leaderboard_value(rep, layouts[rep])])
+                grid.append([rep, self._leaderboard_value(rep, layouts[rep])])
         return grid
 
 
