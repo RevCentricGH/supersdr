@@ -42,39 +42,122 @@ For every rep in your config:
    next run picks it up. A duplicate whose (date, prospect) row is already settled in the sheet
    is marked too - append-only means it can never be written, so re-fetching it every run would
    be waste.
-6. Rebuilds the summary tab from the live rep tabs: an ICP breakdown (counts per ICP category),
-   meeting trends (booked meetings bucketed by week), conversion rates (meeting rate and
-   conversation-to-meeting rate, per rep and overall), and a rep leaderboard ranked by rate.
-   The summary tab is cleared and rewritten each run, so it is always current and safe to re-run.
+6. Rebuilds the summary tab as LIVE spreadsheet formulas referencing the rep tabs: an ICP
+   breakdown, a rolling weekly meeting trend, conversion rates (per rep and overall), and a
+   rep leaderboard. Because the cells are formulas, the summary keeps itself current as rep
+   tabs change between runs; a rebuild only refreshes the shape (rep order, discovered ICP
+   categories). It never runs when every rep tab reads back empty while the summary has
+   content - that is almost always a failed read, not an empty tracker - and a scheduled
+   run that hits this guard exits nonzero so monitoring sees it. `--stats-only`, run by
+   hand, overrides the guard.
 
-## The summary tab
+## The summary tab: live formulas, your formatting
 
-After the pull, master-tracker rebuilds one summary tab (default name "Overall Statistics")
-straight from the rows in the live rep tabs. It owns that tab and rewrites it wholesale, so it
-never duplicates and never goes stale. Do not add manual columns or notes to the summary tab -
-the rebuild wipes them. Manual columns belong on the rep tabs. The summary holds:
+After the pull, master-tracker writes one summary tab (default name "Overall Statistics") as
+live spreadsheet formulas that reference the rep tabs. The cells are `COUNTIF`, `COUNTA` and
+`SUMPRODUCT` formulas, not numbers computed by the script, so the summary updates itself the
+moment a rep tab changes - between runs, with the script not even running.
 
-- **ICP breakdown** - counts the rows in each rep tab by the value in your ICP column, totaled
-  across all reps. Fill in the `ICP` column (a manual column) per row to categorize a prospect.
-- **Meeting trends** - rows whose disposition is in `stats.meeting_dispositions`, bucketed by
-  ISO week, so you can see booked meetings rising or falling week over week.
-- **Conversion rates** - per rep and overall, computed straight from the dispositions already in
-  the rep tabs:
-  - *Conversations* - rows with any disposition (a connected call).
-  - *Qualified conversations* - rows whose disposition is in `stats.qualified_dispositions`.
-  - *Meeting rate* - meetings divided by conversations.
-  - *Conversation-to-meeting conversion rate* - meetings divided by qualified conversations.
-  Rates show as percentages; a rep with no conversations reads `0.0%` rather than erroring. The
-  overall row is summed meetings over summed conversations, not the average of the per-rep rates,
-  so a low-volume rep cannot skew it. Leave `qualified_dispositions` unset and every conversation
-  counts as qualified, so the conversion rate equals the meeting rate.
-- **Rep leaderboard** - reps ranked by `stats.leaderboard_metric`: `rate` (conversion rate, so
-  efficiency beats volume; ties break on meeting count), `meetings` (meeting-disposition rows),
-  or `calls` (all tracked rows).
+**The script writes values only. Formatting is yours.** Run `python3 run.py --scaffold` once
+to bold and freeze the header rows and percent-format the summary's rate columns, then style
+anything - colors, borders, widths, conditional formats, chart tabs - however you like, by
+hand or with Claude Cowork or ChatGPT. No refresh ever touches formatting, so restyling can
+never be undone by the tracker and restyling can never break the tracker. Rates are written
+as plain numbers (0 to 1), so they stay chartable and sortable; the percent look comes from
+the one-time format, not from the values. What a rebuild does rewrite is the summary grid's cell values, so
+keep manual columns and notes off the summary tab; they belong on the rep tabs. Adding your
+own extra tabs with your own formulas or charts over the rep tabs is always safe.
 
-Tab names, the ICP column, the meeting dispositions, the metric, and every label are config
-(`stats` block), so nothing about the summary is hardcoded to one team. Rebuild it without
-re-pulling Apollo with `python3 run.py --stats-only`.
+A rebuild is only needed when the SHAPE changes: a rep added or renamed, a new ICP category
+to discover, changed dispositions or labels. Trigger it with `python3 run.py --stats-only`
+(no Apollo pull). It reads each rep tab's actual header row first and builds formulas from
+the columns' real positions, so an operator who moved or added columns still gets correct
+counts. A rep tab whose header exists but lost its Date or disposition column stops the
+rebuild rather than silently counting the wrong one; a rep with no tab yet (added to config
+before their first pull) just gets their tab created and shows zeros.
+
+The summary holds:
+
+- **ICP breakdown** - one `COUNTIF` row per category against your ICP column across all rep
+  tabs. Set `stats.icp_categories` for a fixed list (stable formulas); leave it unset and
+  categories are discovered from the live rows at each rebuild instead. The section is
+  padded to a fixed `stats.icp_rows` height (default 12); more categories than fit shows
+  an on-sheet "(+N more)" note rather than a silent cap.
+- **Meeting trends** - a rolling window of `stats.trend_weeks` weeks (default 10), oldest
+  first, counting `stats.meeting_dispositions` rows per week. Week boundaries come from
+  `TODAY()` in the sheet, so the window slides by itself.
+- **Conversion rates** - per rep and overall: conversations (any disposition), qualified
+  conversations (`stats.qualified_dispositions`; unset means every conversation counts),
+  meetings, meeting rate, and conversion rate. Rates guard the zero-denominator case, and the
+  overall row sums the per-rep cells rather than averaging rates, so a low-volume rep cannot
+  skew it.
+- **Rep leaderboard** - reps ordered by `stats.leaderboard_metric`: `rate`, `meetings`, or
+  `calls`. The ordering is frozen at rebuild time (a sheet cannot sort itself); the values
+  are live formulas. With the `rate` metric, the value sits in column E so the one-time
+  percent format covers it; count metrics sit next to the name in column B.
+
+**The grid's shape is fixed for a given config.** Sections sit at the same rows on every
+rebuild (the ICP section is padded to `stats.icp_rows`; the rest is sized by config), because
+Sheets strips a cell's number format whenever a text value lands in it - if sections shifted
+with the data, every rebuild would march labels through formula cells and eat formats one at
+a time. With a fixed shape, formatting set once survives indefinitely. If you change the
+shape in config (reps, `trend_weeks`, `icp_rows`), rerun `--scaffold` once afterward to
+re-apply the percent format.
+
+Tab names, the ICP column and categories, the trend window, the dispositions, the metric, and
+every label are config (`stats` block), so nothing about the summary is hardcoded to one team.
+
+## The data contract (the sheet is the interface)
+
+The rep tabs are a stable, documented surface, not private state. Each rep tab is:
+
+```
+Date | Prospect | Disposition | Phone | Duration (sec) | Call ID | Recording URL | <your manual columns>
+```
+
+One row per call, header in row 1, appended in date order, manual columns never written by
+the tool. Anything that can read or write a Google Sheet can work with the tracker through
+this contract - no Python runtime needed:
+
+- **Apollo's API or MCP** in an interactive Claude session can look up a call, a rep id, or a
+  disposition list, and land rows in the same shape.
+- **Trellus's API or MCP** can resolve recording links for rows whose call notes carry a
+  session id.
+- **Claude Cowork or ChatGPT** can read the rep tabs to build custom views, charts, or a
+  restyled summary on their own tabs.
+
+Four rules keep that safe. Never rewrite an existing row (the tracker's dedup and the
+operator's manual columns both depend on append-only). Never let an interactive session
+write the summary grid (the next rebuild rewrites it). Write disposition and ICP values
+exactly - no stray leading or trailing spaces - because the summary's formulas match labels
+whitespace-exactly (case does not matter). And when appending via the Sheets API, use
+`insertDataOption=OVERWRITE`, never `INSERT_ROWS`: inserting grid rows makes Sheets shift
+the summary's live `C2:C`-style references so they silently stop counting new rows. The scheduled Python pipeline stays
+the source of truth for bulk ingestion because it carries the hardening - dedup, backoff,
+mark-after-write, the anti-wipe guard - that an ad-hoc session does not.
+
+## Operating lessons (hard-won, inherited from production)
+
+Failure modes observed running trackers like this in production for months. Most are silent:
+the run reports success while importing nothing.
+
+- **An empty 200 is not an empty tracker.** Apollo can return HTTP 200 with zero results
+  when a key hits its daily quota - the read is lying, not empty. If a pull suddenly returns
+  nothing for every rep, suspect the key before trusting the result. A 401 means the key is
+  dead; a 429 means wait. The rolling `backfill_days` window recovers everything missed while
+  a key was down.
+- **Abort loudly; never destroy data on a suspicious read.** Appends are inherently safe;
+  anything that clears and rewrites must refuse when its input looks wrong. That is why the
+  summary rebuild skips when every rep tab reads back empty while the summary has content,
+  and refuses a rep tab whose header lost its Date or disposition column.
+- **Write values, never formatting.** The recurring path uses value updates only; formats,
+  colors, widths and dropdowns belong to the human. Format-touching calls live only in the
+  one-time `--scaffold` step.
+- **One tracker per Apollo key.** Two trackers sharing a key double-pull and burn the daily
+  quota. If you run several configs on one machine, stagger their cron minutes.
+- **Diagnose from the run output, not a wrapper's log tail.** When the tracker looks stale,
+  run `python3 run.py` by hand and read what it prints - and confirm the cron entry still
+  exists. Scheduled jobs have silently fallen out of crontabs and gone unnoticed for weeks.
 
 ## Setup
 
@@ -118,8 +201,10 @@ This is a one-time setup per operator. Everything runs on your own accounts.
      An unknown `type` fails fast at startup with a clear error; a source that cannot resolve a
      given call leaves that row's column blank without stopping the run.
    - `stats` - the summary tab. `summary_tab` is its tab name; `icp_column` is which manual
-     column holds the ICP category; `meeting_dispositions` are the dispositions counted as a
-     booked meeting; `qualified_dispositions` are the dispositions counted as a qualified
+     column holds the ICP category; `icp_categories` is an optional fixed category list (unset
+     means categories are discovered from the live rows at each rebuild); `trend_weeks` is the
+     rolling trend window (default 10); `meeting_dispositions` are the dispositions counted as
+     a booked meeting; `qualified_dispositions` are the dispositions counted as a qualified
      conversation (the denominator of the conversion rate; unset means every conversation
      counts); `leaderboard_metric` is `rate`, `meetings`, or `calls`; `labels` are every section
      and column header in the summary. Change any of these without touching code.
@@ -139,6 +224,7 @@ This is a one-time setup per operator. Everything runs on your own accounts.
 python3 run.py                      # uses ./config.json
 python3 run.py --config /path/to/config.json
 python3 run.py --stats-only         # rebuild the summary tab only, no Apollo pull
+python3 run.py --scaffold           # one-time: bold + freeze headers, then formatting is yours
 ```
 
 It prints how many new rows each rep tab got. Run it again any time, or wire it into cron for an
@@ -156,9 +242,10 @@ The logic lives in the `mastertracker` package and is unit-tested:
 - `recording_source.py` - `RecordingSource`: pluggable `resolve(call)` with `apollo`, `trellus`,
   and `manual-url` adapters selected by config; the single authority for the Recording URL column.
 - `pipeline.py` - wires the above and routes each rep's calls to its tab.
-- `stats_builder.py` - `StatsBuilder`: pure aggregation of the live rep tabs into the summary
-  tab (ICP breakdown, meeting trends, conversion rates, rate-ranked leaderboard); `rebuild_summary`
-  reads, clears, and writes.
+- `stats_builder.py` - `StatsBuilder`: pure assembly of the summary grid as live formulas
+  (ICP breakdown, rolling trends, conversion rates, leaderboard) from each rep tab's real
+  column positions; live-read rows only order the sections. `rebuild_summary` reads headers
+  and rows, applies the anti-wipe guard, clears values, and writes.
 
 The side-effecting wrappers are kept thin and validated by the manual end-to-end run:
 

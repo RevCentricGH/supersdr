@@ -13,6 +13,14 @@ the OAuth flow and hands in a built ``spreadsheets()`` service.
 """
 
 
+class Formula(str):
+    """Marks a grid cell that must be ENTERED as a formula (USER_ENTERED). Every other
+    cell is written RAW, which stores the exact string: labels can never execute, never
+    coerce into dates or numbers, and never clobber a cell's number format the way
+    USER_ENTERED text entry does. Formulas are distinguished by this type, not by
+    startswith('='), so a discovered label that happens to begin with '=' stays text."""
+
+
 class SheetWriter:
     def __init__(self, service, spreadsheet_id):
         self.service = service
@@ -51,11 +59,16 @@ class SheetWriter:
         return keys
 
     def append_row(self, tab, values_list):
+        # OVERWRITE, never INSERT_ROWS: inserting grid rows makes Sheets shift every
+        # existing formula reference that spans them, so the summary's live 'Rep'!C2:C
+        # ranges would silently become C5:C after three appends and count nothing.
+        # OVERWRITE fills empty rows below the table (growing the grid only at the very
+        # bottom, which shifts no references) and still never rewrites existing rows.
         self.service.values().append(
             spreadsheetId=self.spreadsheet_id,
             range=f"{tab}!A1",
             valueInputOption="USER_ENTERED",
-            insertDataOption="INSERT_ROWS",
+            insertDataOption="OVERWRITE",
             body={"values": [values_list]},
         ).execute()
 
@@ -71,6 +84,86 @@ class SheetWriter:
             out.append({col: (row[i] if i < len(row) else "") for i, col in enumerate(header)})
         return out
 
+    def header_row(self, tab):
+        """The tab's live header row (empty list for a missing or blank tab). StatsBuilder
+        derives each rep tab's column letters from this, so formulas stay correct for an
+        operator who moved or added columns. Checked via metadata first: a values read on
+        a nonexistent tab raises instead of returning empty, and the missing-tab case must
+        reach the caller's create-with-default-header fallback, not crash."""
+        if self._sheet_id(tab) is None:
+            return []
+        first_row = self._get_values(f"{tab}!1:1")
+        return first_row[0] if first_row else []
+
+    def has_content(self, tab):
+        """True when the tab exists and holds any value at all. The summary rebuild's
+        anti-wipe guard: never clear a populated summary on an all-empty rep read. A tab
+        that does not exist yet has no content - checked via metadata first, because a
+        values read on a nonexistent tab raises instead of returning empty."""
+        if self._sheet_id(tab) is None:
+            return False
+        return bool(self._get_values(f"{tab}!A1:ZZ"))
+
+    def style_header_once(self, tab):
+        """One-time scaffold styling: bold and freeze the header row, creating the tab
+        first if needed so a scaffold on a fresh spreadsheet styles real tabs instead of
+        silently doing nothing. Never called on the recurring path - formatting is the
+        operator's after this."""
+        self._add_tab_if_missing(tab)
+        sheet_id = self._sheet_id(tab)
+        if sheet_id is None:
+            # Tab vanished between the two metadata reads. A null sheetId would silently
+            # format the spreadsheet's FIRST sheet; failing loudly is the only safe move.
+            raise RuntimeError(f"tab {tab!r} disappeared while styling it; rerun --scaffold")
+        self.service.batchUpdate(
+            spreadsheetId=self.spreadsheet_id,
+            body={"requests": [
+                {"repeatCell": {
+                    "range": {"sheetId": sheet_id, "startRowIndex": 0, "endRowIndex": 1},
+                    "cell": {"userEnteredFormat": {"textFormat": {"bold": True}}},
+                    "fields": "userEnteredFormat.textFormat.bold",
+                }},
+                {"updateSheetProperties": {
+                    "properties": {"sheetId": sheet_id, "gridProperties": {"frozenRowCount": 1}},
+                    "fields": "gridProperties.frozenRowCount",
+                }},
+            ]},
+        ).execute()
+
+    def percent_format_columns_once(self, tab, first_col_index, last_col_index):
+        """One-time scaffold styling: a percent number format on whole columns (0-indexed,
+        end exclusive). The rebuild writes rates as plain numbers; this makes them display
+        as percentages without the recurring path ever touching formatting."""
+        self._add_tab_if_missing(tab)
+        sheet_id = self._sheet_id(tab)
+        if sheet_id is None:
+            raise RuntimeError(f"tab {tab!r} disappeared while styling it; rerun --scaffold")
+        self.service.batchUpdate(
+            spreadsheetId=self.spreadsheet_id,
+            body={"requests": [
+                {"repeatCell": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "startColumnIndex": first_col_index,
+                        "endColumnIndex": last_col_index,
+                    },
+                    "cell": {"userEnteredFormat": {
+                        "numberFormat": {"type": "PERCENT", "pattern": "0.0%"},
+                    }},
+                    "fields": "userEnteredFormat.numberFormat",
+                }},
+            ]},
+        ).execute()
+
+    def _sheet_id(self, tab):
+        # Case-insensitive to match how Sheets treats tab names in A1 ranges, so a
+        # config name differing only in case still finds the real tab.
+        meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
+        for s in meta.get("sheets", []):
+            if s["properties"]["title"].casefold() == tab.casefold():
+                return s["properties"]["sheetId"]
+        return None
+
     def clear_tab(self, tab):
         """Clear every value in a tab. Called before writing the summary so stale rows from
         a previous, larger run never linger below the new content."""
@@ -82,14 +175,23 @@ class SheetWriter:
         ).execute()
 
     def write_grid(self, tab, values_2d):
-        """Write a 2D block starting at A1 (the summary tab is rebuilt wholesale each run)."""
+        """Write a 2D block starting at A1, in two passes over disjoint cells: plain
+        cells RAW (exact text, no coercion, no execution, number formats untouched) and
+        ``Formula`` cells USER_ENTERED (entered as live formulas). A None cell in an
+        update is skipped, which is what keeps the two passes disjoint. Values only,
+        never formatting, so the operator's styling survives every rebuild."""
         self._add_tab_if_missing(tab)
-        self.service.values().update(
-            spreadsheetId=self.spreadsheet_id,
-            range=f"{tab}!A1",
-            valueInputOption="RAW",
-            body={"values": values_2d},
-        ).execute()
+        raw = [[None if isinstance(c, Formula) else c for c in row] for row in values_2d]
+        formulas = [[str(c) if isinstance(c, Formula) else None for c in row] for row in values_2d]
+        for grid, mode in ((raw, "RAW"), (formulas, "USER_ENTERED")):
+            if not any(c is not None for row in grid for c in row):
+                continue
+            self.service.values().update(
+                spreadsheetId=self.spreadsheet_id,
+                range=f"{tab}!A1",
+                valueInputOption=mode,
+                body={"values": grid},
+            ).execute()
 
     def _get_values(self, rng):
         resp = (
@@ -100,9 +202,11 @@ class SheetWriter:
         return resp.get("values", [])
 
     def _add_tab_if_missing(self, tab):
+        # Sheets tab names are unique case-insensitively, so the existence check must be
+        # too: an exact-case check misses 'REP A' vs 'Rep A' and the addSheet then 400s.
         meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
-        titles = {s["properties"]["title"] for s in meta.get("sheets", [])}
-        if tab in titles:
+        titles = {s["properties"]["title"].casefold() for s in meta.get("sheets", [])}
+        if tab.casefold() in titles:
             return
         self.service.batchUpdate(
             spreadsheetId=self.spreadsheet_id,
