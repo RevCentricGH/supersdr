@@ -57,11 +57,28 @@ def main(argv=None):
         action="store_true",
         help="skip the Apollo pull; just rebuild the summary tab from the live rep tabs",
     )
+    parser.add_argument(
+        "--scaffold",
+        action="store_true",
+        help="one-time setup: bold and freeze the header row on every rep tab and the "
+        "summary tab, then exit. Formatting is yours after this - no recurring run "
+        "ever touches it",
+    )
     args = parser.parse_args(argv)
 
     config = load_config(args.config)
     service = _build_sheets_service(config.get("google_oauth", {}))
     sheet = SheetWriter(service, config["google_sheet_id"])
+
+    if args.scaffold:
+        tabs = list(config["reps"]) + [
+            t for t in [(config.get("stats") or {}).get("summary_tab")] if t
+        ]
+        for tab in tabs:
+            sheet.style_header_once(tab)
+            print(f"  styled: {tab}")
+        print("Scaffold done. Restyle anything freely; runs only ever rewrite values.")
+        return
 
     if not args.stats_only:
         backfill_start = compute_backfill_start(config)
@@ -74,8 +91,18 @@ def main(argv=None):
         print(f"Done. {total} new row(s) across {len(results)} rep tab(s).")
 
     if config.get("stats"):
-        rebuild_summary(config, sheet=sheet)
-        print(f"Summary tab '{config['stats']['summary_tab']}' rebuilt from the live rep tabs.")
+        grid = rebuild_summary(config, sheet=sheet)
+        if grid is None:
+            print(
+                "Summary rebuild SKIPPED: every rep tab read back empty but the summary "
+                "has content. That is usually a failed or quota-capped read, not an empty "
+                "tracker; the existing summary was left untouched.",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                f"Summary tab '{config['stats']['summary_tab']}' rebuilt as live formulas."
+            )
     elif args.stats_only:
         print(
             "--stats-only was passed but config has no 'stats' block; nothing to rebuild.",

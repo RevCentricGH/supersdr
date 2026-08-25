@@ -38,6 +38,20 @@ class FakeSheet:
         """Return a rep tab's data rows as header-keyed dicts (empty for a missing tab)."""
         return [dict(r) for r in self.tabs.get(tab, {}).get("rows", [])]
 
+    def header_row(self, tab):
+        """The tab's header row (empty list for a missing tab)."""
+        return list(self.tabs.get(tab, {}).get("header", []))
+
+    def has_content(self, tab):
+        """True when the tab holds any value: seeded/appended rows, a header, or a grid."""
+        t = self.tabs.get(tab, {})
+        return bool(t.get("rows") or t.get("header") or self.grids.get(tab))
+
+    def style_header_once(self, tab):
+        """Record scaffold styling calls; formatting itself is not modeled."""
+        self.styled = getattr(self, "styled", [])
+        self.styled.append(tab)
+
     def clear_tab(self, tab):
         self.cleared.append(tab)
         self.grids[tab] = []

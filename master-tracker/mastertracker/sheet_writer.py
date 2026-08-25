@@ -71,6 +71,44 @@ class SheetWriter:
             out.append({col: (row[i] if i < len(row) else "") for i, col in enumerate(header)})
         return out
 
+    def header_row(self, tab):
+        """The tab's live header row (empty list for a missing or blank tab). StatsBuilder
+        derives each rep tab's column letters from this, so formulas stay correct for an
+        operator who moved or added columns."""
+        first_row = self._get_values(f"{tab}!1:1")
+        return first_row[0] if first_row else []
+
+    def has_content(self, tab):
+        """True when the tab holds any value at all. The summary rebuild's anti-wipe
+        guard: never clear a populated summary on an all-empty rep read."""
+        return bool(self._get_values(f"{tab}!A1:ZZ"))
+
+    def style_header_once(self, tab):
+        """One-time scaffold styling: bold and freeze the header row. Never called on the
+        recurring path - formatting is the operator's after this."""
+        meta = self.service.get(spreadsheetId=self.spreadsheet_id).execute()
+        sheet_id = None
+        for s in meta.get("sheets", []):
+            if s["properties"]["title"] == tab:
+                sheet_id = s["properties"]["sheetId"]
+                break
+        if sheet_id is None:
+            return
+        self.service.batchUpdate(
+            spreadsheetId=self.spreadsheet_id,
+            body={"requests": [
+                {"repeatCell": {
+                    "range": {"sheetId": sheet_id, "startRowIndex": 0, "endRowIndex": 1},
+                    "cell": {"userEnteredFormat": {"textFormat": {"bold": True}}},
+                    "fields": "userEnteredFormat.textFormat.bold",
+                }},
+                {"updateSheetProperties": {
+                    "properties": {"sheetId": sheet_id, "gridProperties": {"frozenRowCount": 1}},
+                    "fields": "gridProperties.frozenRowCount",
+                }},
+            ]},
+        ).execute()
+
     def clear_tab(self, tab):
         """Clear every value in a tab. Called before writing the summary so stale rows from
         a previous, larger run never linger below the new content."""
@@ -82,12 +120,14 @@ class SheetWriter:
         ).execute()
 
     def write_grid(self, tab, values_2d):
-        """Write a 2D block starting at A1 (the summary tab is rebuilt wholesale each run)."""
+        """Write a 2D block starting at A1. USER_ENTERED so the summary's live formulas
+        are entered as formulas; values.update touches cell values only, never
+        formatting, so the operator's styling survives every rebuild."""
         self._add_tab_if_missing(tab)
         self.service.values().update(
             spreadsheetId=self.spreadsheet_id,
             range=f"{tab}!A1",
-            valueInputOption="RAW",
+            valueInputOption="USER_ENTERED",
             body={"values": values_2d},
         ).execute()
 
